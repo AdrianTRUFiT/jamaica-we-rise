@@ -108,7 +108,7 @@ app.post("/create-checkout-session", async (req, res) => {
       ],
       mode: "payment",
       customer_email: email, // ✅ prefill Stripe checkout
-      success_url: `${FRONTEND_URL}/iascendai-register.html?soulmark=${soulmark}&email=${encodeURIComponent(email)}`,
+      success_url: `${FRONTEND_URL}/impact.html?soulmark=${soulmark}&email=${encodeURIComponent(email)}`,
       cancel_url: `${FRONTEND_URL}/donate.html`,
       metadata: { name, email, soulmark },
     });
@@ -191,6 +191,25 @@ app.post("/register", (req, res) => {
 app.get("/registry", (req, res) => {
   const data = JSON.parse(fs.readFileSync(registryPath, "utf8"));
   res.json(data);
+});
+// --------------------------------------------------
+// 🧠 DASHBOARD FETCH ROUTE
+// --------------------------------------------------
+app.get("/user/:username", (req, res) => {
+  const { username } = req.params;
+  const data = JSON.parse(fs.readFileSync(registryPath, "utf8"));
+  const user = data.find(u => (u.username || "").toLowerCase() === username.toLowerCase());
+
+  if (!user) return res.status(404).json({ error: "User not found" });
+
+  res.json({
+    name: user.name,
+    email: user.email,
+    soulmark: user.soulmark,
+    role: user.role,
+    createdAt: user.createdAt,
+    status: "Verified"
+  });
 });
 
 // --------------------------------------------------
