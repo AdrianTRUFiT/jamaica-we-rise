@@ -93,6 +93,7 @@ app.post("/create-checkout-session", async (req, res) => {
         .substring(0, 32)
         .toUpperCase();
 
+    // ✅ Stripe session with email prefill and redirect email passing
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       line_items: [
@@ -106,13 +107,23 @@ app.post("/create-checkout-session", async (req, res) => {
         },
       ],
       mode: "payment",
-      success_url: `${FRONTEND_URL}/impact.html?soulmark=${soulmark}`,
+      customer_email: email, // ✅ prefill Stripe checkout
+      success_url: `${FRONTEND_URL}/iascendai-register.html?soulmark=${soulmark}&email=${encodeURIComponent(email)}`,
       cancel_url: `${FRONTEND_URL}/donate.html`,
       metadata: { name, email, soulmark },
     });
 
+    // Log + Save to registry
     const data = JSON.parse(fs.readFileSync(registryPath, "utf8"));
-    data.push({ name, email, amount, soulmark, verified: true, status: "pending" });
+    data.push({
+      name,
+      email,
+      amount,
+      soulmark,
+      verified: true,
+      status: "pending",
+      createdAt: new Date().toISOString(),
+    });
     fs.writeFileSync(registryPath, JSON.stringify(data, null, 2));
 
     res.json({ url: session.url });
@@ -128,15 +139,18 @@ app.post("/create-checkout-session", async (req, res) => {
 app.get("/check-username/:username", (req, res) => {
   const { username } = req.params;
   const data = JSON.parse(fs.readFileSync(registryPath, "utf8"));
-  const exists = data.some((u) => (u.username || "").toLowerCase() === username.toLowerCase());
+  const exists = data.some(
+    (u) => (u.username || "").toLowerCase() === username.toLowerCase()
+  );
   res.json({ available: !exists });
 });
 
-// ✅ Added alias for compatibility with legacy route
 app.get("/check_name/:username", (req, res) => {
   const { username } = req.params;
   const data = JSON.parse(fs.readFileSync(registryPath, "utf8"));
-  const exists = data.some((u) => (u.username || "").toLowerCase() === username.toLowerCase());
+  const exists = data.some(
+    (u) => (u.username || "").toLowerCase() === username.toLowerCase()
+  );
   res.json({ available: !exists });
 });
 
@@ -147,7 +161,9 @@ app.post("/register", (req, res) => {
       return res.status(400).json({ error: "Missing registration fields." });
 
     const data = JSON.parse(fs.readFileSync(registryPath, "utf8"));
-    const exists = data.some((u) => (u.username || "").toLowerCase() === username.toLowerCase());
+    const exists = data.some(
+      (u) => (u.username || "").toLowerCase() === username.toLowerCase()
+    );
     if (exists) return res.status(409).json({ error: "Username taken." });
 
     const entry = {
