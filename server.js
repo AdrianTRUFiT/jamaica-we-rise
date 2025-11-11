@@ -1,319 +1,110 @@
-require("dotenv").config();
-const express = require("express");
-const cors = require("cors");
-const fs = require("fs");
-const path = require("path");
-const Stripe = require("stripe");
-const morgan = require("morgan");
-const crypto = require("crypto");
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>iAscendAi Dashboard</title>
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      background: #f9fafb;
+      text-align: center;
+      padding: 40px;
+    }
+    #loading {
+      display: none;
+      color: #555;
+      font-size: 1.1rem;
+      margin-bottom: 20px;
+    }
+    #user-data {
+      display: none;
+      background: #fff;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 2px 10px rgba(0,0,0,.1);
+      max-width: 500px;
+      margin: 0 auto;
+    }
+  </style>
+</head>
+<body>
+  <h1>Welcome to Your Dashboard</h1>
+  <div id="loading">⏳ Loading your verified record...</div>
+  <div id="user-data">
+    <h2 id="user-name"></h2>
+    <p><strong>Email:</strong> <span id="user-email"></span></p>
+    <p><strong>SoulMark:</strong> <span id="user-soulmark"></span></p>
+    <p><strong>Registered:</strong> <span id="user-date"></span></p>
+  </div>
 
-const app = express();
-app.use(express.json());
-app.use(cors());
-app.use(morgan("dev"));
+  <script>
+    const API_BASE = "https://jamaica-we-rise.onrender.com";
+    const params = new URLSearchParams(window.location.search);
+    const username = params.get("username");
 
-// --------------------------------------------------
-// 🌍 CONFIGURATION
-// --------------------------------------------------
-const mode = (process.env.MODE || "test").toLowerCase();
-const stripeSecretKey =
-  mode === "live"
-    ? process.env.STRIPE_LIVE_SECRET_KEY
-    : process.env.STRIPE_TEST_SECRET_KEY;
+    const loadingEl = document.getElementById("loading");
+    const userEl = document.getElementById("user-data");
 
-if (!stripeSecretKey) {
-  console.error("❌ Stripe secret key missing for mode:", mode);
-  process.exit(1);
-}
-
-const stripe = new Stripe(stripeSecretKey);
-const FRONTEND_URL =
-  process.env.FRONTEND_URL || "https://jamaica-we-rise.vercel.app";
-
-// --------------------------------------------------
-// 🗂️ DIRECTORY SETUP
-// --------------------------------------------------
-const dataDir = path.join(__dirname, "data");
-const logsDir = path.join(__dirname, "logs");
-if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir);
-if (!fs.existsSync(logsDir)) fs.mkdirSync(logsDir);
-
-const registryPath = path.join(dataDir, "registry.json");
-if (!fs.existsSync(registryPath)) fs.writeFileSync(registryPath, "[]");
-
-// --------------------------------------------------
-// 🧾 LOGGING
-// --------------------------------------------------
-function logEvent(msg) {
-  const logLine = `[${new Date().toISOString()}] ${msg}`;
-  console.log(logLine);
-  fs.appendFileSync(path.join(logsDir, "events.log"), logLine + "\n");
-}
-
-// --------------------------------------------------
-// 💠 SOULMARKⓈ VERIFICATION
-// --------------------------------------------------
-app.post("/verify-soulmark", (req, res) => {
-  try {
-    const { email } = req.body;
-    if (!email) return res.status(400).json({ error: "Email required." });
-
-    const soulmark =
-      "0x" +
-      crypto
-        .createHash("sha256")
-        .update(email)
-        .digest("hex")
-        .substring(0, 32)
-        .toUpperCase();
-
-    logEvent(`SoulMarkⓈ generated for ${email}: ${soulmark}`);
-    res.json({ verified: true, soulmark });
-  } catch (err) {
-    console.error("❌ SoulMark verification error:", err);
-    res.status(500).json({ error: "SoulMarkⓈ verification failed." });
-  }
-});
-
-// --------------------------------------------------
-// 💳 STRIPE DONATION ENDPOINT
-// --------------------------------------------------
-app.post("/create-checkout-session", async (req, res) => {
-  try {
-    const { name, email, amount } = req.body;
-    if (!name || !email || !amount)
-      return res.status(400).json({ error: "Missing fields." });
-
-    const soulmark =
-      "0x" +
-      crypto
-        .createHash("sha256")
-        .update(email)
-        .digest("hex")
-        .substring(0, 32)
-        .toUpperCase();
-
-    const session = await stripe.checkout.sessions.create({
-      payment_method_types: ["card"],
-      line_items: [
-        {
-          price_data: {
-            currency: "usd",
-            product_data: { name: "Jamaica We Rise Donation" },
-            unit_amount: amount * 100,
-          },
-          quantity: 1,
-        },
-      ],
-      mode: "payment",
-      customer_email: email,
-      success_url: `${FRONTEND_URL}/impact.html?session_id={{CHECKOUT_SESSION_ID}}&email=${encodeURIComponent(
-        email
-      )}&soulmark=${soulmark}`,
-      cancel_url: `${FRONTEND_URL}/donate.html`,
-      metadata: { name, email, soulmark },
-    });
-
-    const data = JSON.parse(fs.readFileSync(registryPath, "utf8"));
-    data.push({
-      name,
-      email,
-      amount,
-      soulmark,
-      verified: false,
-      status: "pending",
-      createdAt: new Date().toISOString(),
-    });
-    fs.writeFileSync(registryPath, JSON.stringify(data, null, 2));
-
-    res.json({ url: session.url });
-  } catch (err) {
-    console.error("❌ Stripe session failed:", err);
-    res.status(500).json({ error: "Stripe session failed." });
-  }
-});
-
-// --------------------------------------------------
-// ✅ VERIFY DONATION (CALLED BY impact.html)
-// --------------------------------------------------
-app.get("/verify-donation/:sessionId", async (req, res) => {
-  try {
-    const { sessionId } = req.params;
-    if (!sessionId) return res.status(400).json({ error: "Missing session ID." });
-
-    const session = await stripe.checkout.sessions.retrieve(sessionId);
-    if (!session || session.payment_status !== "paid") {
-      return res.status(400).json({ error: "Payment not completed." });
+    // 🔁 Robust fetch with automatic retry for Render cold starts
+    async function fetchWithRetry(url, options = {}, retries = 3, delay = 1500) {
+      for (let attempt = 1; attempt <= retries; attempt++) {
+        try {
+          const res = await fetch(url, options);
+          if (!res.ok) throw new Error(`Response not OK (${res.status})`);
+          return await res.json();
+        } catch (err) {
+          console.warn(`Attempt ${attempt} failed: ${err.message}`);
+          if (attempt < retries) {
+            await new Promise(r => setTimeout(r, delay));
+          } else {
+            throw err;
+          }
+        }
+      }
     }
 
-    const soulMark =
-      "0x" +
-      crypto
-        .createHash("sha256")
-        .update(sessionId)
-        .digest("hex")
-        .substring(0, 32)
-        .toUpperCase();
+    async function loadDashboard() {
+      // 🚨 Missing username in URL
+      if (!username) {
+        loadingEl.style.display = "block";
+        loadingEl.style.color = "red";
+        loadingEl.textContent = "❌ Missing username in URL.";
+        return;
+      }
 
-    const email =
-      session.customer_email ||
-      (session.customer_details && session.customer_details.email);
-    const amount = (session.amount_total || 0) / 100;
+      // 🔐 Validate username (alphanumeric, dash, underscore)
+      if (!/^[a-zA-Z0-9_-]+$/.test(username)) {
+        loadingEl.style.display = "block";
+        loadingEl.style.color = "red";
+        loadingEl.textContent = "❌ Invalid username format.";
+        console.error("Invalid username format:", username);
+        return;
+      }
 
-    const data = JSON.parse(fs.readFileSync(registryPath, "utf8"));
-    const existing = data.find((u) => u.email === email);
+      loadingEl.style.display = "block";
+      loadingEl.style.color = "#555";
+      loadingEl.textContent = "⏳ Loading your verified record...";
 
-    if (existing) {
-      existing.verified = true;
-      existing.status = "verified";
-      existing.soulmark = soulMark;
-      existing.amount = amount;
-      existing.verifiedAt = new Date().toISOString();
-    } else {
-      data.push({
-        name: session.metadata?.name || "Anonymous",
-        email,
-        amount,
-        soulmark: soulMark,
-        verified: true,
-        status: "verified",
-        createdAt: new Date().toISOString(),
-      });
+      try {
+        const data = await fetchWithRetry(`${API_BASE}/user/${username}`);
+        loadingEl.style.display = "none";
+        userEl.style.display = "block";
+        document.getElementById("user-name").textContent = data.name || username;
+        document.getElementById("user-email").textContent = data.email || "N/A";
+        document.getElementById("user-soulmark").textContent = data.soulMark || "N/A";
+        document.getElementById("user-date").textContent =
+          data.createdAt ? new Date(data.createdAt).toLocaleString() : "N/A";
+      } catch (err) {
+        console.error("Dashboard load failed:", err);
+        loadingEl.style.display = "block";
+        loadingEl.style.color = "red";
+        loadingEl.textContent =
+          "⚠️ Unable to load dashboard. Please refresh in a few moments.";
+      }
     }
-    fs.writeFileSync(registryPath, JSON.stringify(data, null, 2));
 
-    logEvent(`✅ Verified donation for ${email} → ${soulMark}`);
-
-    res.json({
-      verified: true,
-      name: session.metadata?.name || "Anonymous",
-      email,
-      amount,
-      soulMark,
-    });
-  } catch (err) {
-    console.error("❌ Donation verification failed:", err);
-    res.status(500).json({ error: "Verification failed." });
-  }
-});
-
-// --------------------------------------------------
-// 🧩 REGISTRATION + USERNAME CHECK ENDPOINTS
-// --------------------------------------------------
-app.get("/check-username/:username", (req, res) => {
-  const { username } = req.params;
-  const data = JSON.parse(fs.readFileSync(registryPath, "utf8"));
-  const exists = data.some(
-    (u) => (u.username || "").toLowerCase() === username.toLowerCase()
-  );
-  res.json({ available: !exists });
-});
-
-app.get("/check_name/:username", (req, res) => {
-  const { username } = req.params;
-  const data = JSON.parse(fs.readFileSync(registryPath, "utf8"));
-  const exists = data.some(
-    (u) => (u.username || "").toLowerCase() === username.toLowerCase()
-  );
-  res.json({ available: !exists });
-});
-
-app.post("/register", (req, res) => {
-  try {
-    const { name, email, username, role, soulmark } = req.body;
-    if (!name || !email || !username || !role || !soulmark)
-      return res.status(400).json({ error: "Missing registration fields." });
-
-    const data = JSON.parse(fs.readFileSync(registryPath, "utf8"));
-    const exists = data.some(
-      (u) => (u.username || "").toLowerCase() === username.toLowerCase()
-    );
-    if (exists) return res.status(409).json({ error: "Username taken." });
-
-    const entry = {
-      name,
-      email,
-      username,
-      role,
-      soulmark,
-      createdAt: new Date().toISOString(),
-    };
-    data.push(entry);
-    fs.writeFileSync(registryPath, JSON.stringify(data, null, 2));
-
-    logEvent(`✅ Registered: ${username} (${role})`);
-    res.json({ success: true });
-  } catch (err) {
-    console.error("❌ Registration failed:", err);
-    res.status(500).json({ error: "Registration failed." });
-  }
-});
-
-// --------------------------------------------------
-// 📜 VIEW REGISTRY
-// --------------------------------------------------
-app.get("/registry", (req, res) => {
-  const data = JSON.parse(fs.readFileSync(registryPath, "utf8"));
-  res.json(data);
-});
-
-// --------------------------------------------------
-// 🧠 DASHBOARD FETCH ROUTE
-// --------------------------------------------------
-app.get("/user/:username", (req, res) => {
-  try {
-    const { username } = req.params;
-    const data = JSON.parse(fs.readFileSync(registryPath, "utf8"));
-    const user = data.find(
-      (u) => (u.username || "").toLowerCase() === username.toLowerCase()
-    );
-
-    if (!user) return res.status(404).json({ error: "User not found" });
-
-    res.json({
-      name: user.name,
-      username: user.username,
-      email: user.email,
-      role: user.role,
-      soulMark: user.soulmark,
-      createdAt: user.createdAt,
-      status: "Verified",
-      location: user.location || null,
-      statusMsg: user.status || null,
-      assistance: user.assistance || null,
-    });
-  } catch (err) {
-    console.error("❌ Dashboard fetch failed:", err);
-    res.status(500).json({ error: "Failed to load user data" });
-  }
-});
-
-// --------------------------------------------------
-// 🩺 HEALTH CHECK
-// --------------------------------------------------
-app.get("/health", (req, res) => {
-  res.json({
-    status: "ok",
-    mode,
-    message: "Backend is healthy!",
-    timestamp: new Date().toISOString(),
-  });
-});
-
-// --------------------------------------------------
-// 🌐 SERVE FRONTEND (STATIC FILES)
-// --------------------------------------------------
-const __dirnameResolved = path.resolve();
-app.use(express.static(path.join(__dirnameResolved, "public")));
-
-app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirnameResolved, "public", "donate.html"));
-});
-
-// --------------------------------------------------
-// 🚀 SERVER START
-// --------------------------------------------------
-const PORT = process.env.PORT || 10000;
-app.listen(PORT, () => {
-  console.log(`🌍 Server running in ${mode.toUpperCase()} mode on port ${PORT}`);
-});
+    loadDashboard();
+  </script>
+</body>
+</html>
