@@ -196,21 +196,33 @@ app.get("/registry", (req, res) => {
 // 🧠 DASHBOARD FETCH ROUTE
 // --------------------------------------------------
 app.get("/user/:username", (req, res) => {
-  const { username } = req.params;
-  const data = JSON.parse(fs.readFileSync(registryPath, "utf8"));
-  const user = data.find(u => (u.username || "").toLowerCase() === username.toLowerCase());
+  try {
+    const { username } = req.params;
+    const data = JSON.parse(fs.readFileSync(registryPath, "utf8"));
+    const user = data.find(
+      (u) => (u.username || "").toLowerCase() === username.toLowerCase()
+    );
 
-  if (!user) return res.status(404).json({ error: "User not found" });
+    if (!user) return res.status(404).json({ error: "User not found" });
 
-  res.json({
-    name: user.name,
-    email: user.email,
-    soulmark: user.soulmark,
-    role: user.role,
-    createdAt: user.createdAt,
-    status: "Verified"
-  });
+    res.json({
+      name: user.name,
+      username: user.username,
+      email: user.email,
+      role: user.role,
+      soulMark: user.soulmark,
+      createdAt: user.createdAt,
+      status: "Verified",
+      location: user.location || null,
+      statusMsg: user.status || null,
+      assistance: user.assistance || null,
+    });
+  } catch (err) {
+    console.error("❌ Dashboard fetch failed:", err);
+    res.status(500).json({ error: "Failed to load user data" });
+  }
 });
+
 
 // --------------------------------------------------
 // 🩺 HEALTH CHECK
