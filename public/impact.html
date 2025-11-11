@@ -3,6 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
   <title>Donation Verified | Jamaica We Rise</title>
   <style>
     body {
@@ -30,45 +33,63 @@
     const params = new URLSearchParams(window.location.search);
     const sessionId = params.get("session_id");
 
+    async function fetchWithRetry(url, retries = 3, delay = 1500) {
+      for (let attempt = 1; attempt <= retries; attempt++) {
+        try {
+          const res = await fetch(url, { cache: "no-store" });
+          if (!res.ok) throw new Error(`Response not OK (${res.status})`);
+          return await res.json();
+        } catch (err) {
+          console.warn(`Attempt ${attempt} failed: ${err.message}`);
+          if (attempt < retries) {
+            await new Promise(r => setTimeout(r, delay));
+          } else {
+            throw err;
+          }
+        }
+      }
+    }
+
     async function verifyDonation() {
       const statusEl = document.getElementById("status");
 
-      if (!sessionId) {
-        statusEl.textContent = "❌ Missing session ID.";
+      if (!sessionId || sessionId === 'null' || sessionId === 'undefined') {
+        statusEl.innerHTML = "❌ Missing session ID.<br><br>Please return to the donation page.";
         statusEl.style.color = "red";
         return;
       }
 
       try {
-        const res = await fetch(`${API_BASE}/verify-donation/${sessionId}`, {
-          cache: "no-store",
-        });
-        const data = await res.json();
+        const data = await fetchWithRetry(`${API_BASE}/verify-donation/${sessionId}`);
 
-        if (!res.ok) throw new Error(data.error || "Verification failed.");
+        // 🧠 Handle backend error payloads
+        if (data.error) {
+          throw new Error(data.error);
+        }
 
         // ✅ Display summary for transparency
         statusEl.innerHTML = `
-          <strong>Donation Verified!</strong><br><br>
-          Name: ${data.name}<br>
-          Email: ${data.email}<br>
-          Amount: $${data.amount}<br>
-          SoulMark: ${data.soulMark}<br><br>
-          Redirecting to registration...
+          <strong>✅ Donation Verified!</strong><br><br>
+          Name: ${data.name || "Anonymous"}<br>
+          Email: ${data.email || "N/A"}<br>
+          Amount: $${data.amount || "0"}<br>
+          SoulMark: ${data.soulMark || "N/A"}<br><br>
+          <em>Redirecting to registration in 3 seconds...</em>
         `;
 
-        // ✅ Redirect to registration page after 3 seconds
+        // ✅ Redirect to registration page with prefilled data
         const query = new URLSearchParams({
-          email: data.email,
-          soulmark: data.soulMark,
-          name: data.name,
+          email: data.email || "",
+          soulmark: data.soulMark || "",
+          name: data.name || "",
         });
         setTimeout(() => {
           window.location.href = `/iascendai-register.html?${query.toString()}`;
         }, 3000);
       } catch (err) {
         console.error("Verification failed:", err);
-        statusEl.textContent = "⚠️ Could not verify donation. Please refresh in a few seconds.";
+        statusEl.innerHTML =
+          "⚠️ Could not verify donation.<br><br>Please refresh in a few seconds.";
         statusEl.style.color = "red";
       }
     }
