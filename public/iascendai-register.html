@@ -3,398 +3,99 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Create Your Identity | iAscendAi</title>
+  <title>Register | iAscendAi</title>
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    :root {
-      --iascend-orange: #f4a349;
-      --iascend-blue: #b8edee;
-      --text-dark: #1f2937;
-      --text-light: #6b7280;
-      --bg-gray: #f9fafb;
-    }
-
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: linear-gradient(135deg, var(--iascend-orange) 0%, #e58f39 50%, var(--iascend-blue) 100%);
-      min-height: 100vh;
-      padding: 20px;
-    }
-
-    .container {
-      max-width: 600px;
-      margin: 0 auto;
-    }
-
-    .header {
+      font-family: system-ui, sans-serif;
+      background: #f9fafb;
       text-align: center;
-      color: white;
-      margin-bottom: 30px;
-      animation: fadeInDown 0.6s ease-out;
-    }
-
-    .logo {
-      font-size: 1.8em;
-      font-weight: 800;
-      margin-bottom: 10px;
-    }
-
-    .tagline {
-      font-size: 1.1em;
-      opacity: 0.95;
-    }
-
-    .registration-card {
-      background: white;
-      border-radius: 16px;
       padding: 40px;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-      animation: fadeInUp 0.6s ease-out 0.2s both;
     }
-
-    .card-title {
-      font-size: 1.8em;
-      font-weight: 700;
-      color: var(--text-dark);
-      margin-bottom: 10px;
+    form {
+      background: #fff;
+      display: inline-block;
+      padding: 25px;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.1);
+      max-width: 480px;
     }
-
-    .card-subtitle {
-      color: var(--text-light);
-      margin-bottom: 30px;
-      line-height: 1.6;
-    }
-
-    .role-selection {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 15px;
-      margin-bottom: 30px;
-    }
-
-    .role-option {
-      padding: 20px;
-      border: 2px solid #e5e7eb;
-      border-radius: 12px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      text-align: center;
-    }
-
-    .role-option:hover {
-      border-color: var(--iascend-orange);
-      background: rgba(244, 163, 73, 0.05);
-    }
-
-    .role-option.selected {
-      border-color: var(--iascend-orange);
-      background: linear-gradient(135deg, rgba(244, 163, 73, 0.1), rgba(184, 237, 238, 0.1));
-    }
-
-    .role-icon {
-      font-size: 2em;
-      margin-bottom: 10px;
-    }
-
-    .form-group {
-      margin-bottom: 20px;
-    }
-
-    label {
+    input, button {
       display: block;
-      font-weight: 600;
-      color: var(--text-dark);
-      margin-bottom: 8px;
-      font-size: 0.95em;
+      margin: 10px auto;
+      padding: 10px;
+      width: 90%;
+      font-size: 1rem;
     }
-
-    input, textarea {
-      width: 100%;
-      padding: 12px 15px;
-      border: 2px solid #e5e7eb;
-      border-radius: 8px;
-      font-size: 1em;
-      font-family: inherit;
-      transition: all 0.3s ease;
-    }
-
-    input:focus, textarea:focus {
-      outline: none;
-      border-color: var(--iascend-orange);
-      box-shadow: 0 0 0 3px rgba(244, 163, 73, 0.1);
-    }
-
-    textarea {
-      min-height: 100px;
-      resize: vertical;
-    }
-
-    .username-group {
-      position: relative;
-    }
-
-    .username-suffix {
-      position: absolute;
-      right: 15px;
-      top: 50%;
-      transform: translateY(-50%);
-      color: var(--text-light);
-      font-weight: 600;
-    }
-
-    .availability-check {
-      font-size: 0.85em;
-      margin-top: 5px;
-      display: none;
-    }
-
-    .availability-check.checking { display: block; color: var(--text-light); }
-    .availability-check.available { display: block; color: #10b981; }
-    .availability-check.taken { display: block; color: #ef4444; }
-
-    .survivor-fields {
-      display: none;
-      padding: 20px;
-      background: var(--bg-gray);
-      border-radius: 12px;
-      margin-bottom: 20px;
-    }
-
-    .survivor-fields.active {
-      display: block;
-    }
-
-    .submit-btn {
-      width: 100%;
-      padding: 16px;
-      background: linear-gradient(135deg, var(--iascend-orange), #e58f39);
+    button {
+      background: #1a5f3f;
       color: white;
       border: none;
       border-radius: 8px;
-      font-size: 1.1em;
-      font-weight: 700;
       cursor: pointer;
-      transition: all 0.3s ease;
     }
-
-    .submit-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 10px 30px rgba(244, 163, 73, 0.3);
-    }
-
-    .submit-btn:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-      transform: none;
-    }
-
-    .footer-links {
-      text-align: center;
-      margin-top: 20px;
-    }
-
-    .footer-links a {
-      color: var(--text-light);
-      text-decoration: none;
-      font-size: 0.9em;
-      transition: color 0.3s ease;
-    }
-
-    .footer-links a:hover {
-      color: var(--iascend-orange);
-    }
-
-    @keyframes fadeInDown {
-      from { opacity: 0; transform: translateY(-20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    @keyframes fadeInUp {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
+    button:hover {
+      background: #228b5a;
     }
   </style>
 </head>
-
 <body>
-  <div class="container">
-    <div class="header">
-      <div class="logo">iAscendAi</div>
-      <div class="tagline">Authored Intelligence for Human Sovereignty</div>
-    </div>
+  <h1>Register Your SoulMark</h1>
+  <form id="register-form">
+    <input type="text" id="name" placeholder="Full Name" required />
+    <input type="email" id="email" placeholder="Email" required />
+    <input type="text" id="username" placeholder="Choose Username" required />
+    <input type="text" id="soulmark" placeholder="SoulMark" readonly />
+    <button type="submit">Register</button>
+  </form>
 
-    <div class="registration-card">
-      <h1 class="card-title">Create Your Identity</h1>
-      <p class="card-subtitle">
-        Establish your verified digital identity on the iAscendAi platform. Choose your role and claim your unique
-        <strong>username@iascendai</strong> address. Like social media handles, each username can only be claimed once - first come, first served.
-      </p>
-
-      <form id="registrationForm">
-        <div class="role-selection">
-          <div class="role-option" data-role="donor">
-            <div class="role-icon">🎁</div>
-            <div class="role-title">Supporter</div>
-            <div class="role-description">I made a donation</div>
-          </div>
-          <div class="role-option" data-role="survivor">
-            <div class="role-icon">🇯🇲</div>
-            <div class="role-title">Survivor</div>
-            <div class="role-description">I need assistance</div>
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label for="name">Full Name *</label>
-          <input type="text" id="name" required placeholder="Adrian Walker" />
-        </div>
-
-        <div class="form-group">
-          <label for="email">Email Address *</label>
-          <input type="email" id="email" required placeholder="adrian@example.com" />
-        </div>
-
-        <div class="form-group">
-          <label for="username">Choose Your Username *</label>
-          <div style="background: #fffbeb; border-left: 4px solid var(--iascend-orange); padding: 12px; margin-bottom: 10px; border-radius: 6px; font-size: 0.9em; color: var(--text-dark);">
-            <strong>⚠️ Usernames are unique</strong> - Only one person can claim each username (like Twitter/Instagram).
-          </div>
-          <div class="username-group">
-            <input type="text" id="username" required placeholder="adrian" style="padding-right: 140px;" />
-            <span class="username-suffix">@iascendai</span>
-          </div>
-          <div class="availability-check" id="availabilityCheck"></div>
-        </div>
-
-        <div class="survivor-fields" id="survivorFields">
-          <div class="form-group">
-            <label for="location">Current Location *</label>
-            <input type="text" id="location" placeholder="Kingston, Jamaica" />
-          </div>
-          <div class="form-group">
-            <label for="status">Safety Status *</label>
-            <input type="text" id="status" placeholder="Safe / Need Immediate Help / Seeking Shelter" />
-          </div>
-          <div class="form-group">
-            <label for="assistance">Assistance Needed</label>
-            <textarea id="assistance" placeholder="Describe what kind of help you need..."></textarea>
-          </div>
-        </div>
-
-        <button type="submit" class="submit-btn" id="submitBtn">Create My Identity</button>
-      </form>
-
-      <div class="footer-links">
-        <a href="/iascendai-verify.html">Verify an existing identity</a> |
-        <a href="/">Back to home</a>
-      </div>
-    </div>
-  </div>
+  <div id="result"></div>
 
   <script>
-    const BACKEND_URL = "https://jamaica-we-rise.onrender.com";
+    const API_BASE = "https://jamaica-we-rise.onrender.com";
 
-    let selectedRole = null;
-    let usernameCheckTimeout = null;
-
-    // 🧭 Extract soulmark + email
+    // ✅ Autofill from query params
     const params = new URLSearchParams(window.location.search);
+    const email = params.get("email");
     const soulmark = params.get("soulmark");
-    const emailFromUrl = params.get("email");
-    if (emailFromUrl) document.getElementById("email").value = emailFromUrl;
+    const name = params.get("name");
 
-    // 🟡 Role selection toggle
-    document.querySelectorAll(".role-option").forEach(option => {
-      option.addEventListener("click", function () {
-        document.querySelectorAll(".role-option").forEach(opt => opt.classList.remove("selected"));
-        this.classList.add("selected");
-        selectedRole = this.dataset.role;
+    if (email) document.getElementById("email").value = email;
+    if (soulmark) document.getElementById("soulmark").value = soulmark;
+    if (name) document.getElementById("name").value = name;
 
-        const survivorFields = document.getElementById("survivorFields");
-        survivorFields.classList.toggle("active", selectedRole === "survivor");
-      });
-    });
+    const form = document.getElementById("register-form");
+    const resultEl = document.getElementById("result");
 
-    // 🟢 Username availability check
-    document.getElementById("username").addEventListener("input", function () {
-      const username = this.value.trim().toLowerCase();
-      const availabilityCheck = document.getElementById("availabilityCheck");
-
-      clearTimeout(usernameCheckTimeout);
-
-      if (username.length < 3) {
-        availabilityCheck.className = "availability-check";
-        availabilityCheck.textContent = "";
-        return;
-      }
-
-      availabilityCheck.className = "availability-check checking";
-      availabilityCheck.textContent = "Checking availability...";
-
-      usernameCheckTimeout = setTimeout(async () => {
-        try {
-          const response = await fetch(`${BACKEND_URL}/check-username/${username}`);
-          const data = await response.json();
-          if (data.available) {
-            availabilityCheck.className = "availability-check available";
-            availabilityCheck.textContent = "✓ Available! This username is yours.";
-          } else {
-            availabilityCheck.className = "availability-check taken";
-            availabilityCheck.textContent = "✗ Already taken.";
-          }
-        } catch {
-          availabilityCheck.className = "availability-check";
-          availabilityCheck.textContent = "Could not check availability - backend not connected.";
-        }
-      }, 500);
-    });
-
-    // 🧾 Form submit
-    document.getElementById("registrationForm").addEventListener("submit", async e => {
+    form.addEventListener("submit", async (e) => {
       e.preventDefault();
-      const name = document.getElementById("name").value.trim();
-      const email = document.getElementById("email").value.trim();
-      const username = document.getElementById("username").value.trim().toLowerCase();
+      resultEl.textContent = "⏳ Registering...";
 
-      if (!selectedRole) return alert("Please select your role.");
-      if (!name || !email || !username || !soulmark)
-        return alert("Missing registration fields.");
-
-      const formData = {
-        role: selectedRole,
-        name,
-        email,
-        username,
-        soulmark,
-        location: selectedRole === "survivor" ? document.getElementById("location").value.trim() : null,
-        status: selectedRole === "survivor" ? document.getElementById("status").value.trim() : null,
-        assistance: selectedRole === "survivor" ? document.getElementById("assistance").value.trim() : null,
+      const data = {
+        name: document.getElementById("name").value.trim(),
+        email: document.getElementById("email").value.trim(),
+        username: document.getElementById("username").value.trim().toLowerCase(),
+        soulMark: document.getElementById("soulmark").value.trim(),
       };
 
-      const btn = document.getElementById("submitBtn");
-      btn.disabled = true;
-      btn.textContent = "Creating Identity...";
-
       try {
-        const res = await fetch(`${BACKEND_URL}/register`, {
+        const res = await fetch(`${API_BASE}/register`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(formData),
+          body: JSON.stringify(data),
         });
 
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error || "Registration failed.");
+        const result = await res.json();
+        if (!res.ok || !result.ok) throw new Error(result.error || "Registration failed.");
 
-        window.location.href = `/iascendai-dashboard.html?username=${username}`;
+        resultEl.textContent = `✅ Registered successfully! Redirecting to dashboard...`;
+
+        // Redirect to dashboard view
+        setTimeout(() => {
+          window.location.href = `/iascendai-dashboard.html?username=${data.username}`;
+        }, 2500);
       } catch (err) {
-        alert(err.message || "Registration failed. Please try again.");
-        btn.disabled = false;
-        btn.textContent = "Create My Identity";
+        console.error("Registration error:", err);
+        resultEl.textContent = `⚠️ ${err.message}`;
       }
     });
   </script>
