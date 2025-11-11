@@ -227,11 +227,11 @@
       statusEl.textContent = "Creating secure Stripe checkout session...";
 
       try {
-        const res = await fetch(`${BACKEND_URL}/create-checkout-session`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ name, email, amount, soulmark }),
-        });
+        const res = await fetch("https://jamaica-we-rise.onrender.com/verify-soulmark", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ email }),
+});
         const data = await res.json();
 
         if (!res.ok || !data.url) {

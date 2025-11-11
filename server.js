@@ -123,12 +123,20 @@ app.post("/create-checkout-session", async (req, res) => {
 });
 
 // --------------------------------------------------
-// 🧩 REGISTRATION ENDPOINTS
+// 🧩 REGISTRATION + USERNAME CHECK ENDPOINTS
 // --------------------------------------------------
 app.get("/check-username/:username", (req, res) => {
   const { username } = req.params;
   const data = JSON.parse(fs.readFileSync(registryPath, "utf8"));
-  const exists = data.some((u) => u.username === username);
+  const exists = data.some((u) => (u.username || "").toLowerCase() === username.toLowerCase());
+  res.json({ available: !exists });
+});
+
+// ✅ Added alias for compatibility with legacy route
+app.get("/check_name/:username", (req, res) => {
+  const { username } = req.params;
+  const data = JSON.parse(fs.readFileSync(registryPath, "utf8"));
+  const exists = data.some((u) => (u.username || "").toLowerCase() === username.toLowerCase());
   res.json({ available: !exists });
 });
 
@@ -139,7 +147,7 @@ app.post("/register", (req, res) => {
       return res.status(400).json({ error: "Missing registration fields." });
 
     const data = JSON.parse(fs.readFileSync(registryPath, "utf8"));
-    const exists = data.some((u) => u.username === username);
+    const exists = data.some((u) => (u.username || "").toLowerCase() === username.toLowerCase());
     if (exists) return res.status(409).json({ error: "Username taken." });
 
     const entry = {
@@ -179,6 +187,16 @@ app.get("/health", (req, res) => {
     message: "Backend is healthy!",
     timestamp: new Date().toISOString(),
   });
+});
+
+// --------------------------------------------------
+// 🌐 SERVE FRONTEND (STATIC FILES)
+// --------------------------------------------------
+const __dirnameResolved = path.resolve();
+app.use(express.static(path.join(__dirnameResolved, "public")));
+
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirnameResolved, "public", "donate.html"));
 });
 
 // --------------------------------------------------
