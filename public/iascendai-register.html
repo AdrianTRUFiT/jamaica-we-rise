@@ -5,9 +5,222 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Create Your Identity | iAscendAi</title>
   <style>
-    /* [STYLE SECTION UNCHANGED – YOUR ORIGINAL CSS HERE] */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --iascend-orange: #f4a349;
+      --iascend-blue: #b8edee;
+      --text-dark: #1f2937;
+      --text-light: #6b7280;
+      --bg-gray: #f9fafb;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, var(--iascend-orange) 0%, #e58f39 50%, var(--iascend-blue) 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .header {
+      text-align: center;
+      color: white;
+      margin-bottom: 30px;
+      animation: fadeInDown 0.6s ease-out;
+    }
+
+    .logo {
+      font-size: 1.8em;
+      font-weight: 800;
+      margin-bottom: 10px;
+    }
+
+    .tagline {
+      font-size: 1.1em;
+      opacity: 0.95;
+    }
+
+    .registration-card {
+      background: white;
+      border-radius: 16px;
+      padding: 40px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      animation: fadeInUp 0.6s ease-out 0.2s both;
+    }
+
+    .card-title {
+      font-size: 1.8em;
+      font-weight: 700;
+      color: var(--text-dark);
+      margin-bottom: 10px;
+    }
+
+    .card-subtitle {
+      color: var(--text-light);
+      margin-bottom: 30px;
+      line-height: 1.6;
+    }
+
+    .role-selection {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 15px;
+      margin-bottom: 30px;
+    }
+
+    .role-option {
+      padding: 20px;
+      border: 2px solid #e5e7eb;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-align: center;
+    }
+
+    .role-option:hover {
+      border-color: var(--iascend-orange);
+      background: rgba(244, 163, 73, 0.05);
+    }
+
+    .role-option.selected {
+      border-color: var(--iascend-orange);
+      background: linear-gradient(135deg, rgba(244, 163, 73, 0.1), rgba(184, 237, 238, 0.1));
+    }
+
+    .role-icon {
+      font-size: 2em;
+      margin-bottom: 10px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      font-weight: 600;
+      color: var(--text-dark);
+      margin-bottom: 8px;
+      font-size: 0.95em;
+    }
+
+    input, textarea {
+      width: 100%;
+      padding: 12px 15px;
+      border: 2px solid #e5e7eb;
+      border-radius: 8px;
+      font-size: 1em;
+      font-family: inherit;
+      transition: all 0.3s ease;
+    }
+
+    input:focus, textarea:focus {
+      outline: none;
+      border-color: var(--iascend-orange);
+      box-shadow: 0 0 0 3px rgba(244, 163, 73, 0.1);
+    }
+
+    textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+
+    .username-group {
+      position: relative;
+    }
+
+    .username-suffix {
+      position: absolute;
+      right: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-light);
+      font-weight: 600;
+    }
+
+    .availability-check {
+      font-size: 0.85em;
+      margin-top: 5px;
+      display: none;
+    }
+
+    .availability-check.checking { display: block; color: var(--text-light); }
+    .availability-check.available { display: block; color: #10b981; }
+    .availability-check.taken { display: block; color: #ef4444; }
+
+    .survivor-fields {
+      display: none;
+      padding: 20px;
+      background: var(--bg-gray);
+      border-radius: 12px;
+      margin-bottom: 20px;
+    }
+
+    .survivor-fields.active {
+      display: block;
+    }
+
+    .submit-btn {
+      width: 100%;
+      padding: 16px;
+      background: linear-gradient(135deg, var(--iascend-orange), #e58f39);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1.1em;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .submit-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(244, 163, 73, 0.3);
+    }
+
+    .submit-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .footer-links {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .footer-links a {
+      color: var(--text-light);
+      text-decoration: none;
+      font-size: 0.9em;
+      transition: color 0.3s ease;
+    }
+
+    .footer-links a:hover {
+      color: var(--iascend-orange);
+    }
+
+    @keyframes fadeInDown {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
   </style>
 </head>
+
 <body>
   <div class="container">
     <div class="header">
@@ -56,10 +269,6 @@
             <span class="username-suffix">@iascendai</span>
           </div>
           <div class="availability-check" id="availabilityCheck"></div>
-          <div class="username-suggestions" id="usernameSuggestions" style="display: none; margin-top: 10px; padding: 10px; background: var(--bg-gray); border-radius: 8px; font-size: 0.9em;">
-            <strong>💡 Suggestions:</strong>
-            <div id="suggestionsList" style="margin-top: 8px; display: flex; flex-wrap: wrap; gap: 8px;"></div>
-          </div>
         </div>
 
         <div class="survivor-fields" id="survivorFields">
@@ -88,22 +297,18 @@
   </div>
 
   <script>
-    // 🔗 Updated for production backend
     const BACKEND_URL = "https://jamaica-we-rise.onrender.com";
 
     let selectedRole = null;
     let usernameCheckTimeout = null;
 
-    // 🟢 Extract SoulMark from URL
-    const soulmark = new URLSearchParams(window.location.search).get("soulmark");
+    // 🧭 Extract soulmark + email
+    const params = new URLSearchParams(window.location.search);
+    const soulmark = params.get("soulmark");
+    const emailFromUrl = params.get("email");
+    if (emailFromUrl) document.getElementById("email").value = emailFromUrl;
 
-    // Auto-fill email if passed from success_url
-    const emailFromUrl = new URLSearchParams(window.location.search).get("email");
-    if (emailFromUrl) {
-      document.getElementById("email").value = emailFromUrl;
-    }
-
-    // Role selection
+    // 🟡 Role selection toggle
     document.querySelectorAll(".role-option").forEach(option => {
       option.addEventListener("click", function () {
         document.querySelectorAll(".role-option").forEach(opt => opt.classList.remove("selected"));
@@ -115,14 +320,12 @@
       });
     });
 
-    // Username availability check
+    // 🟢 Username availability check
     document.getElementById("username").addEventListener("input", function () {
       const username = this.value.trim().toLowerCase();
       const availabilityCheck = document.getElementById("availabilityCheck");
-      const suggestionsContainer = document.getElementById("usernameSuggestions");
 
       clearTimeout(usernameCheckTimeout);
-      suggestionsContainer.style.display = "none";
 
       if (username.length < 3) {
         availabilityCheck.className = "availability-check";
@@ -137,14 +340,12 @@
         try {
           const response = await fetch(`${BACKEND_URL}/check-username/${username}`);
           const data = await response.json();
-
           if (data.available) {
             availabilityCheck.className = "availability-check available";
             availabilityCheck.textContent = "✓ Available! This username is yours.";
-            suggestionsContainer.style.display = "none";
           } else {
             availabilityCheck.className = "availability-check taken";
-            availabilityCheck.textContent = "✗ Already taken - Try one of these suggestions:";
+            availabilityCheck.textContent = "✗ Already taken.";
           }
         } catch {
           availabilityCheck.className = "availability-check";
@@ -153,15 +354,12 @@
       }, 500);
     });
 
-    // 🟡 Form submission
+    // 🧾 Form submit
     document.getElementById("registrationForm").addEventListener("submit", async e => {
       e.preventDefault();
-
       const name = document.getElementById("name").value.trim();
       const email = document.getElementById("email").value.trim();
       const username = document.getElementById("username").value.trim().toLowerCase();
-
-      console.log({ name, email, username, soulmark });
 
       if (!selectedRole) return alert("Please select your role.");
       if (!name || !email || !username || !soulmark)
@@ -173,18 +371,9 @@
         email,
         username,
         soulmark,
-        location:
-          selectedRole === "survivor"
-            ? document.getElementById("location").value.trim()
-            : null,
-        status:
-          selectedRole === "survivor"
-            ? document.getElementById("status").value.trim()
-            : null,
-        assistance:
-          selectedRole === "survivor"
-            ? document.getElementById("assistance").value.trim()
-            : null
+        location: selectedRole === "survivor" ? document.getElementById("location").value.trim() : null,
+        status: selectedRole === "survivor" ? document.getElementById("status").value.trim() : null,
+        assistance: selectedRole === "survivor" ? document.getElementById("assistance").value.trim() : null,
       };
 
       const btn = document.getElementById("submitBtn");
@@ -195,11 +384,10 @@
         const res = await fetch(`${BACKEND_URL}/register`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(formData)
+          body: JSON.stringify(formData),
         });
 
         const data = await res.json();
-
         if (!res.ok) throw new Error(data.error || "Registration failed.");
 
         window.location.href = `/iascendai-dashboard.html?username=${username}`;
