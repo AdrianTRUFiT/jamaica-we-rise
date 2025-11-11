@@ -8,6 +8,9 @@ const morgan = require("morgan");
 const crypto = require("crypto");
 
 const app = express();
+app.use(express.json());
+app.use(cors());
+app.use(morgan("dev"));
 
 // --------------------------------------------------
 // 🌍 CONFIGURATION
@@ -15,8 +18,8 @@ const app = express();
 const mode = (process.env.MODE || "test").toLowerCase();
 const stripeSecretKey =
   mode === "live"
-    ? process.env.STRIPE_SECRET_KEY_LIVE
-    : process.env.STRIPE_SECRET_KEY_TEST;
+    ? process.env.STRIPE_LIVE_SECRET_KEY
+    : process.env.STRIPE_TEST_SECRET_KEY;
 
 if (!stripeSecretKey) {
   console.error("❌ Stripe secret key missing for mode:", mode);
@@ -24,12 +27,7 @@ if (!stripeSecretKey) {
 }
 
 const stripe = new Stripe(stripeSecretKey);
-
-console.log("🧩 Stripe Mode:", mode, "| Key prefix:", stripeSecretKey.slice(0, 12));
-
-// Express Middleware
-app.use(express.json({ verify: (req, res, buf) => (req.rawBody = buf) }));
-app.use(cors());
+const FRONTEND_URL = process.env.FRONTEND_URL || "https://jamaica-we-rise.vercel.app";
 
 // --------------------------------------------------
 // 🗂️ DIRECTORY SETUP
@@ -46,9 +44,10 @@ if (!fs.existsSync(registryPath)) fs.writeFileSync(registryPath, "[]");
 // --------------------------------------------------
 // 🧾 LOGGING
 // --------------------------------------------------
-app.use(morgan("tiny"));
 function logEvent(msg) {
-  console.log(`[${new Date().toISOString()}] ${msg}`);
+  const logLine = `[${new Date().toISOString()}] ${msg}`;
+  console.log(logLine);
+  fs.appendFileSync(path.join(logsDir, "events.log"), logLine + "\n");
 }
 
 // --------------------------------------------------
@@ -60,122 +59,132 @@ app.post("/verify-soulmark", (req, res) => {
     if (!email) return res.status(400).json({ error: "Email required." });
 
     const soulmark =
-      "0x" + crypto.createHash("sha256").update(email).digest("hex").substring(0, 32).toUpperCase();
+      "0x" +
+      crypto
+        .createHash("sha256")
+        .update(email)
+        .digest("hex")
+        .substring(0, 32)
+        .toUpperCase();
 
     logEvent(`SoulMarkⓈ generated for ${email}: ${soulmark}`);
     res.json({ verified: true, soulmark });
   } catch (err) {
-    console.error("⚠️ SoulMark verification failed:", err);
+    console.error("❌ SoulMark verification error:", err);
     res.status(500).json({ error: "SoulMarkⓈ verification failed." });
   }
 });
 
 // --------------------------------------------------
-// 💳 CREATE STRIPE CHECKOUT SESSION
+// 💳 STRIPE DONATION ENDPOINT
 // --------------------------------------------------
 app.post("/create-checkout-session", async (req, res) => {
   try {
     const { name, email, amount } = req.body;
     if (!name || !email || !amount)
-      return res.status(400).json({ error: "Missing name, email, or amount." });
+      return res.status(400).json({ error: "Missing fields." });
 
     const soulmark =
-      "0x" + crypto.createHash("sha256").update(email).digest("hex").substring(0, 32).toUpperCase();
+      "0x" +
+      crypto
+        .createHash("sha256")
+        .update(email)
+        .digest("hex")
+        .substring(0, 32)
+        .toUpperCase();
 
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
-      customer_email: email,
       line_items: [
         {
           price_data: {
             currency: "usd",
             product_data: { name: "Jamaica We Rise Donation" },
-            unit_amount: Math.round(amount * 100),
+            unit_amount: amount * 100,
           },
           quantity: 1,
         },
       ],
       mode: "payment",
-      success_url: `${process.env.FRONTEND_URL}/impact.html?soulmark=${soulmark}`,
-      cancel_url: `${process.env.FRONTEND_URL}/donate.html`,
+      success_url: `${FRONTEND_URL}/impact.html?soulmark=${soulmark}`,
+      cancel_url: `${FRONTEND_URL}/donate.html`,
       metadata: { name, email, soulmark },
     });
 
     const data = JSON.parse(fs.readFileSync(registryPath, "utf8"));
-    data.push({
-      name,
-      email,
-      amount,
-      soulmark,
-      verified: true,
-      status: "pending",
-      createdAt: new Date().toISOString(),
-    });
+    data.push({ name, email, amount, soulmark, verified: true, status: "pending" });
     fs.writeFileSync(registryPath, JSON.stringify(data, null, 2));
 
-    logEvent(`Donation started: ${name} - $${amount} - ${email}`);
     res.json({ url: session.url });
   } catch (err) {
-    console.error("Stripe Error:", err);
-    res.status(500).json({ error: "Stripe session creation failed." });
+    console.error("❌ Stripe session failed:", err);
+    res.status(500).json({ error: "Stripe session failed." });
   }
 });
 
 // --------------------------------------------------
-// 🪄 STRIPE WEBHOOK: CONFIRM DONATION
+// 🧩 REGISTRATION ENDPOINTS
 // --------------------------------------------------
-app.post("/webhook", express.raw({ type: "application/json" }), (req, res) => {
-  const sig = req.headers["stripe-signature"];
-  const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
+app.get("/check-username/:username", (req, res) => {
+  const { username } = req.params;
+  const data = JSON.parse(fs.readFileSync(registryPath, "utf8"));
+  const exists = data.some((u) => u.username === username);
+  res.json({ available: !exists });
+});
 
-  let event;
+app.post("/register", (req, res) => {
   try {
-    event = stripe.webhooks.constructEvent(req.rawBody, sig, endpointSecret);
-  } catch (err) {
-    console.error("⚠️ Webhook signature failed:", err.message);
-    return res.status(400).send(`Webhook Error: ${err.message}`);
-  }
-
-  if (event.type === "checkout.session.completed") {
-    const session = event.data.object;
-    const { customer_email, amount_total, metadata } = session;
-
-    const entry = {
-      name: metadata.name,
-      email: customer_email,
-      amount: (amount_total / 100).toFixed(2),
-      soulmark: metadata.soulmark,
-      verified: true,
-      status: "completed",
-      completedAt: new Date().toISOString(),
-    };
+    const { name, email, username, role, soulmark } = req.body;
+    if (!name || !email || !username || !role || !soulmark)
+      return res.status(400).json({ error: "Missing registration fields." });
 
     const data = JSON.parse(fs.readFileSync(registryPath, "utf8"));
+    const exists = data.some((u) => u.username === username);
+    if (exists) return res.status(409).json({ error: "Username taken." });
+
+    const entry = {
+      name,
+      email,
+      username,
+      role,
+      soulmark,
+      createdAt: new Date().toISOString(),
+    };
     data.push(entry);
     fs.writeFileSync(registryPath, JSON.stringify(data, null, 2));
 
-    logEvent(`✅ Payment confirmed: ${metadata.name} — $${entry.amount}`);
+    logEvent(`✅ Registered: ${username} (${role})`);
+    res.json({ success: true });
+  } catch (err) {
+    console.error("❌ Registration failed:", err);
+    res.status(500).json({ error: "Registration failed." });
   }
-
-  res.json({ received: true });
 });
 
 // --------------------------------------------------
-// 📜 REGISTRY FETCH
+// 📜 VIEW REGISTRY
 // --------------------------------------------------
 app.get("/registry", (req, res) => {
-  try {
-    const data = JSON.parse(fs.readFileSync(registryPath, "utf8"));
-    res.json(data);
-  } catch (err) {
-    res.status(500).json({ error: "Failed to load registry." });
-  }
+  const data = JSON.parse(fs.readFileSync(registryPath, "utf8"));
+  res.json(data);
 });
 
 // --------------------------------------------------
-// 🚀 START SERVER
+// 🩺 HEALTH CHECK
+// --------------------------------------------------
+app.get("/health", (req, res) => {
+  res.json({
+    status: "ok",
+    mode,
+    message: "Backend is healthy!",
+    timestamp: new Date().toISOString(),
+  });
+});
+
+// --------------------------------------------------
+// 🚀 SERVER START
 // --------------------------------------------------
 const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => {
-  logEvent(`🌍 Server started in ${mode.toUpperCase()} mode on port ${PORT}`);
+  console.log(`🌍 Server running in ${mode.toUpperCase()} mode on port ${PORT}`);
 });
