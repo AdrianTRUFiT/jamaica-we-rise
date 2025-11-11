@@ -1,4 +1,4 @@
 export const CONFIG = {
   MODE: "test",
-  BACKEND_URL: "http://localhost:10000"
+  API_BASE: "https://jamaica-we-rise-backend.onrender.com"
 };
