@@ -27,7 +27,8 @@ if (!stripeSecretKey) {
 }
 
 const stripe = new Stripe(stripeSecretKey);
-const FRONTEND_URL = process.env.FRONTEND_URL || "https://jamaica-we-rise.vercel.app";
+const FRONTEND_URL =
+  process.env.FRONTEND_URL || "https://jamaica-we-rise.vercel.app";
 
 // --------------------------------------------------
 // 🗂️ DIRECTORY SETUP
@@ -93,7 +94,7 @@ app.post("/create-checkout-session", async (req, res) => {
         .substring(0, 32)
         .toUpperCase();
 
-    // ✅ Stripe session with email prefill and redirect email passing
+    // ✅ Stripe session with correct success_url placeholder
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       line_items: [
@@ -107,20 +108,22 @@ app.post("/create-checkout-session", async (req, res) => {
         },
       ],
       mode: "payment",
-      customer_email: email, // ✅ prefill Stripe checkout
-      success_url: `${FRONTEND_URL}/impact.html?soulmark=${soulmark}&email=${encodeURIComponent(email)}`,
+      customer_email: email,
+      success_url: `${FRONTEND_URL}/impact.html?session_id={{CHECKOUT_SESSION_ID}}&email=${encodeURIComponent(
+        email
+      )}&soulmark=${soulmark}`,
       cancel_url: `${FRONTEND_URL}/donate.html`,
       metadata: { name, email, soulmark },
     });
 
-    // Log + Save to registry
+    // ✅ Log + Save pending record
     const data = JSON.parse(fs.readFileSync(registryPath, "utf8"));
     data.push({
       name,
       email,
       amount,
       soulmark,
-      verified: true,
+      verified: false,
       status: "pending",
       createdAt: new Date().toISOString(),
     });
@@ -192,6 +195,7 @@ app.get("/registry", (req, res) => {
   const data = JSON.parse(fs.readFileSync(registryPath, "utf8"));
   res.json(data);
 });
+
 // --------------------------------------------------
 // 🧠 DASHBOARD FETCH ROUTE
 // --------------------------------------------------
@@ -222,7 +226,6 @@ app.get("/user/:username", (req, res) => {
     res.status(500).json({ error: "Failed to load user data" });
   }
 });
-
 
 // --------------------------------------------------
 // 🩺 HEALTH CHECK
