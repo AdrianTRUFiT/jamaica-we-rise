@@ -35,7 +35,6 @@ const FRONTEND_URL =
 // --------------------------------------------------
 const dataDir = path.join(__dirname, "data");
 const logsDir = path.join(__dirname, "logs");
-
 if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir);
 if (!fs.existsSync(logsDir)) fs.mkdirSync(logsDir);
 
@@ -94,7 +93,6 @@ app.post("/create-checkout-session", async (req, res) => {
         .substring(0, 32)
         .toUpperCase();
 
-    // ✅ Stripe session with correct success_url placeholder
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       line_items: [
@@ -116,7 +114,6 @@ app.post("/create-checkout-session", async (req, res) => {
       metadata: { name, email, soulmark },
     });
 
-    // ✅ Log + Save pending record
     const data = JSON.parse(fs.readFileSync(registryPath, "utf8"));
     data.push({
       name,
@@ -133,6 +130,70 @@ app.post("/create-checkout-session", async (req, res) => {
   } catch (err) {
     console.error("❌ Stripe session failed:", err);
     res.status(500).json({ error: "Stripe session failed." });
+  }
+});
+
+// --------------------------------------------------
+// ✅ VERIFY DONATION (CALLED BY impact.html)
+// --------------------------------------------------
+app.get("/verify-donation/:sessionId", async (req, res) => {
+  try {
+    const { sessionId } = req.params;
+    if (!sessionId) return res.status(400).json({ error: "Missing session ID." });
+
+    const session = await stripe.checkout.sessions.retrieve(sessionId);
+    if (!session || session.payment_status !== "paid") {
+      return res.status(400).json({ error: "Payment not completed." });
+    }
+
+    const soulMark =
+      "0x" +
+      crypto
+        .createHash("sha256")
+        .update(sessionId)
+        .digest("hex")
+        .substring(0, 32)
+        .toUpperCase();
+
+    const email =
+      session.customer_email ||
+      (session.customer_details && session.customer_details.email);
+    const amount = (session.amount_total || 0) / 100;
+
+    const data = JSON.parse(fs.readFileSync(registryPath, "utf8"));
+    const existing = data.find((u) => u.email === email);
+
+    if (existing) {
+      existing.verified = true;
+      existing.status = "verified";
+      existing.soulmark = soulMark;
+      existing.amount = amount;
+      existing.verifiedAt = new Date().toISOString();
+    } else {
+      data.push({
+        name: session.metadata?.name || "Anonymous",
+        email,
+        amount,
+        soulmark: soulMark,
+        verified: true,
+        status: "verified",
+        createdAt: new Date().toISOString(),
+      });
+    }
+    fs.writeFileSync(registryPath, JSON.stringify(data, null, 2));
+
+    logEvent(`✅ Verified donation for ${email} → ${soulMark}`);
+
+    res.json({
+      verified: true,
+      name: session.metadata?.name || "Anonymous",
+      email,
+      amount,
+      soulMark,
+    });
+  } catch (err) {
+    console.error("❌ Donation verification failed:", err);
+    res.status(500).json({ error: "Verification failed." });
   }
 });
 
