@@ -1,0 +1,253 @@
+<<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Support Jamaica We Rise | iAscendAi</title>
+  <script src="https://js.stripe.com/v3/"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --jamaica-green: #1a5f3f;
+      --jamaica-gold: #ffd700;
+      --text-dark: #1f2937;
+      --text-light: #6b7280;
+      --bg-gray: #f9fafb;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, var(--jamaica-green) 0%, #0d3d2a 100%);
+      min-height: 100vh; padding: 20px;
+    }
+    .container { max-width: 600px; margin: 0 auto; }
+    .header { text-align: center; color: white; margin-bottom: 30px; }
+    .logo { font-size: 1.8em; font-weight: 800; margin-bottom: 10px; }
+    .tagline { font-size: 1.1em; opacity: 0.95; margin-top: 10px; }
+    .powered-by { font-size: 0.85em; opacity: 0.9; margin-top: 5px; }
+    .powered-by a { color: var(--jamaica-gold); text-decoration: none; font-weight: 600; }
+
+    .donation-card {
+      background: white; border-radius: 16px; padding: 40px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+
+    .card-title { font-size: 1.8em; font-weight: 700; color: var(--text-dark); margin-bottom: 10px; }
+    .card-subtitle { color: var(--text-light); margin-bottom: 30px; line-height: 1.6; }
+
+    .impact-stats {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 15px; margin-bottom: 30px; padding: 20px;
+      background: var(--bg-gray); border-radius: 12px;
+    }
+    .stat { text-align: center; }
+    .stat-value { font-size: 1.5em; font-weight: 700; color: var(--jamaica-green); }
+    .stat-label { font-size: 0.85em; color: var(--text-light); margin-top: 5px; }
+
+    .form-group { margin-bottom: 20px; }
+    label { display: block; font-weight: 600; color: var(--text-dark); margin-bottom: 8px; font-size: 0.95em; }
+    input {
+      width: 100%; padding: 12px 15px; border: 2px solid #e5e7eb;
+      border-radius: 8px; font-size: 1em; transition: all 0.3s ease;
+    }
+    input:focus {
+      outline: none; border-color: var(--jamaica-green);
+      box-shadow: 0 0 0 3px rgba(26, 95, 63, 0.1);
+    }
+
+    .amount-options {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 10px; margin-bottom: 15px;
+    }
+    .amount-btn {
+      padding: 15px; border: 2px solid #e5e7eb; border-radius: 8px;
+      background: white; font-size: 1.1em; font-weight: 600;
+      cursor: pointer; transition: all 0.3s ease;
+    }
+    .amount-btn:hover { border-color: var(--jamaica-green); background: rgba(26, 95, 63, 0.05); }
+    .amount-btn.selected { border-color: var(--jamaica-green); background: var(--jamaica-green); color: white; }
+
+    .submit-btn {
+      width: 100%; padding: 16px;
+      background: linear-gradient(135deg, var(--jamaica-green), #2d8659);
+      color: white; border: none; border-radius: 8px; font-size: 1.1em;
+      font-weight: 700; cursor: pointer; transition: all 0.3s ease; margin-top: 10px;
+    }
+    .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(26,95,63,0.3); }
+    .submit-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+    .trust-badges {
+      display: flex; align-items: center; justify-content: center;
+      gap: 20px; margin-top: 25px; padding-top: 25px; border-top: 1px solid #e5e7eb;
+    }
+    .badge { display: flex; align-items: center; gap: 8px; font-size: 0.85em; color: var(--text-light); }
+    .footer { text-align: center; color: white; margin-top: 30px; opacity: 0.9; font-size: 0.9em; }
+    .footer a { color: var(--jamaica-gold); text-decoration: none; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="logo">🇯🇲 Jamaica We Rise</div>
+      <div class="tagline">Help Rebuild. Help Recover. Help Rise.</div>
+      <div class="powered-by">Powered by <a href="https://iascendai.com">iAscendAi</a></div>
+    </div>
+
+    <div class="donation-card">
+      <h1 class="card-title">Make Your Impact</h1>
+      <p class="card-subtitle">
+        Every donation helps rebuild homes, restore infrastructure, and support families affected by Hurricane Melissa.
+        Your contribution is verified and tracked with SoulMarkⓈ cryptographic authentication.
+      </p>
+
+      <div class="impact-stats">
+        <div class="stat"><div class="stat-value" id="donorCount">247</div><div class="stat-label">Donors</div></div>
+        <div class="stat"><div class="stat-value" id="totalRaised">$18,240</div><div class="stat-label">Raised</div></div>
+        <div class="stat"><div class="stat-value">36%</div><div class="stat-label">To Goal</div></div>
+      </div>
+
+      <form id="donationForm">
+        <div class="form-group">
+          <label for="name">Full Name *</label>
+          <input type="text" id="name" required placeholder="Adrian Walker">
+        </div>
+
+        <div class="form-group">
+          <label for="email">Email Address *</label>
+          <input type="email" id="email" required placeholder="adrian@example.com">
+        </div>
+
+        <div class="form-group">
+          <label>Select Amount *</label>
+          <div class="amount-options">
+            <button type="button" class="amount-btn" data-amount="25">$25</button>
+            <button type="button" class="amount-btn" data-amount="50">$50</button>
+            <button type="button" class="amount-btn" data-amount="100">$100</button>
+            <button type="button" class="amount-btn" data-amount="250">$250</button>
+            <button type="button" class="amount-btn" data-amount="500">$500</button>
+            <button type="button" class="amount-btn" data-amount="custom">Custom</button>
+          </div>
+        </div>
+
+        <div class="form-group" id="customAmountRow" style="display:none;">
+          <label for="customAmount">Custom Amount ($)</label>
+          <input type="number" id="customAmount" min="1" step="1" placeholder="Enter amount">
+        </div>
+
+        <button type="submit" class="submit-btn" id="submitBtn">Donate Now — Secure Payment via Stripe</button>
+        <div id="status" style="margin-top:15px;color:#555;text-align:center;font-weight:500;"></div>
+      </form>
+
+      <div class="trust-badges">
+        <div class="badge">✅ SoulMarkⓈ Verified</div>
+        <div class="badge">💳 Secure via Stripe</div>
+        <div class="badge">🔍 100% Transparent</div>
+      </div>
+    </div>
+
+    <div class="footer">
+      <p>View live donation tracker: <a href="/tracker.html">Impact Dashboard</a></p>
+      <p style="margin-top: 10px;">Verified by <a href="https://iascendai.com">iAscendAi Authored Intelligence</a></p>
+    </div>
+  </div>
+
+  <script type="module">
+    import { CONFIG } from "/config.js";     
+    const BACKEND_URL = CONFIG.BACKEND_URL;
+    const amountButtons = document.querySelectorAll(".amount-btn");
+    const customRow = document.getElementById("customAmountRow");
+    const customInput = document.getElementById("customAmount");
+    const form = document.getElementById("donationForm");
+    const statusEl = document.getElementById("status");
+    const submitBtn = document.getElementById("submitBtn");
+    const emailInput = document.getElementById("email");
+
+    let selectedAmount = null;
+    let soulmark = null;
+
+    // 💠 Auto SoulMark generation when email is entered
+    emailInput.addEventListener("blur", async () => {
+      const email = emailInput.value.trim();
+      if (!email) return;
+      statusEl.textContent = "Verifying SoulMarkⓈ...";
+      try {
+        const res = await fetch(`${BACKEND_URL}/verify-soulmark`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email }),
+        });
+        const data = await res.json();
+        if (data.verified) {
+          soulmark = data.soulmark;
+          statusEl.textContent = `✅ SoulMarkⓈ Verified: ${soulmark}`;
+        } else {
+          statusEl.textContent = "⚠️ SoulMarkⓈ verification failed.";
+        }
+      } catch (err) {
+        statusEl.textContent = "⚠️ Could not connect to SoulMarkⓈ verifier.";
+      }
+    });
+
+    // 💰 Donation amount selection
+    amountButtons.forEach(btn => {
+      btn.addEventListener("click", () => {
+        amountButtons.forEach(b => b.classList.remove("selected"));
+        btn.classList.add("selected");
+        const val = btn.dataset.amount;
+        if (val === "custom") {
+          selectedAmount = null;
+          customRow.style.display = "block";
+          customInput.focus();
+        } else {
+          selectedAmount = Number(val);
+          customRow.style.display = "none";
+          customInput.value = "";
+        }
+      });
+    });
+
+    // 💳 Donation form submission
+    form.addEventListener("submit", async e => {
+      e.preventDefault();
+      const name = document.getElementById("name").value.trim();
+      const email = emailInput.value.trim();
+      const custom = Number(customInput.value) || 0;
+      const amount = selectedAmount || custom;
+
+      if (!amount || amount < 1) {
+        statusEl.textContent = "Please choose or enter an amount of at least $1.";
+        return;
+      }
+
+      if (!soulmark) {
+        statusEl.textContent = "⚠️ Please wait for SoulMarkⓈ verification.";
+        return;
+      }
+
+      submitBtn.disabled = true;
+      statusEl.textContent = "Creating secure Stripe checkout session...";
+
+      try {
+        const res = await fetch(`${BACKEND_URL}/create-checkout-session`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name, email, amount, soulmark }),
+        });
+        const data = await res.json();
+
+        if (!res.ok || !data.url) {
+          console.error("Create session error:", data);
+          statusEl.textContent = data.error || "Failed to create checkout session.";
+          submitBtn.disabled = false;
+          return;
+        }
+
+        window.location.href = data.url;
+      } catch (err) {
+        console.error("Network error:", err);
+        statusEl.textContent = "⚠️ Could not reach donation server.";
+        submitBtn.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>

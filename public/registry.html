@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SoulRegistryⓈ | iAscendAi</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --iascend-orange: #f4a349;
+            --iascend-blue: #b8edee;
+            --jamaica-green: #1a5f3f;
+            --text-dark: #1f2937;
+            --text-light: #6b7280;
+            --bg-gray: #f9fafb;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, var(--iascend-blue) 0%, var(--iascend-orange) 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            animation: fadeInDown 0.6s ease-out;
+        }
+
+        .logo {
+            font-size: 2em;
+            font-weight: 800;
+            margin-bottom: 10px;
+        }
+
+        .tagline {
+            font-size: 1.1em;
+            opacity: 0.95;
+        }
+
+        .registry-card {
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: fadeInUp 0.6s ease-out 0.2s both;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .card-title {
+            font-size: 1.8em;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        .total-count {
+            font-size: 1.2em;
+            color: var(--text-light);
+        }
+
+        .total-count strong {
+            color: var(--iascend-orange);
+            font-weight: 700;
+        }
+
+        .search-bar {
+            margin-bottom: 25px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--iascend-blue);
+            box-shadow: 0 0 0 3px rgba(184, 237, 238, 0.2);
+        }
+
+        .filters {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 8px 20px;
+            border: 2px solid #e5e7eb;
+            border-radius: 20px;
+            background: white;
+            color: var(--text-dark);
+            font-weight: 600;
+            font-size: 0.9em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .filter-btn:hover {
+            border-color: var(--iascend-orange);
+        }
+
+        .filter-btn.active {
+            background: var(--iascend-orange);
+            color: white;
+            border-color: var(--iascend-orange);
+        }
+
+        .registry-list {
+            display: grid;
+            gap: 15px;
+        }
+
+        .identity-item {
+            background: var(--bg-gray);
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .identity-item:hover {
+            background: #f3f4f6;
+            transform: translateX(5px);
+        }
+
+        .identity-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .identity-main {
+            flex: 1;
+        }
+
+        .identity-name {
+            font-size: 1.2em;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 5px;
+        }
+
+        .identity-username {
+            color: var(--iascend-orange);
+            font-weight: 600;
+            font-size: 0.95em;
+        }
+
+        .identity-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+
+        .identity-badge.donor {
+            background: linear-gradient(135deg, rgba(26, 95, 63, 0.1), rgba(26, 95, 63, 0.05));
+            color: var(--jamaica-green);
+        }
+
+        .identity-badge.survivor {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(239, 68, 68, 0.05));
+            color: #dc2626;
+        }
+
+        .identity-details {
+            display: flex;
+            gap: 20px;
+            font-size: 0.9em;
+            color: var(--text-light);
+        }
+
+        .identity-detail {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .survivor-status {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .survivor-label {
+            font-size: 0.85em;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 5px;
+        }
+
+        .survivor-value {
+            font-size: 0.9em;
+            color: var(--text-light);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-light);
+        }
+
+        .empty-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-light);
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #e5e7eb;
+            border-top-color: var(--iascend-orange);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .footer-links {
+            text-align: center;
+            margin-top: 25px;
+            padding-top: 25px;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .footer-links a {
+            color: var(--text-light);
+            text-decoration: none;
+            font-size: 0.9em;
+            margin: 0 10px;
+            transition: color 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: var(--iascend-orange);
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 640px) {
+            .registry-card {
+                padding: 25px;
+            }
+            .card-header {
+                flex-direction: column;
+                text-align: center;
+                gap: 10px;
+            }
+            .identity-details {
+                flex-direction: column;
+                gap: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">SoulRegistryⓈ</div>
+            <div class="tagline">Public Ledger of Verified Identities</div>
+        </div>
+
+        <div class="registry-card">
+            <div class="card-header">
+                <h1 class="card-title">All Verified Identities</h1>
+                <div class="total-count">
+                    <strong id="totalCount">0</strong> registered
+                </div>
+            </div>
+
+            <div class="search-bar">
+                <input 
+                    type="text" 
+                    class="search-input" 
+                    id="searchInput"
+                    placeholder="Search by name or username..."
+                >
+            </div>
+
+            <div class="filters">
+                <button class="filter-btn active" data-filter="all">All</button>
+                <button class="filter-btn" data-filter="donor">Supporters</button>
+                <button class="filter-btn" data-filter="survivor">Survivors</button>
+            </div>
+
+            <div id="loadingState" class="loading">
+                <div class="spinner"></div>
+                <div>Loading registry...</div>
+            </div>
+
+            <div id="registryList" class="registry-list" style="display: none;"></div>
+
+            <div id="emptyState" class="empty-state" style="display: none;">
+                <div class="empty-icon">🔍</div>
+                <div>No identities found</div>
+            </div>
+
+            <div class="footer-links">
+                <a href="/iascendai-register.html">Register Identity</a>
+                <a href="/iascendai-verify.html">Verify Identity</a>
+                <a href="/">Home</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const BACKEND_URL = 'http://localhost:10000';
+        let allIdentities = [];
+        let currentFilter = 'all';
+        let currentSearch = '';
+
+        async function loadRegistry() {
+            try {
+                const response = await fetch(`${BACKEND_URL}/registry`);
+                if (!response.ok) throw new Error('Failed to load registry');
+
+                allIdentities = await response.json();
+                document.getElementById('totalCount').textContent = allIdentities.length;
+                
+                document.getElementById('loadingState').style.display = 'none';
+                displayIdentities();
+
+            } catch (error) {
+                console.error('Error loading registry:', error);
+                document.getElementById('loadingState').innerHTML = '<div>Failed to load registry</div>';
+            }
+        }
+
+        function displayIdentities() {
+            const registryList = document.getElementById('registryList');
+            const emptyState = document.getElementById('emptyState');
+
+            // Filter identities
+            let filtered = allIdentities;
+
+            if (currentFilter !== 'all') {
+                filtered = filtered.filter(identity => identity.role === currentFilter);
+            }
+
+            if (currentSearch) {
+                const search = currentSearch.toLowerCase();
+                filtered = filtered.filter(identity => 
+                    identity.name.toLowerCase().includes(search) ||
+                    identity.username.toLowerCase().includes(search)
+                );
+            }
+
+            // Display
+            if (filtered.length === 0) {
+                registryList.style.display = 'none';
+                emptyState.style.display = 'block';
+                return;
+            }
+
+            emptyState.style.display = 'none';
+            registryList.style.display = 'grid';
+
+            registryList.innerHTML = filtered.map(identity => `
+                <div class="identity-item" onclick="window.location.href='/iascendai-verify.html?q=${identity.username}'">
+                    <div class="identity-header">
+                        <div class="identity-main">
+                            <div class="identity-name">${identity.name}</div>
+                            <div class="identity-username">${identity.username}@iascendai</div>
+                        </div>
+                        <span class="identity-badge ${identity.role}">
+                            ${identity.role === 'donor' ? 'Supporter' : 'Survivor'}
+                        </span>
+                    </div>
+                    <div class="identity-details">
+                        <div class="identity-detail">
+                            📅 ${new Date(identity.createdAt).toLocaleDateString('en-US', { 
+                                month: 'short', 
+                                day: 'numeric',
+                                year: 'numeric'
+                            })}
+                        </div>
+                        ${identity.location ? `
+                        <div class="identity-detail">
+                            📍 ${identity.location}
+                        </div>
+                        ` : ''}
+                    </div>
+                    ${identity.role === 'survivor' && identity.status ? `
+                    <div class="survivor-status">
+                        <div class="survivor-label">Status</div>
+                        <div class="survivor-value">${identity.status}</div>
+                    </div>
+                    ` : ''}
+                </div>
+            `).join('');
+        }
+
+        // Filter buttons
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                currentFilter = this.dataset.filter;
+                displayIdentities();
+            });
+        });
+
+        // Search
+        document.getElementById('searchInput').addEventListener('input', function() {
+            currentSearch = this.value.trim();
+            displayIdentities();
+        });
+
+        // Load registry on page load
+        loadRegistry();
+    </script>
+</body>
+</html>

@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Dashboard | iAscendAi</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --iascend-orange: #f4a349;
+            --iascend-blue: #b8edee;
+            --text-dark: #1f2937;
+            --text-light: #6b7280;
+            --bg-gray: #f9fafb;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            animation: fadeInDown 0.6s ease-out;
+        }
+
+        .logo {
+            font-size: 1.8em;
+            font-weight: 800;
+            margin-bottom: 5px;
+        }
+
+        .welcome {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .dashboard-card {
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            margin-bottom: 20px;
+            animation: fadeInUp 0.6s ease-out 0.2s both;
+        }
+
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 30px;
+            padding-bottom: 30px;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .profile-avatar {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--iascend-orange), var(--iascend-blue));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2em;
+            color: white;
+            font-weight: 700;
+        }
+
+        .profile-info {
+            flex: 1;
+        }
+
+        .profile-name {
+            font-size: 1.5em;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 5px;
+        }
+
+        .profile-username {
+            color: var(--iascend-orange);
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .profile-role {
+            display: inline-block;
+            padding: 4px 12px;
+            background: var(--bg-gray);
+            border-radius: 20px;
+            font-size: 0.85em;
+            color: var(--text-light);
+            font-weight: 600;
+        }
+
+        .section-title {
+            font-size: 1.3em;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 20px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .info-item {
+            background: var(--bg-gray);
+            padding: 20px;
+            border-radius: 12px;
+        }
+
+        .info-label {
+            font-size: 0.85em;
+            font-weight: 600;
+            color: var(--text-light);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .info-value {
+            color: var(--text-dark);
+            font-weight: 600;
+        }
+
+        .soulmark-box {
+            background: linear-gradient(135deg, rgba(244, 163, 73, 0.1), rgba(184, 237, 238, 0.1));
+            border: 2px solid var(--iascend-orange);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .soulmark-label {
+            font-size: 0.85em;
+            font-weight: 600;
+            color: var(--iascend-orange);
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .soulmark-hash {
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            color: var(--text-dark);
+            background: white;
+            padding: 12px;
+            border-radius: 6px;
+            word-break: break-all;
+        }
+
+        .survivor-info {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.05), rgba(239, 68, 68, 0.02));
+            border: 2px solid #fecaca;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .survivor-title {
+            font-size: 1.1em;
+            font-weight: 700;
+            color: #dc2626;
+            margin-bottom: 15px;
+        }
+
+        .survivor-item {
+            margin-bottom: 15px;
+        }
+
+        .survivor-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .survivor-label {
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 5px;
+        }
+
+        .survivor-value {
+            color: var(--text-light);
+            line-height: 1.6;
+        }
+
+        .action-buttons {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .action-btn {
+            padding: 15px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            background: white;
+            color: var(--text-dark);
+            font-weight: 600;
+            text-decoration: none;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .action-btn:hover {
+            border-color: var(--iascend-orange);
+            background: rgba(244, 163, 73, 0.05);
+        }
+
+        .action-btn.primary {
+            background: linear-gradient(135deg, var(--iascend-orange), #e58f39);
+            color: white;
+            border-color: var(--iascend-orange);
+        }
+
+        .action-btn.primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(244, 163, 73, 0.3);
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 640px) {
+            .dashboard-card {
+                padding: 25px;
+            }
+            .profile-header {
+                flex-direction: column;
+                text-align: center;
+            }
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+            .action-buttons {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">iAscendAi</div>
+            <div class="welcome">Your Personal Dashboard</div>
+        </div>
+
+        <div class="dashboard-card">
+            <div class="profile-header">
+                <div class="profile-avatar" id="avatar">A</div>
+                <div class="profile-info">
+                    <div class="profile-name" id="profileName">Loading...</div>
+                    <div class="profile-username" id="profileUsername">@iascendai</div>
+                    <span class="profile-role" id="profileRole">Supporter</span>
+                </div>
+            </div>
+
+            <h2 class="section-title">Account Information</h2>
+            
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="info-label">Full Name</div>
+                    <div class="info-value" id="infoName">Loading...</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Email</div>
+                    <div class="info-value" id="infoEmail">Loading...</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Member Since</div>
+                    <div class="info-value" id="infoDate">Loading...</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Status</div>
+                    <div class="info-value">✓ Verified</div>
+                </div>
+            </div>
+
+            <div class="soulmark-box">
+                <div class="soulmark-label">Your SoulMarkⓈ</div>
+                <div class="soulmark-hash" id="soulMark">Loading...</div>
+            </div>
+
+            <div class="survivor-info" id="survivorInfo" style="display: none;">
+                <div class="survivor-title">Emergency Information</div>
+                <div class="survivor-item">
+                    <div class="survivor-label">Current Location</div>
+                    <div class="survivor-value" id="survivorLocation">-</div>
+                </div>
+                <div class="survivor-item">
+                    <div class="survivor-label">Safety Status</div>
+                    <div class="survivor-value" id="survivorStatus">-</div>
+                </div>
+                <div class="survivor-item">
+                    <div class="survivor-label">Assistance Needed</div>
+                    <div class="survivor-value" id="survivorAssistance">-</div>
+                </div>
+            </div>
+
+            <h2 class="section-title">Quick Actions</h2>
+            <div class="action-buttons">
+                <a href="/iascendai-verify.html" class="action-btn">
+                    Verify Another Identity
+                </a>
+                <a href="/soulregistry.html" class="action-btn">
+                    Browse Registry
+                </a>
+                <a href="/tracker.html" class="action-btn">
+                    View Impact Dashboard
+                </a>
+                <a href="/" class="action-btn primary">
+                    Back to Home
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const BACKEND_URL = 'http://localhost:10000';
+
+        // Test data for demo/development
+        const TEST_DATA = {
+            name: 'Adrian Walker',
+            username: 'adrian',
+            email: 'adrian@example.com',
+            role: 'donor',
+            soulMark: 'SM_a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6',
+            createdAt: new Date().toISOString()
+        };
+
+        function displayIdentity(identity) {
+            // Set avatar
+            document.getElementById('avatar').textContent = identity.name.charAt(0).toUpperCase();
+
+            // Set profile header
+            document.getElementById('profileName').textContent = identity.name;
+            document.getElementById('profileUsername').textContent = `${identity.username}@iascendai`;
+            document.getElementById('profileRole').textContent = identity.role === 'donor' ? 'Supporter' : 'Survivor';
+
+            // Set info grid
+            document.getElementById('infoName').textContent = identity.name;
+            document.getElementById('infoEmail').textContent = identity.email;
+            document.getElementById('infoDate').textContent = new Date(identity.createdAt).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+
+            // Set SoulMark
+            document.getElementById('soulMark').textContent = identity.soulMark;
+
+            // Show survivor info if applicable
+            if (identity.role === 'survivor') {
+                const survivorInfo = document.getElementById('survivorInfo');
+                survivorInfo.style.display = 'block';
+                document.getElementById('survivorLocation').textContent = identity.location || '-';
+                document.getElementById('survivorStatus').textContent = identity.status || '-';
+                document.getElementById('survivorAssistance').textContent = identity.assistance || 'None specified';
+            }
+        }
+
+        async function loadDashboard() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const username = urlParams.get('username');
+            const testMode = urlParams.get('test') === 'true';
+
+            // If in test mode, use test data
+            if (testMode) {
+                console.log('Running in TEST MODE with sample data');
+                displayIdentity(TEST_DATA);
+                return;
+            }
+
+            // If no username provided, show error and test mode option
+            if (!username) {
+                const useTestMode = confirm(
+                    'No username provided in URL.\n\n' +
+                    'Click OK to view with test data, or Cancel to go to registration.\n\n' +
+                    'Tip: Access via /iascendai-dashboard.html?username=YOUR_USERNAME'
+                );
+                
+                if (useTestMode) {
+                    displayIdentity(TEST_DATA);
+                    return;
+                } else {
+                    window.location.href = '/iascendai-register.html';
+                    return;
+                }
+            }
+
+            // Try to load from backend
+            try {
+                console.log(`Loading dashboard for username: ${username}`);
+                const response = await fetch(`${BACKEND_URL}/dashboard/${username}`);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                const identity = await response.json();
+                console.log('Dashboard loaded successfully:', identity);
+                displayIdentity(identity);
+
+            } catch (error) {
+                console.error('Error loading dashboard:', error);
+                
+                // Provide detailed error message
+                const errorMessage = 
+                    'Failed to load dashboard:\n\n' +
+                    `Error: ${error.message}\n\n` +
+                    `Username: ${username}\n` +
+                    `Backend URL: ${BACKEND_URL}\n\n` +
+                    'Possible issues:\n' +
+                    '1. Backend server is not running\n' +
+                    '2. Username does not exist\n' +
+                    '3. BACKEND_URL is incorrect\n\n' +
+                    'Click OK to view test data, or Cancel to register.';
+                
+                const useTestMode = confirm(errorMessage);
+                
+                if (useTestMode) {
+                    displayIdentity(TEST_DATA);
+                } else {
+                    window.location.href = '/iascendai-register.html';
+                }
+            }
+        }
+
+        loadDashboard();
+    </script>
+</body>
+</html>

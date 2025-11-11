@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Donation Successful | Jamaica We Rise</title>
+  <style>
+    body {
+      background: radial-gradient(circle at center, #04391f 0%, #01180f 100%);
+      color: #fff;
+      text-align: center;
+      font-family: system-ui, sans-serif;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    h1 {
+      font-size: 2.3rem;
+      margin-bottom: 0.6rem;
+    }
+
+    p {
+      opacity: 0.95;
+      line-height: 1.6;
+      max-width: 480px;
+    }
+
+    .soulmark-box {
+      margin-top: 1.5rem;
+      padding: 1rem 1.5rem;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.08);
+      display: inline-block;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+
+    a.btn {
+      margin-top: 2.2rem;
+      display: inline-block;
+      background: linear-gradient(135deg, #f7b047, #ff8b00);
+      color: #1a1a1a;
+      padding: 14px 36px;
+      border-radius: 10px;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 1.05rem;
+      transition: all 0.3s ease;
+      box-shadow: 0 0 18px rgba(255, 180, 70, 0.4);
+      animation: pulse 2.8s infinite;
+    }
+
+    a.btn:hover {
+      background: linear-gradient(135deg, #ff9a1f, #ff7400);
+      transform: scale(1.05);
+      box-shadow: 0 0 24px rgba(255, 180, 70, 0.6);
+    }
+
+    @keyframes pulse {
+      0% { box-shadow: 0 0 10px rgba(255, 160, 50, 0.5); }
+      50% { box-shadow: 0 0 22px rgba(255, 180, 70, 0.8); }
+      100% { box-shadow: 0 0 10px rgba(255, 160, 50, 0.5); }
+    }
+
+    footer {
+      margin-top: 3rem;
+      font-size: 0.85rem;
+      color: rgba(255, 255, 255, 0.65);
+    }
+  </style>
+</head>
+<body>
+  <h1>💛 Donation Successful!</h1>
+  <p>
+    Thank you for supporting <b>Jamaica We Rise</b>.<br />
+    Your verified contribution has been recorded on the SoulRegistryⓈ network.
+  </p>
+
+  <div id="soulmarkDisplay" class="soulmark-box">SoulMarkⓈ pending...</div>
+
+  <a id="signupLink" href="#" class="btn">Activate My SoulMarkⓈ</a>
+
+  <footer>
+    © 2025 Project Inside Out Jamaica × iAscendAi Authored Intelligence
+  </footer>
+
+  <script>
+    // Get SoulMark from query string
+    const params = new URLSearchParams(window.location.search);
+    const soulmark = params.get("soulmark");
+    const soulBox = document.getElementById("soulmarkDisplay");
+    const signupBtn = document.getElementById("signupLink");
+
+    // ✅ Correct relative linking logic
+    const registerPath = window.location.origin + "/iascendai-register.html";
+
+    if (soulmark) {
+      soulBox.textContent = "Your SoulMarkⓈ: " + soulmark;
+      signupBtn.href = `${registerPath}?soulmark=${encodeURIComponent(soulmark)}`;
+    } else {
+      soulBox.textContent =
+        "SoulMarkⓈ verification missing. Please check your donation email.";
+      signupBtn.href = registerPath;
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,113 @@
+HEAD
+# --- Node.js / Backend ---
+node_modules/
+.env
+.env.local
+package-lock.json
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# --- Logs ---
+logs/
+*.log
+log.txt
+
+# --- Data files ---
+data/*.json
+!data/sample.json   # optional: keep a non-sensitive example
+
+# --- System files ---
+.DS_Store
+Thumbs.db
+
+# --- Build artifacts ---
+=======
+# ================================
+# 🌿 Jamaica We Rise Donation App
+# Node + Express + Frontend Setup
+# ================================
+
+# --- Environment Files ---
+.env
+*.env
+backend/.env
+
+# --- Node & Dependencies ---
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+
+# --- Build Outputs ---
+>>>>>>> 21e4dcf175eac466c811e21a08f00e5bb632327c
+dist/
+build/
+.cache/
+.tmp/
+
+<<<<<<< HEAD
+# --- Frontend ---
+frontend/node_modules/
+public/node_modules/
+public/public/
+
+# --- OS / Editor junk ---
+*.swp
+*.swo
+.vscode/
+.idea/
+
+# --- Backup files ---
+*.bak
+*.old
+*.tmp
+
+# --- Local sandbox folders (non-production) ---
+sandbox/
+test/
+=======
+# --- System Files ---
+.DS_Store
+Thumbs.db
+*.log
+*.bak
+*.swp
+*.tmp
+
+# --- IDE / Editor Files ---
+.vscode/
+.idea/
+*.iml
+
+# --- OS Specific ---
+ehthumbs.db
+Desktop.ini
+
+# --- Local Configuration ---
+*.local
+*.env.local
+*.env.development.local
+*.env.test.local
+*.env.production.local
+
+# --- Backups & Secrets ---
+secret_*
+backup/
+credentials/
+private_keys/
+keys.json
+
+# --- Misc (Safety) ---
+*.pem
+*.crt
+*.key
+*.p12
+*.cer
+*.csr
+
+# --- Optional: Ignore uploaded user content if added later ---
+uploads/
+storage/
+>>>>>>> 21e4dcf175eac466c811e21a08f00e5bb632327c

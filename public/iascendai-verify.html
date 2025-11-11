@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SoulMarkⓈ Verification | iAscendAi</title>
+  <style>
+    body {
+      font-family: -apple-system,BlinkMacSystemFont,'Inter','Segoe UI',Roboto,sans-serif;
+      background:#041423;
+      color:#fff;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      align-items:center;
+      height:100vh;
+      margin:0;
+      padding:20px;
+      text-align:center;
+    }
+    h1 {
+      background:linear-gradient(135deg,#fed103,#059c3a);
+      -webkit-background-clip:text;
+      -webkit-text-fill-color:transparent;
+      font-size:2.4em;
+      margin-bottom:20px;
+    }
+    .verify-box {
+      background:rgba(255,255,255,0.05);
+      border:1px solid rgba(255,255,255,0.1);
+      border-radius:16px;
+      padding:30px 40px;
+      width:90%;
+      max-width:480px;
+      box-shadow:0 0 25px rgba(5,156,58,0.2);
+    }
+    p{color:#d1d5db;margin-bottom:10px;}
+    input {
+      width:100%;
+      padding:14px;
+      border:2px solid rgba(255,255,255,0.1);
+      border-radius:10px;
+      background:rgba(255,255,255,0.05);
+      color:#fff;
+      font-size:1em;
+      margin-top:10px;
+      outline:none;
+      transition:0.3s ease;
+    }
+    input:focus {
+      border-color:#059c3a;
+      box-shadow:0 0 0 3px rgba(5,156,58,0.2);
+    }
+    button {
+      width:100%;
+      padding:15px;
+      margin-top:25px;
+      background:linear-gradient(135deg,#059c3a,#047d2f);
+      border:none;
+      border-radius:10px;
+      color:#fff;
+      font-weight:700;
+      cursor:pointer;
+      transition:0.3s ease;
+      box-shadow:0 8px 20px rgba(5,156,58,0.3);
+    }
+    button:hover {
+      transform:translateY(-3px);
+      box-shadow:0 10px 25px rgba(5,156,58,0.4);
+    }
+    #result {
+      margin-top:25px;
+      font-size:1em;
+      color:#f4a349;
+      min-height:1.4em;
+      transition:all .3s ease;
+    }
+    #result.verified { color:#10b981; text-shadow:0 0 8px rgba(16,185,129,0.6); }
+    #result.invalid { color:#ef4444; text-shadow:0 0 6px rgba(239,68,68,0.4); }
+    a {
+      color:#f4a349;
+      text-decoration:none;
+      font-size:0.9em;
+      display:inline-block;
+      margin-top:20px;
+    }
+    a:hover { text-decoration:underline; }
+  </style>
+</head>
+<body>
+  <h1>SoulMarkⓈ Verification</h1>
+  <div class="verify-box">
+    <p>Enter your SoulMarkⓈ signature to verify identity authenticity.</p>
+    <input type="text" id="soulmarkInput" placeholder="Enter SoulMark signature..." />
+    <button id="verifyBtn">Verify SoulMarkⓈ</button>
+    <div id="result"></div>
+  </div>
+
+  <a href="iascendai-dashboard.html">← Back to Dashboard</a>
+
+  <script>
+    const BACKEND_URL = "http://127.0.0.1:10000";
+    const resultEl = document.getElementById("result");
+
+    document.getElementById("verifyBtn").addEventListener("click", async () => {
+      const input = document.getElementById("soulmarkInput").value.trim();
+      resultEl.className = "";
+      if (!input) {
+        resultEl.textContent = "Please enter your SoulMark signature.";
+        return;
+      }
+
+      resultEl.textContent = "Verifying...";
+      try {
+        const res = await fetch(`${BACKEND_URL}/verify-soulmark/${encodeURIComponent(input)}`);
+        if (!res.ok) throw new Error("Verification failed.");
+        const data = await res.json();
+
+        if (data.verified) {
+          resultEl.textContent = `✅ Verified SoulMark for ${data.username || "registered user"}`;
+          resultEl.className = "verified";
+        } else {
+          resultEl.textContent = "❌ Invalid or unrecognized SoulMark.";
+          resultEl.className = "invalid";
+        }
+      } catch (err) {
+        console.error(err);
+        resultEl.textContent = "⚠️ Could not reach verification service or endpoint not active.";
+        resultEl.className = "invalid";
+      }
+    });
+  </script>
+</body>
+</html>

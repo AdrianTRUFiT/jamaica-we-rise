@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SoulRegistryⓈ Directory | iAscendAi</title>
+  <style>
+    body {
+      font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',Roboto,sans-serif;
+      background:#041423;color:#fff;min-height:100vh;margin:0;padding:40px 20px;
+    }
+    h1 {
+      text-align:center;
+      background:linear-gradient(135deg,#fed103,#059c3a);
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+      font-size:2.8em;margin-bottom:10px;
+    }
+    p{text-align:center;color:rgba(255,255,255,0.8);margin-bottom:40px}
+    .registry{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+      gap:20px;
+      max-width:1200px;
+      margin:0 auto;
+    }
+    .entry{
+      background:rgba(255,255,255,0.05);
+      border:1px solid rgba(255,255,255,0.1);
+      border-radius:16px;
+      padding:20px 25px;
+      box-shadow:0 0 20px rgba(5,156,58,0.2);
+      transition:transform 0.3s ease,box-shadow 0.3s ease;
+    }
+    .entry:hover{transform:translateY(-3px);box-shadow:0 0 30px rgba(254,209,3,0.3)}
+    .entry h2{margin:0 0 10px;font-size:1.4em;color:#fed103}
+    .entry p{margin:5px 0;font-size:0.95em;color:rgba(255,255,255,0.9)}
+    .verified{color:#059c3a;font-weight:600}
+    .unverified{color:#f4a349}
+    #loading{text-align:center;color:rgba(255,255,255,0.6);font-size:1.1em}
+    a{color:#f4a349;text-decoration:none}
+    a:hover{text-decoration:underline}
+    .footer{text-align:center;margin-top:50px;font-size:0.85em;color:rgba(255,255,255,0.6)}
+  </style>
+</head>
+<body>
+  <h1>SoulRegistryⓈ Directory</h1>
+  <p>Browse verified iAscendAi identities and their SoulMarkⓈ authenticity.</p>
+
+  <div id="loading">Loading verified entries...</div>
+  <div id="registry" class="registry" style="display:none;"></div>
+
+  <div class="footer">
+    <p>© 2025 iAscendAi • SoulRegistryⓈ Public Ledger</p>
+    <a href="index.html">← Back to Jamaica We Rise</a>
+  </div>
+
+  <script type="module">
+    // ✅ Safe config import
+    let CONFIG={BACKEND_URL:"http://127.0.0.1:10000",MODE:"test"};
+    try{
+      const imported=await import("./config.js");
+      if(imported?.CONFIG)CONFIG=imported.CONFIG;
+    }catch(e){
+      console.warn("⚠️ config.js not found — using fallback:",CONFIG);
+    }
+
+    const BACKEND_URL=CONFIG.BACKEND_URL;
+
+    async function loadRegistry(){
+      const registry=document.getElementById("registry");
+      const loading=document.getElementById("loading");
+
+      try{
+        const res=await fetch(`${BACKEND_URL}/registry`);
+        if(!res.ok)throw new Error("Failed to fetch registry");
+        const data=await res.json();
+
+        if(!data||data.length===0){
+          loading.textContent="No verified identities yet.";
+          return;
+        }
+
+        loading.style.display="none";
+        registry.style.display="grid";
+
+        registry.innerHTML=data.map(entry=>`
+          <div class="entry">
+            <h2>${entry.name||"Unnamed Identity"}</h2>
+            <p><strong>Username:</strong> ${entry.username?`${entry.username}@iascendai`:"—"}</p>
+            <p><strong>SoulMark:</strong> ${entry.soulMark||"—"}</p>
+            <p class="${entry.verified?"verified":"unverified"}">
+              ${entry.verified?"✔ Verified":"⚠ Pending Verification"}
+            </p>
+          </div>`).join("");
+
+      }catch(error){
+        console.error(error);
+        loading.textContent="⚠️ Could not load registry. Please try again later.";
+      }
+    }
+
+    loadRegistry();
+  </script>
+</body>
+</html>
