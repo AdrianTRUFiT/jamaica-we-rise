@@ -3,138 +3,105 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>My Dashboard | iAscendAi</title>
+  <title>iAscendAi Dashboard</title>
   <style>
-    /* (Your CSS — unchanged, already perfect) */
+    body {
+      font-family: system-ui, sans-serif;
+      background: #f9fafb;
+      text-align: center;
+      padding: 40px;
+    }
+    #loading {
+      display: none;
+      color: #555;
+      font-size: 1.1rem;
+      margin-bottom: 20px;
+    }
+    #user-data {
+      display: none;
+      background: #fff;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 2px 10px rgba(0,0,0,.1);
+      max-width: 500px;
+      margin: 0 auto;
+    }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="header">
-      <div class="logo">iAscendAi</div>
-      <div class="welcome">Your Personal Dashboard</div>
-    </div>
-
-    <div class="dashboard-card">
-      <div class="profile-header">
-        <div class="profile-avatar" id="avatar">A</div>
-        <div class="profile-info">
-          <div class="profile-name" id="profileName">Loading...</div>
-          <div class="profile-username" id="profileUsername">@iascendai</div>
-          <span class="profile-role" id="profileRole">Supporter</span>
-        </div>
-      </div>
-
-      <h2 class="section-title">Account Information</h2>
-      <div class="info-grid">
-        <div class="info-item"><div class="info-label">Full Name</div><div class="info-value" id="infoName">Loading...</div></div>
-        <div class="info-item"><div class="info-label">Email</div><div class="info-value" id="infoEmail">Loading...</div></div>
-        <div class="info-item"><div class="info-label">Member Since</div><div class="info-value" id="infoDate">Loading...</div></div>
-        <div class="info-item"><div class="info-label">Status</div><div class="info-value">✓ Verified</div></div>
-      </div>
-
-      <div class="soulmark-box">
-        <div class="soulmark-label">Your SoulMarkⓈ</div>
-        <div class="soulmark-hash" id="soulMark">Loading...</div>
-      </div>
-
-      <div class="survivor-info" id="survivorInfo" style="display:none;">
-        <div class="survivor-title">Emergency Information</div>
-        <div class="survivor-item"><div class="survivor-label">Current Location</div><div class="survivor-value" id="survivorLocation">-</div></div>
-        <div class="survivor-item"><div class="survivor-label">Safety Status</div><div class="survivor-value" id="survivorStatus">-</div></div>
-        <div class="survivor-item"><div class="survivor-label">Assistance Needed</div><div class="survivor-value" id="survivorAssistance">-</div></div>
-      </div>
-
-      <h2 class="section-title">Quick Actions</h2>
-      <div class="action-buttons">
-        <a href="/iascendai-verify.html" class="action-btn">Verify Another Identity</a>
-        <a href="/soulregistry.html" class="action-btn">Browse Registry</a>
-        <a href="/tracker.html" class="action-btn">View Impact Dashboard</a>
-        <a href="/" class="action-btn primary">Back to Home</a>
-      </div>
-    </div>
+  <h1>Welcome to Your Dashboard</h1>
+  <div id="loading">⏳ Loading your verified record...</div>
+  <div id="user-data">
+    <h2 id="user-name"></h2>
+    <p><strong>Email:</strong> <span id="user-email"></span></p>
+    <p><strong>SoulMark:</strong> <span id="user-soulmark"></span></p>
+    <p><strong>Registered:</strong> <span id="user-date"></span></p>
   </div>
 
   <script>
-    const BACKEND_URL = "https://jamaica-we-rise.onrender.com";
+    const API_BASE = "https://jamaica-we-rise.onrender.com";
+    const params = new URLSearchParams(window.location.search);
+    const username = params.get("username");
 
-    const TEST_DATA = {
-      name: "Adrian Walker",
-      username: "adrian",
-      email: "adrian@example.com",
-      role: "donor",
-      soulMark: "SM_a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6",
-      createdAt: new Date().toISOString(),
-    };
+    const loadingEl = document.getElementById("loading");
+    const userEl = document.getElementById("user-data");
 
-    function displayIdentity(identity) {
-      document.getElementById("avatar").textContent = identity.name.charAt(0).toUpperCase();
-      document.getElementById("profileName").textContent = identity.name;
-      document.getElementById("profileUsername").textContent = `${identity.username}@iascendai`;
-      document.getElementById("profileRole").textContent =
-        identity.role === "donor" ? "Supporter" : "Survivor";
-
-      document.getElementById("infoName").textContent = identity.name;
-      document.getElementById("infoEmail").textContent = identity.email;
-      document.getElementById("infoDate").textContent = new Date(identity.createdAt).toLocaleDateString(
-        "en-US",
-        { year: "numeric", month: "long", day: "numeric" }
-      );
-
-      document.getElementById("soulMark").textContent = identity.soulMark;
-
-      if (identity.role === "survivor") {
-        const survivorInfo = document.getElementById("survivorInfo");
-        survivorInfo.style.display = "block";
-        document.getElementById("survivorLocation").textContent = identity.location || "-";
-        document.getElementById("survivorStatus").textContent = identity.status || "-";
-        document.getElementById("survivorAssistance").textContent =
-          identity.assistance || "None specified";
+    // 🔁 Robust fetch with automatic retry for Render cold starts
+    async function fetchWithRetry(url, options = {}, retries = 3, delay = 1500) {
+      for (let attempt = 1; attempt <= retries; attempt++) {
+        try {
+          const res = await fetch(url, options);
+          if (!res.ok) throw new Error(`Response not OK (${res.status})`);
+          return await res.json();
+        } catch (err) {
+          console.warn(`Attempt ${attempt} failed: ${err.message}`);
+          if (attempt < retries) {
+            await new Promise(r => setTimeout(r, delay));
+          } else {
+            throw err;
+          }
+        }
       }
     }
 
     async function loadDashboard() {
-      const urlParams = new URLSearchParams(window.location.search);
-      const username = urlParams.get("username");
-      const testMode = urlParams.get("test") === "true";
-      let retries = 0;
-
-      if (testMode) return displayIdentity(TEST_DATA);
+      // 🚨 Missing username in URL
       if (!username) {
-        const useTestMode = confirm(
-          "No username provided.\n\nClick OK to use sample data, or Cancel to register."
-        );
-        return useTestMode
-          ? displayIdentity(TEST_DATA)
-          : (window.location.href = "/iascendai-register.html");
+        loadingEl.style.display = "block";
+        loadingEl.style.color = "red";
+        loadingEl.textContent = "❌ Missing username in URL.";
+        return;
       }
 
-      async function fetchData() {
-        try {
-          console.log(`Loading dashboard for username: ${username}`);
-          const res = await fetch(`${BACKEND_URL}/user/${username}`); // ✅ fixed path
-          if (!res.ok) throw new Error(`HTTP ${res.status}`);
-          const data = await res.json();
-          displayIdentity(data);
-        } catch (error) {
-          if (retries < 1) {
-            retries++;
-            console.warn("Retrying dashboard fetch in 2s...");
-            setTimeout(fetchData, 2000);
-          } else {
-            const msg =
-              `Failed to load dashboard:\n\nError: ${error.message}\n\n` +
-              `Username: ${username}\nBackend URL: ${BACKEND_URL}\n\n` +
-              `Possible issues:\n1. Backend cold start\n2. Username not found\n3. Incorrect BACKEND_URL\n\n` +
-              "Click OK to view sample data, or Cancel to register.";
-            const useTestMode = confirm(msg);
-            if (useTestMode) displayIdentity(TEST_DATA);
-            else window.location.href = "/iascendai-register.html";
-          }
-        }
+      // 🔐 Validate username (alphanumeric, dash, underscore)
+      if (!/^[a-zA-Z0-9_-]+$/.test(username)) {
+        loadingEl.style.display = "block";
+        loadingEl.style.color = "red";
+        loadingEl.textContent = "❌ Invalid username format.";
+        console.error("Invalid username format:", username);
+        return;
       }
 
-      fetchData();
+      loadingEl.style.display = "block";
+      loadingEl.style.color = "#555";
+      loadingEl.textContent = "⏳ Loading your verified record...";
+
+      try {
+        const data = await fetchWithRetry(`${API_BASE}/user/${username}`);
+        loadingEl.style.display = "none";
+        userEl.style.display = "block";
+        document.getElementById("user-name").textContent = data.name || username;
+        document.getElementById("user-email").textContent = data.email || "N/A";
+        document.getElementById("user-soulmark").textContent = data.soulMark || "N/A";
+        document.getElementById("user-date").textContent =
+          data.createdAt ? new Date(data.createdAt).toLocaleString() : "N/A";
+      } catch (err) {
+        console.error("Dashboard load failed:", err);
+        loadingEl.style.display = "block";
+        loadingEl.style.color = "red";
+        loadingEl.textContent =
+          "⚠️ Unable to load dashboard. Please refresh in a few moments.";
+      }
     }
 
     loadDashboard();
