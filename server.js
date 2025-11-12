@@ -1,7 +1,10 @@
-// ✅ Claude-resolved Jamaica We Rise backend (production baseline)
+// ✅ Jamaica We Rise Backend — Production-Ready (Final Stable Version)
+
+// --- 1️⃣ Load environment first ---
 import dotenv from "dotenv";
 dotenv.config();
 
+// --- 2️⃣ Core imports ---
 import express from "express";
 import fs from "fs";
 import path from "path";
@@ -9,11 +12,13 @@ import Stripe from "stripe";
 import bodyParser from "body-parser";
 import cors from "cors";
 
+// --- 3️⃣ Initialize and configure ---
 const app = express();
+const MODE = process.env.MODE || "test";
 const stripeKey = process.env.STRIPE_SECRET_KEY;
 
 if (!stripeKey || stripeKey.includes("xxx")) {
-  console.error("❌ Stripe key missing or invalid. Check your .env file.");
+  console.error("❌ Stripe key missing or invalid. Check your .env or Render Environment Variables.");
   process.exit(1);
 }
 
@@ -23,27 +28,33 @@ const FRONTEND_URL = process.env.FRONTEND_URL || "http://127.0.0.1:3000";
 const REGISTRY_PATH = process.env.REGISTRY_PATH || "./data/registry.json";
 const LOG_DIR = process.env.LOG_DIR || "./logs";
 
+// --- 4️⃣ Middleware ---
 app.use(cors());
 app.use(express.json());
 app.use(bodyParser.json());
-app.use(express.static("public")); // ✅ serve frontend
+app.use(express.static("public")); // ✅ serve frontend files
 
-// ensure directories exist
+// --- 5️⃣ Directory setup ---
 if (!fs.existsSync("./data")) fs.mkdirSync("./data", { recursive: true });
 if (!fs.existsSync(LOG_DIR)) fs.mkdirSync(LOG_DIR, { recursive: true });
 
-// helper for logging
+// --- 6️⃣ Logging utility ---
 function logEvent(type, message) {
   const logLine = `[${new Date().toISOString()}] [${type}] ${message}\n`;
   fs.appendFileSync(path.join(LOG_DIR, `${type}.log`), logLine);
 }
 
-// health route
+// --- 7️⃣ Health check ---
 app.get("/health", (req, res) => {
-  res.json({ status: "ok", mode: "test", time: new Date().toISOString() });
+  res.json({
+    status: "ok",
+    mode: MODE,
+    message: "Backend is healthy!",
+    timestamp: new Date().toISOString()
+  });
 });
 
-// create checkout session
+// --- 8️⃣ Create checkout session ---
 app.post("/create-checkout-session", async (req, res) => {
   try {
     const { name, email, amount } = req.body;
@@ -64,6 +75,7 @@ app.post("/create-checkout-session", async (req, res) => {
       success_url: `${FRONTEND_URL}/success.html?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${FRONTEND_URL}/donate.html`
     });
+
     logEvent("access", `Created checkout for ${email} $${amount}`);
     res.json({ id: session.id, url: session.url });
   } catch (err) {
@@ -72,7 +84,7 @@ app.post("/create-checkout-session", async (req, res) => {
   }
 });
 
-// ✅ verify-session route
+// --- 9️⃣ Verify donation session ---
 app.get("/verify-session", async (req, res) => {
   const sessionId = req.query.session_id;
   if (!sessionId) return res.status(400).json({ error: "Missing session_id" });
@@ -107,7 +119,7 @@ app.get("/verify-session", async (req, res) => {
   }
 });
 
-// username check
+// --- 🔟 Username check ---
 app.get("/check-username/:username", (req, res) => {
   try {
     const registry = fs.existsSync(REGISTRY_PATH)
@@ -120,7 +132,7 @@ app.get("/check-username/:username", (req, res) => {
   }
 });
 
-// register user
+// --- 11️⃣ Register new user ---
 app.post("/register", (req, res) => {
   try {
     const { username, name, email, soulMark } = req.body;
@@ -138,7 +150,7 @@ app.post("/register", (req, res) => {
   }
 });
 
-// donation stats
+// --- 12️⃣ Donation stats ---
 app.get("/donations/stats", (req, res) => {
   try {
     const registry = fs.existsSync(REGISTRY_PATH)
@@ -152,4 +164,7 @@ app.get("/donations/stats", (req, res) => {
   }
 });
 
-app.listen(PORT, () => console.log(`✅ Jamaica We Rise API running in TEST MODE on port ${PORT}`));
+// --- ✅ Final server start ---
+app.listen(PORT, () => {
+  console.log(`✅ Jamaica We Rise API running in ${MODE.toUpperCase()} MODE on port ${PORT}`);
+});
