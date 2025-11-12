@@ -57,7 +57,8 @@ app.get("/health", (req, res) => {
 // --- 8️⃣ Create checkout session ---
 app.post("/create-checkout-session", async (req, res) => {
   try {
-    const { name, email, amount } = req.body;
+    const { name, email, amount, soulmark } = req.body;
+
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       customer_email: email,
@@ -72,8 +73,9 @@ app.post("/create-checkout-session", async (req, res) => {
         }
       ],
       mode: "payment",
-      success_url: `${FRONTEND_URL}/success.html?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${FRONTEND_URL}/donate.html`
+      success_url: `${FRONTEND_URL}/success.html?session_id={{CHECKOUT_SESSION_ID}}`,
+      cancel_url: `${FRONTEND_URL}/donate.html`,
+      metadata: { soulmark }
     });
 
     logEvent("access", `Created checkout for ${email} $${amount}`);
@@ -92,7 +94,9 @@ app.get("/verify-session", async (req, res) => {
   try {
     const session = await stripe.checkout.sessions.retrieve(sessionId);
     if (session && session.payment_status === "paid") {
-      const soulMark = "SM-" + Buffer.from(session.id).toString("base64").slice(0, 12);
+      const soulMark = session.metadata?.soulmark || 
+        "SM-" + Buffer.from(session.id).toString("base64").slice(0, 12);
+
       const record = {
         name: session.customer_details?.name || "Anonymous",
         email: session.customer_details?.email,
@@ -119,7 +123,17 @@ app.get("/verify-session", async (req, res) => {
   }
 });
 
-// --- 🔟 Username check ---
+// --- 🔟 SoulMark verification (needed by donate.html) ---
+app.post("/verify-soulmark", (req, res) => {
+  const { email } = req.body;
+  if (!email) return res.status(400).json({ verified: false, error: "Missing email" });
+
+  const soulmark = "SM-" + Buffer.from(email).toString("base64").slice(0, 10);
+  logEvent("access", `Verified SoulMarkⓈ for ${email} → ${soulmark}`);
+  res.json({ verified: true, soulmark });
+});
+
+// --- 11️⃣ Username check ---
 app.get("/check-username/:username", (req, res) => {
   try {
     const registry = fs.existsSync(REGISTRY_PATH)
@@ -132,7 +146,7 @@ app.get("/check-username/:username", (req, res) => {
   }
 });
 
-// --- 11️⃣ Register new user ---
+// --- 12️⃣ Register new user ---
 app.post("/register", (req, res) => {
   try {
     const { username, name, email, soulMark } = req.body;
@@ -150,7 +164,7 @@ app.post("/register", (req, res) => {
   }
 });
 
-// --- 12️⃣ Donation stats ---
+// --- 13️⃣ Donation stats ---
 app.get("/donations/stats", (req, res) => {
   try {
     const registry = fs.existsSync(REGISTRY_PATH)

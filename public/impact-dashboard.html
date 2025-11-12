@@ -4,44 +4,117 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Impact Dashboard | Jamaica We Rise × iAscendAi</title>
+  <script type="module">
+    import { CONFIG } from "./config.js";
+    window.CONFIG = CONFIG;
+  </script>
   <style>
     body {
-      font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',Roboto,sans-serif;
-      background:#041423;color:#fff;margin:0;padding:40px 20px;min-height:100vh;
+      font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(145deg, #03131f 0%, #041423 50%, #020c15 100%);
+      color: #fff;
+      margin: 0;
+      padding: 40px 20px;
+      min-height: 100vh;
     }
     h1 {
-      text-align:center;font-size:2.8em;
-      background:linear-gradient(135deg,#fed103,#059c3a);
-      -webkit-background-clip:text;-webkit-text-fill-color:transparent;
-      margin-bottom:10px;
+      text-align: center;
+      font-size: 2.8em;
+      background: linear-gradient(135deg, #fed103, #059c3a);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 10px;
     }
-    p{text-align:center;color:rgba(255,255,255,0.8);margin-bottom:40px}
-    .stats{display:flex;justify-content:center;flex-wrap:wrap;gap:30px;margin-bottom:50px}
-    .stat{
-      background:rgba(255,255,255,0.05);
-      border:1px solid rgba(255,255,255,0.1);
-      border-radius:16px;
-      padding:30px 40px;text-align:center;min-width:220px;
-      box-shadow:0 0 25px rgba(5,156,58,0.2);
-      transition:transform 0.3s ease;
+    p {
+      text-align: center;
+      color: rgba(255,255,255,0.8);
+      margin-bottom: 40px;
     }
-    .stat:hover{transform:translateY(-3px);box-shadow:0 0 35px rgba(254,209,3,0.3)}
-    .stat-value{font-size:2.2em;font-weight:800;color:#fed103}
-    .stat-label{color:rgba(255,255,255,0.7);margin-top:10px;font-size:0.95em}
-    .recent-donors,.verified-identities{max-width:1200px;margin:0 auto}
-    h2{color:#fed103;margin-bottom:20px;text-align:center}
-    table{width:100%;border-collapse:collapse;margin-bottom:50px}
-    th,td{padding:14px;border-bottom:1px solid rgba(255,255,255,0.1);text-align:left}
-    th{color:#fed103;font-weight:600;text-transform:uppercase;font-size:0.9em}
-    tr:hover{background:rgba(255,255,255,0.05)}
-    .footer{text-align:center;color:rgba(255,255,255,0.6);font-size:0.85em;margin-top:40px}
-    a{color:#f4a349;text-decoration:none}
-    a:hover{text-decoration:underline}
+    .stats {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 30px;
+      margin-bottom: 50px;
+    }
+    .stat {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 16px;
+      padding: 30px 40px;
+      text-align: center;
+      min-width: 220px;
+      box-shadow: 0 0 25px rgba(5,156,58,0.2);
+      transition: transform 0.3s ease;
+    }
+    .stat:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 0 35px rgba(254,209,3,0.3);
+    }
+    .stat-value {
+      font-size: 2.2em;
+      font-weight: 800;
+      color: #fed103;
+    }
+    .stat-label {
+      color: rgba(255,255,255,0.7);
+      margin-top: 10px;
+      font-size: 0.95em;
+    }
+    .recent-donors, .verified-identities {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    h2 {
+      color: #fed103;
+      margin-bottom: 20px;
+      text-align: center;
+      font-size: 1.6em;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 50px;
+    }
+    th, td {
+      padding: 14px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      text-align: left;
+    }
+    th {
+      color: #fed103;
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 0.9em;
+    }
+    tr:hover {
+      background: rgba(255,255,255,0.05);
+    }
+    .footer {
+      text-align: center;
+      color: rgba(255,255,255,0.6);
+      font-size: 0.85em;
+      margin-top: 40px;
+    }
+    .footer a {
+      color: #f4a349;
+      text-decoration: none;
+      transition: opacity 0.3s ease;
+    }
+    .footer a:hover {
+      opacity: 0.8;
+    }
+    @media (max-width: 640px) {
+      h1 { font-size: 2.2em; }
+      .stat { padding: 20px; min-width: 160px; }
+      th, td { font-size: 0.9em; }
+    }
   </style>
 </head>
+
 <body>
   <h1>Impact Dashboard</h1>
-  <p>Real-time view of verified donations and SoulRegistryⓈ participation</p>
+  <p>Live summary of verified donations and SoulRegistryⓈ participation across the iAscendAi × Jamaica We Rise network.</p>
 
   <div class="stats">
     <div class="stat">
@@ -64,7 +137,9 @@
       <thead>
         <tr><th>Name</th><th>Amount</th><th>Email</th><th>Timestamp</th></tr>
       </thead>
-      <tbody><tr><td colspan="4" style="text-align:center;color:#9ca3af;">Loading...</td></tr></tbody>
+      <tbody>
+        <tr><td colspan="4" style="text-align:center;color:#9ca3af;">Loading...</td></tr>
+      </tbody>
     </table>
   </div>
 
@@ -72,83 +147,88 @@
     <h2>Verified Identities (SoulRegistryⓈ)</h2>
     <table id="registryTable">
       <thead>
-        <tr><th>Name</th><th>Username</th><th>SoulMark</th><th>Status</th></tr>
+        <tr><th>Name</th><th>Username</th><th>SoulMarkⓈ</th><th>Status</th></tr>
       </thead>
-      <tbody><tr><td colspan="4" style="text-align:center;color:#9ca3af;">Loading...</td></tr></tbody>
+      <tbody>
+        <tr><td colspan="4" style="text-align:center;color:#9ca3af;">Loading...</td></tr>
+      </tbody>
     </table>
   </div>
 
   <div class="footer">
     <p>© 2025 Project Inside Out Jamaica × iAscendAi Authored Intelligence</p>
-    <a href="index.html">← Back to Donation Portal</a>
+    <a href="iascendai-dashboard.html">← Back to Dashboard</a>
   </div>
 
   <script type="module">
-    // ✅ Safe config import fallback
-    let CONFIG={BACKEND_URL:"http://127.0.0.1:10000",MODE:"test"};
-    try{
-      const imported=await import("./config.js");
-      if(imported?.CONFIG)CONFIG=imported.CONFIG;
-    }catch(e){
-      console.warn("⚠️ config.js not found — using fallback:",CONFIG);
+    import { CONFIG } from "./config.js";
+    const BACKEND_URL = CONFIG.BACKEND_URL;
+
+    async function loadStats() {
+      try {
+        const res = await fetch(`${BACKEND_URL}/registry`, { cache: "no-store" });
+        const data = await res.json();
+        const donations = data.filter(e => typeof e.amount === "number");
+        const totalRaised = donations.reduce((sum, d) => sum + d.amount, 0);
+        const totalDonors = donations.length;
+        document.getElementById("totalRaised").textContent = `$${totalRaised.toLocaleString(undefined,{minimumFractionDigits:2})}`;
+        document.getElementById("donorCount").textContent = totalDonors;
+      } catch (err) {
+        console.error("Stats error:", err);
+      }
     }
 
-    const BACKEND_URL=CONFIG.BACKEND_URL;
-
-    async function loadStats(){
-      try{
-        const res=await fetch(`${BACKEND_URL}/donations/stats`);
-        if(!res.ok)throw new Error("Failed to load stats");
-        const data=await res.json();
-        document.getElementById("totalRaised").textContent=
-          `$${(data.totalRaised||0).toLocaleString(undefined,{minimumFractionDigits:2})}`;
-        document.getElementById("donorCount").textContent=data.donorCount||0;
-      }catch(err){console.error("Stats error:",err);}
-    }
-
-    async function loadDonors(){
-      try{
-        const res=await fetch(`${BACKEND_URL}/donations/all`);
-        if(!res.ok)throw new Error("Failed to load donors");
-        const donors=await res.json();
-        const tbody=document.querySelector("#donorsTable tbody");
-        tbody.innerHTML=(donors&&donors.length)
-          ?donors.slice(-10).reverse().map(d=>`
+    async function loadDonors() {
+      try {
+        const res = await fetch(`${BACKEND_URL}/registry`, { cache: "no-store" });
+        const data = await res.json();
+        const donors = data.filter(d => d.amount);
+        const tbody = document.querySelector("#donorsTable tbody");
+        tbody.innerHTML = donors.length
+          ? donors.slice(-10).reverse().map(d => `
             <tr>
-              <td>${d.name||"Anonymous"}</td>
-              <td>$${(d.amount||0).toFixed(2)}</td>
-              <td>${d.email||""}</td>
-              <td>${d.timestamp?new Date(d.timestamp).toLocaleString():"—"}</td>
+              <td>${d.name || "Anonymous"}</td>
+              <td>$${(d.amount || 0).toFixed(2)}</td>
+              <td>${d.email || "—"}</td>
+              <td>${d.timestamp ? new Date(d.timestamp).toLocaleString() : "—"}</td>
             </tr>`).join("")
-          :`<tr><td colspan="4" style="text-align:center;color:#9ca3af;">No donations yet.</td></tr>`;
-      }catch(err){console.error("Donors error:",err);}
+          : `<tr><td colspan="4" style="text-align:center;color:#9ca3af;">No donations recorded yet.</td></tr>`;
+      } catch (err) {
+        console.error("Donors error:", err);
+      }
     }
 
-    async function loadRegistry(){
-      try{
-        const res=await fetch(`${BACKEND_URL}/registry`);
-        if(!res.ok)throw new Error("Failed to load registry");
-        const identities=await res.json();
-        document.getElementById("verifiedCount").textContent=identities.length||0;
-        const tbody=document.querySelector("#registryTable tbody");
-        tbody.innerHTML=(identities&&identities.length)
-          ?identities.slice(-10).reverse().map(i=>`
+    async function loadRegistry() {
+      try {
+        const res = await fetch(`${BACKEND_URL}/registry`, { cache: "no-store" });
+        const data = await res.json();
+        const verified = data.filter(i => i.verified);
+        document.getElementById("verifiedCount").textContent = verified.length;
+        const tbody = document.querySelector("#registryTable tbody");
+        tbody.innerHTML = data.length
+          ? data.slice(-10).reverse().map(i => `
             <tr>
-              <td>${i.name||"—"}</td>
-              <td>${i.username?`${i.username}@iascendai`:"—"}</td>
-              <td>${i.soulMark||"—"}</td>
-              <td>${i.verified?"✔ Verified":"⚠ Pending"}</td>
+              <td>${i.name || "—"}</td>
+              <td>${i.username ? `${i.username}@iascendai` : "—"}</td>
+              <td>${i.soulmark || i.soulMark || "—"}</td>
+              <td>${i.verified ? "✔ Verified" : "⚠ Pending"}</td>
             </tr>`).join("")
-          :`<tr><td colspan="4" style="text-align:center;color:#9ca3af;">No identities registered yet.</td></tr>`;
-      }catch(err){console.error("Registry error:",err);}
+          : `<tr><td colspan="4" style="text-align:center;color:#9ca3af;">No identities registered yet.</td></tr>`;
+      } catch (err) {
+        console.error("Registry error:", err);
+      }
     }
 
     loadStats();
     loadDonors();
     loadRegistry();
 
-    // 🔁 Auto-refresh every 15s
-    setInterval(()=>{loadStats();loadDonors();loadRegistry();},15000);
+    // 🔁 Auto-refresh every 20 seconds
+    setInterval(() => {
+      loadStats();
+      loadDonors();
+      loadRegistry();
+    }, 20000);
   </script>
 </body>
 </html>

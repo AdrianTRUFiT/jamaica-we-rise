@@ -3,93 +3,117 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate" />
-  <meta http-equiv="Pragma" content="no-cache" />
-  <meta http-equiv="Expires" content="0" />
-  <title>Donation Verified | Jamaica We Rise</title>
+  <title>Donation Successful | Jamaica We Rise × iAscendAi</title>
+  <script type="module">
+    import { CONFIG } from "./config.js";
+    window.CONFIG = CONFIG;
+  </script>
   <style>
     body {
-      font-family: system-ui, sans-serif;
-      background: #f5f5f5;
+      font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif;
+      background: radial-gradient(circle at top left, #023618, #020617 55%, #000);
+      color: white;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
       text-align: center;
-      padding: 40px;
+      margin: 0;
+      padding: 20px;
     }
-    .box {
-      background: #fff;
-      padding: 25px;
-      border-radius: 10px;
-      max-width: 480px;
-      margin: 40px auto;
-      box-shadow: 0 2px 8px rgba(0,0,0,.1);
+    h1 {
+      font-size: 2.4em;
+      background: linear-gradient(135deg, #fed103, #059c3a);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 15px;
+    }
+    p {
+      color: #9ca3af;
+      max-width: 520px;
+      margin-bottom: 35px;
+      font-size: 1.05em;
+      line-height: 1.6;
+    }
+    a {
+      display: inline-block;
+      background: linear-gradient(135deg, #059c3a, #fed103);
+      color: #111827;
+      padding: 12px 24px;
+      border-radius: 999px;
+      font-weight: 700;
+      text-decoration: none;
+      transition: 0.3s ease;
+      margin: 5px;
+    }
+    a:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 20px rgba(254,209,3,0.3);
+    }
+    .emoji {
+      font-size: 3em;
+      margin-bottom: 20px;
+    }
+    #status {
+      margin-top: 15px;
+      font-weight: 600;
+      color: #fed103;
     }
   </style>
 </head>
 <body>
-  <h1>🎉 Thank You for Your Donation</h1>
-  <div id="status" class="box">Verifying your payment...</div>
+  <div class="emoji">🇯🇲💛</div>
+  <h1>Thank You for Your Donation</h1>
+  <p id="message">Verifying your payment...</p>
+  <div id="status">⏳ Please wait...</div>
 
-  <script>
-    const API_BASE = "https://jamaica-we-rise.onrender.com";
-    const params = new URLSearchParams(window.location.search);
-    const sessionId = params.get("session_id");
+  <a href="index.html">Return Home</a>
+  <a href="impact.html" style="margin-left:10px;">View Impact Dashboard</a>
 
-    async function fetchWithRetry(url, retries = 3, delay = 1500) {
-      for (let attempt = 1; attempt <= retries; attempt++) {
-        try {
-          const res = await fetch(url, { cache: "no-store" });
-          if (!res.ok) throw new Error(`Response not OK (${res.status})`);
-          return await res.json();
-        } catch (err) {
-          console.warn(`Attempt ${attempt} failed: ${err.message}`);
-          if (attempt < retries) {
-            await new Promise(r => setTimeout(r, delay));
-          } else {
-            throw err;
-          }
-        }
-      }
-    }
+  <script type="module">
+    import { CONFIG } from "./config.js";
+    const BACKEND_URL = CONFIG.BACKEND_URL;
 
     async function verifyDonation() {
+      const params = new URLSearchParams(window.location.search);
+      const sessionId = params.get("session_id");
+
+      const messageEl = document.getElementById("message");
       const statusEl = document.getElementById("status");
 
-      if (!sessionId || sessionId === 'null' || sessionId === 'undefined') {
-        statusEl.innerHTML = "❌ Missing session ID.<br><br>Please return to the donation page.";
-        statusEl.style.color = "red";
+      if (!sessionId) {
+        messageEl.textContent = "⚠️ No session ID found.";
+        statusEl.textContent = "Please refresh or contact support.";
+        statusEl.style.color = "orange";
         return;
       }
 
       try {
-        const data = await fetchWithRetry(`${API_BASE}/verify-donation/${sessionId}`);
+        const res = await fetch(`${BACKEND_URL}/verify-session?session_id=${sessionId}`, { cache: "no-store" });
+        if (!res.ok) throw new Error("Server error verifying donation");
+        const data = await res.json();
 
-        // 🧠 Handle backend error payloads
-        if (data.error) {
-          throw new Error(data.error);
+        if (data.verified && data.record) {
+          const { email, soulMark, amount } = data.record;
+          messageEl.innerHTML = `
+            ✅ Payment verified for <strong>${email}</strong><br>
+            Amount: <strong>$${amount.toFixed(2)}</strong>
+          `;
+          statusEl.innerHTML = `
+            🌿 SoulMarkⓈ Issued: <strong>${soulMark}</strong><br>
+            Your contribution has been securely recorded in the SoulRegistryⓈ ledger.
+          `;
+          statusEl.style.color = "limegreen";
+        } else {
+          messageEl.textContent = "⚠️ Could not verify donation.";
+          statusEl.textContent = "Please refresh in a few seconds.";
+          statusEl.style.color = "orange";
         }
-
-        // ✅ Display summary for transparency
-        statusEl.innerHTML = `
-          <strong>✅ Donation Verified!</strong><br><br>
-          Name: ${data.name || "Anonymous"}<br>
-          Email: ${data.email || "N/A"}<br>
-          Amount: $${data.amount || "0"}<br>
-          SoulMark: ${data.soulMark || "N/A"}<br><br>
-          <em>Redirecting to registration in 3 seconds...</em>
-        `;
-
-        // ✅ Redirect to registration page with prefilled data
-        const query = new URLSearchParams({
-          email: data.email || "",
-          soulmark: data.soulMark || "",
-          name: data.name || "",
-        });
-        setTimeout(() => {
-          window.location.href = `/iascendai-register.html?${query.toString()}`;
-        }, 3000);
       } catch (err) {
-        console.error("Verification failed:", err);
-        statusEl.innerHTML =
-          "⚠️ Could not verify donation.<br><br>Please refresh in a few seconds.";
+        console.error("Verification error:", err);
+        messageEl.textContent = "⚠️ Verification failed due to network issue.";
+        statusEl.textContent = "Please refresh shortly.";
         statusEl.style.color = "red";
       }
     }

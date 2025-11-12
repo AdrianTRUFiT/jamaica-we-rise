@@ -1,0 +1,152 @@
+# vault_type: manifest
+# vault_domain: jamaica-we-rise
+# vault_version: 1.0
+# vault_purpose: Defines frontend route logic, backend linkage, and verification flow for iAscendAi × Jamaica We Rise
+
+
+📜 JAMAICA WE RISE × iAscendAi FRONTEND NAVIGATION MANIFEST
+version: 2025.11.12
+backend_url: "https://jamaica-we-rise.onrender.com"
+environment: "production"
+structure: "static → dynamic → verified"
+
+routes:
+  - path: /donate.html
+    title: "Donation Portal"
+    purpose: "Collect verified SoulAidⓈ donations through Stripe checkout."
+    flow:
+      - Loads config.js for backend URL
+      - Calls `/create-checkout-session` with donor email + amount
+      - Redirects to Stripe checkout
+      - On success, passes `session_id` → success.html
+    backend_endpoints:
+      - POST /create-checkout-session
+      - GET /verify-session
+      - GET /registry
+    next: /success.html
+
+  - path: /success.html
+    title: "Donation Success & SoulMarkⓈ Verification"
+    purpose: "Verifies Stripe payment and issues SoulMarkⓈ."
+    flow:
+      - Reads `session_id` from query string
+      - Calls `/verify-session?session_id=...`
+      - Displays verified donor info (email, amount)
+      - Shows generated SoulMarkⓈ
+      - Links to Dashboard and Home
+    backend_endpoints:
+      - GET /verify-session
+      - GET /registry
+    next: /iascendai-register.html
+
+  - path: /iascendai-register.html
+    title: "Identity Registration | iAscendAi"
+    purpose: "Create and register digital identity (username@iascendai)."
+    flow:
+      - User enters name, email, and desired username
+      - Calls `/register` backend endpoint
+      - Generates SoulMarkⓈ identity entry in registry.json
+      - Redirects to dashboard.html with soulmark query
+    backend_endpoints:
+      - POST /register
+      - GET /check-username/:username
+    next: /iascendai-dashboard.html
+
+  - path: /iascendai-dashboard.html
+    title: "Dashboard | iAscendAi × Jamaica We Rise"
+    purpose: "Centralized personal hub for verified identity and SoulAidⓈ history."
+    tabs:
+      - SoulMarkⓈ Identity View
+      - SoulAidⓈ Donations
+      - SoulTrackerⓈ Metrics
+      - Field Updates
+      - Settings
+    flow:
+      - Pulls user info from URL or localStorage
+      - Calls `/registry` to populate identity + donation history
+      - Displays dynamic totals (supporters, SoulAidⓈ delivered)
+      - Direct links: tracker.html, soulregistry.html, impact-dashboard.html, verify.html
+    backend_endpoints:
+      - GET /registry
+    next:
+      - /tracker.html
+      - /soulregistry.html
+      - /impact-dashboard.html
+      - /verify.html
+
+  - path: /tracker.html
+    title: "SoulTrackerⓈ"
+    purpose: "Visual live feed of total donors, funds raised, and campaign progress."
+    flow:
+      - Fetches donation list + totals
+      - Animates goal progress bar (default goal: $50 000)
+      - Displays top 10 recent donations
+    backend_endpoints:
+      - GET /registry
+    next:
+      - /soulregistry.html
+      - /impact-dashboard.html
+
+  - path: /soulregistry.html
+    title: "SoulRegistryⓈ Directory"
+    purpose: "Browse verified identities and their SoulMarkⓈ status."
+    flow:
+      - Calls `/registry`
+      - Displays verified users first
+      - Shows username, SoulMarkⓈ, and verification status
+    backend_endpoints:
+      - GET /registry
+    next:
+      - /verify.html
+      - /iascendai-dashboard.html
+
+  - path: /verify.html
+    title: "Identity Verification | iAscendAi"
+    purpose: "Search and confirm authenticity of a SoulMarkⓈ or username."
+    flow:
+      - User inputs `username@iascendai` or SoulMarkⓈ hash
+      - Calls `/verify/:query`
+      - Displays full identity details (role, name, SoulMarkⓈ, timestamp)
+      - Offers Create, Browse, and Dashboard navigation
+    backend_endpoints:
+      - GET /verify/:query
+    next:
+      - /iascendai-register.html
+      - /soulregistry.html
+      - /iascendai-dashboard.html
+
+  - path: /impact-dashboard.html
+    title: "Impact Dashboard"
+    purpose: "Aggregate summary of donations and verified SoulMarksⓈ."
+    flow:
+      - Calls `/registry`
+      - Calculates totalRaised, donorCount, verifiedCount
+      - Displays live tables for recent donations and verified identities
+      - Auto-refreshes every 20 s
+    backend_endpoints:
+      - GET /registry
+    next:
+      - /iascendai-dashboard.html
+
+shared_assets:
+  - /config.js : defines BACKEND_URL and MODE
+  - /registry.json : stores verified identity and donation records
+  - /style.css (optional future extraction)
+  - /favicon.ico
+
+deployment:
+  - host_frontend: Vercel
+  - repo_name: jamaica-we-rise-frontend
+  - backend: Render (Node.js Express)
+  - public_url: https://jamaica-we-rise.vercel.app
+  - live_backend: https://jamaica-we-rise.onrender.com
+
+testing_flow:
+  1. Start backend → verify log shows `"mode":"production"`.
+  2. Open `/donate.html` in browser → complete Stripe checkout.
+  3. Observe redirect to `/success.html?session_id=...`
+  4. Ensure verified record appears in `/registry.json`.
+  5. Proceed → `/iascendai-dashboard.html?soulmark=...`
+  6. Confirm tracker, registry, and impact-dashboard all reflect data.
+  7. Test `/verify.html` for both username and SoulMark lookups.
+
