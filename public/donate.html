@@ -100,9 +100,9 @@
       </p>
 
       <div class="impact-stats">
-        <div class="stat"><div class="stat-value" id="donorCount">247</div><div class="stat-label">Donors</div></div>
-        <div class="stat"><div class="stat-value" id="totalRaised">$18,240</div><div class="stat-label">Raised</div></div>
-        <div class="stat"><div class="stat-value">36%</div><div class="stat-label">To Goal</div></div>
+        <div class="stat"><div class="stat-value" id="donorCount">0</div><div class="stat-label">Donors</div></div>
+        <div class="stat"><div class="stat-value" id="totalRaised">$0</div><div class="stat-label">Raised</div></div>
+        <div class="stat"><div class="stat-value" id="goalPercent">0%</div><div class="stat-label">To Goal</div></div>
       </div>
 
       <form id="donationForm">
@@ -164,13 +164,66 @@
       const submitBtn = document.getElementById("submitBtn");
       const emailInput = document.getElementById("email");
       const nameInput = document.getElementById("name");
+      const donorCountEl = document.getElementById("donorCount");
+      const totalRaisedEl = document.getElementById("totalRaised");
+      const goalPercentEl = document.getElementById("goalPercent");
 
       let selectedAmount = null;
+      let soulmark = null;
 
-      // 💰 Handle amount selection
-      amountButtons.forEach((btn) => {
+      // ✅ Load live donation stats
+      async function loadStats() {
+        try {
+          const res = await fetch(`${BACKEND_URL}/donations/stats`, { cache: "no-store" });
+          if (!res.ok) return;
+          const data = await res.json();
+          donorCountEl.textContent = data.donorCount || 0;
+          totalRaisedEl.textContent = `$${(data.totalRaised || 0).toLocaleString()}`;
+          const GOAL = 50000;
+          const percentage = Math.round(((data.totalRaised || 0) / GOAL) * 100);
+          goalPercentEl.textContent = `${percentage}%`;
+          console.log("✅ Stats loaded:", data);
+        } catch (err) {
+          console.error("Stats load error:", err);
+        }
+      }
+
+      loadStats();
+      setInterval(loadStats, 30000);
+
+      // 💠 Verify SoulMarkⓈ on email blur
+      emailInput.addEventListener("blur", async () => {
+        const email = emailInput.value.trim();
+        if (!email || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return;
+        statusEl.textContent = "🔍 Verifying SoulMarkⓈ...";
+        statusEl.style.color = "#555";
+
+        try {
+          const res = await fetch(`${BACKEND_URL}/verify-soulmark`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email }),
+          });
+          const data = await res.json();
+          if (data.verified && data.soulmark) {
+            soulmark = data.soulmark;
+            statusEl.textContent = `✅ SoulMarkⓈ Verified: ${soulmark}`;
+            statusEl.style.color = "green";
+          } else {
+            statusEl.textContent = "⚠️ SoulMarkⓈ verification failed.";
+            statusEl.style.color = "orange";
+          }
+        } catch (err) {
+          console.error("SoulMark verification error:", err);
+          statusEl.textContent = "⚠️ Could not connect to SoulMarkⓈ verifier.";
+          statusEl.style.color = "red";
+        }
+      });
+
+      // 💰 Amount selection
+      amountButtons.forEach(btn => {
         btn.addEventListener("click", () => {
-          amountButtons.forEach((b) => b.classList.remove("selected"));
+          amountButtons.forEach(b => b.classList.remove("selected"));
           btn.classList.add("selected");
           const val = btn.dataset.amount;
           if (val === "custom") {
@@ -185,8 +238,8 @@
         });
       });
 
-      // 💳 Handle donation submit
-      form.addEventListener("submit", async (e) => {
+      // 💳 Submit donation
+      form.addEventListener("submit", async e => {
         e.preventDefault();
         const name = nameInput.value.trim();
         const email = emailInput.value.trim();
@@ -194,44 +247,47 @@
         const amount = selectedAmount || custom;
 
         if (!name || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
-          statusEl.textContent = "Please enter a valid name and email address.";
+          statusEl.textContent = "Please enter a valid name and email.";
+          statusEl.style.color = "red";
           return;
         }
 
         if (!amount || amount < 1) {
-          statusEl.textContent = "Please choose or enter an amount of at least $1.";
+          statusEl.textContent = "Please select or enter at least $1.";
+          statusEl.style.color = "red";
+          return;
+        }
+
+        if (!soulmark) {
+          statusEl.textContent = "⚠️ Please wait for SoulMarkⓈ verification.";
+          statusEl.style.color = "orange";
           return;
         }
 
         submitBtn.disabled = true;
-        statusEl.textContent = "Creating secure Stripe checkout session...";
+        statusEl.textContent = "Creating Stripe session...";
+        statusEl.style.color = "#555";
 
         try {
           const res = await fetch(`${BACKEND_URL}/create-checkout-session`, {
             method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "Cache-Control": "no-store",
-            },
-            body: JSON.stringify({ name, email, amount }),
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name, email, amount, soulmark }),
           });
-
           const data = await res.json();
-
           if (!res.ok || !data.url) {
-            console.error("Create session error:", data);
-            statusEl.textContent = data.error || "Failed to create checkout session.";
+            statusEl.textContent = data.error || "Failed to create checkout.";
+            statusEl.style.color = "red";
             submitBtn.disabled = false;
             return;
           }
-
-          statusEl.textContent = "Redirecting to Stripe checkout...";
-          setTimeout(() => {
-            window.location.href = data.url;
-          }, 500);
+          statusEl.textContent = "✅ Redirecting to Stripe checkout...";
+          statusEl.style.color = "green";
+          setTimeout(() => (window.location.href = data.url), 600);
         } catch (err) {
           console.error("Network error:", err);
-          statusEl.textContent = "⚠️ Could not reach donation server.";
+          statusEl.textContent = "⚠️ Could not reach server.";
+          statusEl.style.color = "red";
           submitBtn.disabled = false;
         }
       });
