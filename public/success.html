@@ -5,196 +5,65 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Donation Successful | Jamaica We Rise × iAscendAi</title>
 
+  <!-- ✅ Load environment configuration -->
   <script type="module">
     import { CONFIG } from "./config.js";
     window.CONFIG = CONFIG;
   </script>
 
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    :root {
-      --gold: #fed103;
-      --green: #059c3a;
-      --deep-navy: #041423;
-      --glass-bg: rgba(255,255,255,0.04);
-      --glass-border: rgba(255,255,255,0.1);
-      --text-light: #d1d5db;
-      --text-soft: #9ca3af;
-      --orange: #f4a349;
-      --orange2: #ffb562;
+    *{margin:0;padding:0;box-sizing:border-box;}
+    :root{
+      --gold:#fed103;--green:#059c3a;--deep-navy:#041423;
+      --glass-bg:rgba(255,255,255,0.04);--glass-border:rgba(255,255,255,0.1);
+      --text-light:#d1d5db;--orange:#f4a349;--orange2:#ffb562;
     }
-
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Inter','Segoe UI',Roboto,sans-serif;
-      background: var(--deep-navy);
-      color: white;
-      padding: 30px 20px;
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      min-height: 100vh;
-      text-align: center;
-    }
-
-    .top-title {
-      font-size: 2.3em;
-      font-weight: 800;
-      background: linear-gradient(135deg, var(--gold), var(--orange));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      margin-bottom: 20px;
-    }
-
-    .card {
-      width: 100%;
-      max-width: 640px;
-      background: var(--glass-bg);
-      border: 1px solid var(--glass-border);
-      border-radius: 20px;
-      padding: 50px 45px;
-      backdrop-filter: blur(12px);
-      box-shadow: 0 0 28px rgba(5,156,58,0.25);
-      animation: fadeInUp .7s ease-out;
-    }
-
-    .success-icon {
-      width: 90px;
-      height: 90px;
-      margin: 0 auto 20px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, var(--green), #047d2f);
-      box-shadow: 0 0 24px rgba(5,156,58,0.4);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      animation: scaleIn .5s ease-out .2s both;
-    }
-
-    .success-icon svg { width: 45px; height: 45px; color: white; }
-
-    h1 {
-      font-size: 2em;
-      margin-bottom: 10px;
-      font-weight: 700;
-    }
-
-    .subtitle {
-      color: var(--text-light);
-      font-size: 1.15em;
-      max-width: 540px;
-      margin: 0 auto 35px;
-      line-height: 1.6;
-    }
-
-    .summary-box {
-      margin-top: 30px;
-      background: rgba(255,255,255,0.06);
-      border: 1px solid rgba(255,255,255,0.15);
-      border-radius: 14px;
-      padding: 25px;
-      text-align: left;
-    }
-
-    .row {
-      display: flex;
-      justify-content: space-between;
-      padding: 10px 0;
-      border-bottom: 1px solid rgba(255,255,255,0.08);
-      color: var(--text-light);
-      font-size: 1em;
-    }
-
-    .row:last-child {
-      border-bottom: none;
-      font-weight: 600;
-      color: white;
-    }
-
-    .soulmark-box {
-      margin-top: 30px;
-      padding: 25px;
-      border-radius: 14px;
-      background: linear-gradient(135deg, rgba(244,163,73,0.12), rgba(255,191,124,0.1));
-      border: 1px solid rgba(244,163,73,0.4);
-      text-align: left;
-    }
-
-    .soul-label {
-      font-size: 0.9em;
-      text-transform: uppercase;
-      font-weight: 700;
-      color: var(--orange);
-      margin-bottom: 10px;
-      letter-spacing: 0.04em;
-    }
-
-    .soul-value {
-      font-family: 'Courier New', monospace;
-      font-size: 0.95em;
-      background: rgba(255,255,255,0.08);
-      padding: 14px;
-      border-radius: 8px;
-      color: white;
-      word-break: break-all;
-    }
-
-    .cta-box {
-      margin-top: 40px;
-      padding: 30px;
-      border-radius: 16px;
-      background: linear-gradient(135deg, var(--orange), var(--orange2));
-      color: #041423;
-      font-weight: 600;
-      box-shadow: 0 0 24px rgba(244,163,73,0.35);
-    }
-
-    .cta-title { font-size: 1.55em; font-weight: 800; margin-bottom: 12px; }
-    .cta-text { font-size: 1.05em; margin-bottom: 25px; opacity: 0.95; }
-
-    .cta-button {
-      display: inline-block;
-      background: #041423;
-      color: white;
-      padding: 16px 42px;
-      border-radius: 10px;
-      font-weight: 700;
-      text-decoration: none;
-      font-size: 1.1em;
-      transition: .3s ease;
-    }
-    .cta-button:hover { transform: translateY(-3px); box-shadow: 0 10px 28px rgba(0,0,0,0.25); }
-
-    .footer-links {
-      margin-top: 32px;
-      display: flex;
-      justify-content: center;
-      gap: 28px;
-      flex-wrap: wrap;
-    }
-
-    .footer-links a {
-      color: var(--text-light);
-      font-size: 1em;
-      text-decoration: none;
-      transition: .3s ease;
-    }
-    .footer-links a:hover { color: var(--orange); }
-
-    @keyframes fadeInUp {
-      from { opacity: 0; transform: translateY(25px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    @keyframes scaleIn {
-      from { transform: scale(0); }
-      to { transform: scale(1); }
-    }
+    body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',Roboto,sans-serif;
+      background:var(--deep-navy);color:white;padding:30px 20px;
+      display:flex;justify-content:center;align-items:flex-start;min-height:100vh;text-align:center;}
+    .top-title{font-size:2.3em;font-weight:800;background:linear-gradient(135deg,var(--gold),var(--orange));
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:20px;}
+    .card{width:100%;max-width:640px;background:var(--glass-bg);border:1px solid var(--glass-border);
+      border-radius:20px;padding:50px 45px;backdrop-filter:blur(12px);
+      box-shadow:0 0 28px rgba(5,156,58,0.25);animation:fadeInUp .7s ease-out;}
+    .success-icon{width:90px;height:90px;margin:0 auto 20px;border-radius:50%;
+      background:linear-gradient(135deg,var(--green),#047d2f);
+      box-shadow:0 0 24px rgba(5,156,58,0.4);display:flex;justify-content:center;align-items:center;
+      animation:scaleIn .5s ease-out .2s both;}
+    .success-icon svg{width:45px;height:45px;color:white;}
+    h1{font-size:2em;margin-bottom:10px;font-weight:700;}
+    .subtitle{color:var(--text-light);font-size:1.15em;max-width:540px;margin:0 auto 35px;line-height:1.6;}
+    .summary-box{margin-top:30px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);
+      border-radius:14px;padding:25px;text-align:left;}
+    .row{display:flex;justify-content:space-between;padding:10px 0;
+      border-bottom:1px solid rgba(255,255,255,0.08);color:var(--text-light);font-size:1em;}
+    .row:last-child{border-bottom:none;font-weight:600;color:white;}
+    .soulmark-box{margin-top:30px;padding:25px;border-radius:14px;
+      background:linear-gradient(135deg,rgba(244,163,73,0.12),rgba(255,191,124,0.1));
+      border:1px solid rgba(244,163,73,0.4);text-align:left;}
+    .soul-label{font-size:.9em;text-transform:uppercase;font-weight:700;color:var(--orange);
+      margin-bottom:10px;letter-spacing:.04em;}
+    .soul-value{font-family:'Courier New',monospace;font-size:.95em;
+      background:rgba(255,255,255,0.08);padding:14px;border-radius:8px;
+      color:white;word-break:break-all;}
+    .cta-box{margin-top:40px;padding:30px;border-radius:16px;
+      background:linear-gradient(135deg,var(--orange),var(--orange2));
+      color:#041423;font-weight:600;box-shadow:0 0 24px rgba(244,163,73,0.35);}
+    .cta-title{font-size:1.55em;font-weight:800;margin-bottom:12px;}
+    .cta-text{font-size:1.05em;margin-bottom:25px;opacity:.95;}
+    .cta-button{display:inline-block;background:#041423;color:white;padding:16px 42px;
+      border-radius:10px;font-weight:700;text-decoration:none;font-size:1.1em;transition:.3s ease;}
+    .cta-button:hover{transform:translateY(-3px);box-shadow:0 10px 28px rgba(0,0,0,0.25);}
+    .footer-links{margin-top:32px;display:flex;justify-content:center;gap:28px;flex-wrap:wrap;}
+    .footer-links a{color:var(--text-light);font-size:1em;text-decoration:none;transition:.3s ease;}
+    .footer-links a:hover{color:var(--orange);}
+    @keyframes fadeInUp{from{opacity:0;transform:translateY(25px);}to{opacity:1;transform:translateY(0);}}
+    @keyframes scaleIn{from{transform:scale(0);}to{transform:scale(1);}}
   </style>
 </head>
 
 <body>
   <div class="card">
-
     <div class="top-title">Jamaica We Rise × iAscendAi</div>
 
     <div class="success-icon">
@@ -209,15 +78,15 @@
     </p>
 
     <div class="summary-box">
-      <div class="row"><span>Donor</span><span id="donorName">Loading...</span></div>
-      <div class="row"><span>Email</span><span id="donorEmail">Loading...</span></div>
-      <div class="row"><span>Donation Date</span><span id="donationDate">Loading...</span></div>
-      <div class="row"><span>Amount</span><span id="donationAmount">Loading...</span></div>
+      <div class="row"><span>Donor</span><span id="donorName">Loading…</span></div>
+      <div class="row"><span>Email</span><span id="donorEmail">Loading…</span></div>
+      <div class="row"><span>Donation Date</span><span id="donationDate">Loading…</span></div>
+      <div class="row"><span>Amount</span><span id="donationAmount">Loading…</span></div>
     </div>
 
     <div class="soulmark-box">
       <div class="soul-label">Your SoulMarkⓈ Verification Hash</div>
-      <div class="soul-value" id="soulMark">Loading...</div>
+      <div class="soul-value" id="soulMark">Loading…</div>
     </div>
 
     <div class="cta-box">
@@ -225,7 +94,7 @@
       <div class="cta-text">
         Secure your verified <strong>username@iascendai</strong> identity now.
       </div>
-      <a href="/iascendai-register.html" class="cta-button">Create My Identity →</a>
+      <a href="#" class="cta-button">Create My Identity →</a>
     </div>
 
     <div class="footer-links">
@@ -233,57 +102,60 @@
       <a href="/iascendai-verify.html">Verify SoulMarkⓈ</a>
       <a href="/">Home</a>
     </div>
-
   </div>
 
-  <!-- ✅ NEW: Updated logic to use /retrieve-session -->
+  <!-- ✅ Logic -->
   <script type="module">
     import { CONFIG } from "./config.js";
     const BACKEND_URL = CONFIG.BACKEND_URL;
 
-    async function loadDonationDetails() {
+    async function loadDonationDetails(){
       const params = new URLSearchParams(window.location.search);
       const sessionId = params.get("session_id");
-
       const donorName = document.getElementById("donorName");
       const donorEmail = document.getElementById("donorEmail");
       const donationDate = document.getElementById("donationDate");
       const donationAmount = document.getElementById("donationAmount");
       const soulMarkEl = document.getElementById("soulMark");
 
-      if (!sessionId) {
-        donorName.textContent = "—";
-        donorEmail.textContent = "—";
-        donationDate.textContent = "—";
-        donationAmount.textContent = "—";
-        soulMarkEl.textContent = "⚠️ Missing session_id.";
-        return;
-      }
+      if(!sessionId){soulMarkEl.textContent="⚠️ Missing session ID.";return;}
 
-      try {
-        const res = await fetch(`${BACKEND_URL}/retrieve-session?session_id=${sessionId}`, { cache: "no-store" });
+      try{
+        const res = await fetch(`${BACKEND_URL}/retrieve-session?session_id=${encodeURIComponent(sessionId)}`,{cache:"no-store"});
         const data = await res.json();
 
         donorName.textContent = data.name || "Anonymous";
         donorEmail.textContent = data.email || "Not provided";
         donationDate.textContent = data.created
-          ? new Date(data.created * 1000).toLocaleDateString("en-US", { year:"numeric",month:"long",day:"numeric" })
+          ? new Date(data.created*1000).toLocaleDateString("en-US",{year:"numeric",month:"long",day:"numeric"})
           : "—";
-
-        donationAmount.textContent = data.amount ? `$${data.amount.toFixed(2)}` : "$—";
+        donationAmount.textContent = data.amount?`$${data.amount.toFixed(2)}`:"$—";
         soulMarkEl.textContent = data.soulmark || "Not available";
 
-      } catch (err) {
-        console.error("Success load error:", err);
-        donorName.textContent = "Error loading";
-        donorEmail.textContent = "See console";
-        donationAmount.textContent = "$—";
-        soulMarkEl.textContent = "Error loading SoulMark";
+        // store for autofill continuity
+        localStorage.setItem("donor_email",data.email || "");
+        localStorage.setItem("donor_soulmark",data.soulmark || "");
+        localStorage.setItem("donation_amount",data.amount || "");
+
+      }catch(err){
+        console.error("Success load error:",err);
+        donorName.textContent="Error loading";
+        donorEmail.textContent="See console";
+        soulMarkEl.textContent="Error loading SoulMark";
       }
     }
-
     loadDonationDetails();
-  </script>
 
+    // ➡️ Autofill handoff to registration
+    const registerBtn = document.querySelector(".cta-button");
+    registerBtn.addEventListener("click",(e)=>{
+      e.preventDefault();
+      const email = localStorage.getItem("donor_email") || "";
+      const soulmark = localStorage.getItem("donor_soulmark") || "";
+      const amount = localStorage.getItem("donation_amount") || "";
+      const url = `/iascendai-register.html?email=${encodeURIComponent(email)}&soulmark=${encodeURIComponent(soulmark)}&amount=${encodeURIComponent(amount)}`;
+      window.location.href = url;
+    });
+  </script>
 </body>
 </html>
