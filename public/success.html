@@ -36,7 +36,6 @@
       text-align: center;
     }
 
-    /* HEADER */
     .top-title {
       font-size: 2.3em;
       font-weight: 800;
@@ -46,10 +45,9 @@
       margin-bottom: 20px;
     }
 
-    /* CARD — UPDATED WIDTH */
     .card {
       width: 100%;
-      max-width: 640px; /* ← NEW WIDTH */
+      max-width: 640px;
       background: var(--glass-bg);
       border: 1px solid var(--glass-border);
       border-radius: 20px;
@@ -88,7 +86,6 @@
       line-height: 1.6;
     }
 
-    /* SUMMARY BOX */
     .summary-box {
       margin-top: 30px;
       background: rgba(255,255,255,0.06);
@@ -113,7 +110,6 @@
       color: white;
     }
 
-    /* SOULMARK BOX */
     .soulmark-box {
       margin-top: 30px;
       padding: 25px;
@@ -142,7 +138,6 @@
       word-break: break-all;
     }
 
-    /* CTA */
     .cta-box {
       margin-top: 40px;
       padding: 30px;
@@ -169,7 +164,6 @@
     }
     .cta-button:hover { transform: translateY(-3px); box-shadow: 0 10px 28px rgba(0,0,0,0.25); }
 
-    /* FOOTER LINKS */
     .footer-links {
       margin-top: 32px;
       display: flex;
@@ -190,6 +184,7 @@
       from { opacity: 0; transform: translateY(25px); }
       to { opacity: 1; transform: translateY(0); }
     }
+
     @keyframes scaleIn {
       from { transform: scale(0); }
       to { transform: scale(1); }
@@ -198,7 +193,6 @@
 </head>
 
 <body>
-
   <div class="card">
 
     <div class="top-title">Jamaica We Rise × iAscendAi</div>
@@ -242,6 +236,7 @@
 
   </div>
 
+  <!-- ✅ NEW: Updated logic to use /retrieve-session -->
   <script type="module">
     import { CONFIG } from "./config.js";
     const BACKEND_URL = CONFIG.BACKEND_URL;
@@ -261,34 +256,34 @@
         donorEmail.textContent = "—";
         donationDate.textContent = "—";
         donationAmount.textContent = "—";
-        soulMarkEl.textContent = "⚠️ Missing session_id. Return after donation.";
+        soulMarkEl.textContent = "⚠️ Missing session_id.";
         return;
       }
 
       try {
-        const res = await fetch(`${BACKEND_URL}/verify-session?session_id=${sessionId}`, { cache: "no-store" });
+        const res = await fetch(`${BACKEND_URL}/retrieve-session?session_id=${sessionId}`, { cache: "no-store" });
         const data = await res.json();
 
-        if (data.verified && data.record) {
-          const r = data.record;
-          donorName.textContent = r.name || "Anonymous";
-          donorEmail.textContent = r.email || "Not provided";
-          donationDate.textContent = new Date(r.timestamp).toLocaleDateString("en-US", { year:"numeric",month:"long",day:"numeric" });
-          donationAmount.textContent = `$${r.amount.toFixed(2)}`;
-          soulMarkEl.textContent = r.soulMark;
-        } else {
-          throw new Error("Donation not found");
-        }
+        donorName.textContent = data.name || "Anonymous";
+        donorEmail.textContent = data.email || "Not provided";
+        donationDate.textContent = data.created
+          ? new Date(data.created * 1000).toLocaleDateString("en-US", { year:"numeric",month:"long",day:"numeric" })
+          : "—";
+
+        donationAmount.textContent = data.amount ? `$${data.amount.toFixed(2)}` : "$—";
+        soulMarkEl.textContent = data.soulmark || "Not available";
 
       } catch (err) {
+        console.error("Success load error:", err);
         donorName.textContent = "Error loading";
         donorEmail.textContent = "See console";
         donationAmount.textContent = "$—";
-        soulMarkEl.textContent = `Error: ${err.message}`;
+        soulMarkEl.textContent = "Error loading SoulMark";
       }
     }
 
     loadDonationDetails();
   </script>
+
 </body>
 </html>

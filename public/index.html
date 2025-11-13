@@ -38,7 +38,6 @@
 
     .container { max-width: 720px; margin:0 auto; }
 
-    /* HEADER */
     .header {
       text-align:center;
       margin-bottom:35px;
@@ -59,7 +58,6 @@
       letter-spacing:.5px;
     }
 
-    /* CARD */
     .donation-card {
       background: var(--glass);
       backdrop-filter: blur(16px);
@@ -85,7 +83,6 @@
       line-height:1.6;
     }
 
-    /* Stats */
     .impact-stats {
       display:grid;
       grid-template-columns:repeat(3,1fr);
@@ -108,7 +105,6 @@
       margin-top:4px;
     }
 
-    /* Form */
     label {
       display:block;
       font-weight:600;
@@ -130,7 +126,6 @@
 
     .form-group { margin-bottom:20px; }
 
-    /* Amount buttons */
     .amount-options {
       display:grid;
       grid-template-columns:repeat(3,1fr);
@@ -155,7 +150,6 @@
       color:white;
     }
 
-    /* Submit button */
     .submit-btn {
       width:100%;
       padding:16px;
@@ -263,7 +257,7 @@
 
   </div>
 
-  <!-- FULL JAVASCRIPT (SoulMark + Stripe + Stats) -->
+  <!-- FULL JAVASCRIPT -->
   <script type="module">
     import { CONFIG } from "./config.js";
     const BACKEND_URL = CONFIG.BACKEND_URL;
@@ -340,8 +334,8 @@
 
         if(btn.dataset.amount === "custom"){
           customAmountRow.style.display = "block";
-          selectedAmount = null;
           customInput.focus();
+          selectedAmount = null;
         } else {
           customAmountRow.style.display = "none";
           selectedAmount = Number(btn.dataset.amount);
@@ -379,7 +373,7 @@
           headers:{"Content-Type":"application/json"},
           body:JSON.stringify({name, email, amount, soulmark})
         });
-        
+
         const data = await res.json();
         if(!data.url){
           throw new Error("Invalid Stripe response");
@@ -387,6 +381,7 @@
 
         statusEl.textContent = "Redirecting to Stripe…";
         statusEl.style.color = "lightgreen";
+
         setTimeout(()=>window.location.href=data.url, 600);
 
       }catch(err){

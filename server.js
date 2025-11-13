@@ -32,7 +32,7 @@ const LOG_DIR = process.env.LOG_DIR || "./logs";
 app.use(cors());
 app.use(express.json());
 app.use(bodyParser.json());
-app.use(express.static("public")); // ✅ serve frontend files
+app.use(express.static("public")); // serve frontend
 
 // --- 5️⃣ Directory setup ---
 if (!fs.existsSync("./data")) fs.mkdirSync("./data", { recursive: true });
@@ -76,8 +76,8 @@ app.post("/create-checkout-session", async (req, res) => {
       ],
       mode: "payment",
       success_url: `${FRONTEND_URL}/success.html?session_id={{CHECKOUT_SESSION_ID}}`,
-      cancel_url: `${FRONTEND_URL}/donate.html`,
-      metadata: { soulmark },
+      cancel_url: `${FRONTEND_URL}/index.html`,
+      metadata: { soulmark }, // <— Soulmark stored here
     });
 
     logEvent("access", `Created checkout for ${email} → $${amount}`);
@@ -88,7 +88,7 @@ app.post("/create-checkout-session", async (req, res) => {
   }
 });
 
-// --- 9️⃣ Verify donation session (frontend success.html uses this) ---
+// --- 9️⃣ Verify donation session (registry write) ---
 app.get("/verify-session", async (req, res) => {
   const sessionId = req.query.session_id;
   if (!sessionId) return res.status(400).json({ error: "Missing session_id" });
@@ -127,7 +127,7 @@ app.get("/verify-session", async (req, res) => {
   }
 });
 
-// --- 🔟 SoulMark verification helper (legacy support) ---
+// --- 🔟 Legacy SoulMark verifier ---
 app.post("/verify-soulmark", (req, res) => {
   const { email } = req.body;
   if (!email) return res.status(400).json({ verified: false, error: "Missing email" });
@@ -137,14 +137,40 @@ app.post("/verify-soulmark", (req, res) => {
   res.json({ verified: true, soulmark });
 });
 
-// ✅ Alias to prevent 404 errors between verify-session and verify-soulmark
-app.get("/verify-soulmark", async (req, res) => {
+// Alias to avoid mismatch
+app.get("/verify-soulmark", (req, res) => {
   const { session_id } = req.query;
   if (!session_id) return res.status(400).json({ error: "Missing session_id" });
   res.redirect(`/verify-session?session_id=${session_id}`);
 });
 
-// --- 11️⃣ Username check ---
+// --- ⭐ NEW: Retrieve full session details for success.html ---
+app.get("/retrieve-session", async (req, res) => {
+  try {
+    const sessionId = req.query.session_id;
+    if (!sessionId) return res.status(400).json({ error: "Missing session_id" });
+
+    const session = await stripe.checkout.sessions.retrieve(sessionId, {
+      expand: ["customer_details", "payment_intent"],
+    });
+
+    res.json({
+      id: session.id,
+      amount: session.amount_total / 100,
+      currency: session.currency,
+      email: session.customer_details?.email || null,
+      name: session.customer_details?.name || null,
+      status: session.payment_status,
+      created: session.created,
+      soulmark: session.metadata?.soulmark || null,
+    });
+  } catch (err) {
+    console.error("Error retrieving session:", err);
+    res.status(500).json({ error: "Failed to retrieve session" });
+  }
+});
+
+// --- 11️⃣ Username availability ---
 app.get("/check-username/:username", (req, res) => {
   try {
     const registry = fs.existsSync(REGISTRY_PATH)
@@ -163,7 +189,6 @@ app.post("/register", (req, res) => {
     const { username, name, email, role, soulmark } = req.body;
 
     if (!username || !name || !email || !role) {
-      console.log("⚠️ Missing fields:", { username, name, email, role });
       return res.status(400).json({ error: "Missing registration fields" });
     }
 
@@ -176,7 +201,8 @@ app.post("/register", (req, res) => {
       name,
       email,
       role,
-      soulmark: soulmark || "SM-" + Buffer.from(email).toString("base64").slice(0, 10),
+      soulmark:
+        soulmark || "SM-" + Buffer.from(email).toString("base64").slice(0, 10),
       verified: true,
       createdAt: new Date().toISOString(),
     };
@@ -206,7 +232,7 @@ app.get("/donations/stats", (req, res) => {
   }
 });
 
-// --- 14️⃣ Backend status JSON (for external monitoring) ---
+// --- 14️⃣ Backend status JSON ---
 app.get("/backend-status.json", (req, res) => {
   res.json({
     project: "Jamaica We Rise",
@@ -218,7 +244,7 @@ app.get("/backend-status.json", (req, res) => {
   });
 });
 
-// --- ✅ Final server start ---
+// --- 15️⃣ Start server ---
 app.listen(PORT, () => {
   console.log(`✅ Jamaica We Rise API running in ${MODE.toUpperCase()} MODE on port ${PORT}`);
 });

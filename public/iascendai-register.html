@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Create Your Identity | iAscendAi</title>
+  <title>Donation Successful | Jamaica We Rise × iAscendAi</title>
 
   <script type="module">
     import { CONFIG } from "./config.js";
@@ -11,639 +11,275 @@
   </script>
 
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
+    * { margin: 0; padding: 0; box-sizing: border-box; }
     :root {
-      --iascend-orange:#f4a349;
-      --iascend-gold:#fed100;
-      --iascend-blue:#b8edee;
-      --bg-dark-1:#050505;
-      --bg-dark-2:#101010;
-      --glass-bg:rgba(255,255,255,0.06);
-      --glass-border:rgba(255,255,255,0.16);
-      --text-main:#e5e7eb;
-      --text-muted:#9ca3af;
-      --accent-green:#10b981;
-      --error-red:#ef4444;
+      --gold: #fed103;
+      --green: #059c3a;
+      --deep-navy: #041423;
+      --glass-bg: rgba(255,255,255,0.04);
+      --glass-border: rgba(255,255,255,0.1);
+      --text-light: #d1d5db;
+      --text-soft: #9ca3af;
+      --orange: #f4a349;
+      --orange2: #ffb562;
     }
 
     body {
-      font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',Roboto,sans-serif;
-      background:radial-gradient(circle at top, #1f2933 0%, #050505 45%, #000000 100%);
-      min-height:100vh;
-      color:var(--text-main);
-      padding:24px;
-      display:flex;
-      justify-content:center;
-      align-items:center;
+      font-family: -apple-system, BlinkMacSystemFont, 'Inter','Segoe UI',Roboto,sans-serif;
+      background: var(--deep-navy);
+      color: white;
+      padding: 30px 20px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+      text-align: center;
     }
 
-    .shell {
-      width:100%;
-      max-width:900px;
+    .top-title {
+      font-size: 2.3em;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--gold), var(--orange));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 20px;
     }
 
-    .header {
-      text-align:center;
-      margin-bottom:28px;
-      animation:fadeInDown 0.6s ease-out;
+    .card {
+      width: 100%;
+      max-width: 640px;
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 20px;
+      padding: 50px 45px;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 0 28px rgba(5,156,58,0.25);
+      animation: fadeInUp .7s ease-out;
     }
 
-    .app-title {
-      font-size:2.4rem;
-      font-weight:800;
-      letter-spacing:0.04em;
-      margin-bottom:6px;
-      background:linear-gradient(120deg,#ffffff,#e5e7eb);
-      -webkit-background-clip:text;
-      -webkit-text-fill-color:transparent;
+    .success-icon {
+      width: 90px;
+      height: 90px;
+      margin: 0 auto 20px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--green), #047d2f);
+      box-shadow: 0 0 24px rgba(5,156,58,0.4);
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
 
-    .app-subtitle {
-      font-size:1.05rem;
-      font-weight:600;
-      background:linear-gradient(120deg,var(--iascend-orange),var(--iascend-gold));
-      -webkit-background-clip:text;
-      -webkit-text-fill-color:transparent;
-      opacity:0.95;
+    .success-icon svg { width: 45px; height: 45px; color: white; }
+
+    h1 { font-size: 2em; margin-bottom: 10px; font-weight: 700; }
+
+    .subtitle {
+      color: var(--text-light);
+      font-size: 1.15em;
+      max-width: 540px;
+      margin: 0 auto 35px;
+      line-height: 1.6;
     }
 
-    .hero-title {
-      margin-top:12px;
-      font-size:1.4rem;
-      font-weight:600;
-      color:var(--text-muted);
+    .summary-box {
+      margin-top: 30px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 14px;
+      padding: 25px;
+      text-align: left;
     }
 
-    .registration-card {
-      background:var(--glass-bg);
-      border-radius:24px;
-      padding:32px 26px 26px;
-      border:1px solid var(--glass-border);
-      backdrop-filter:blur(18px);
-      box-shadow:
-        0 0 40px rgba(0,0,0,0.8),
-        0 0 25px rgba(244,163,73,0.25);
-      display:grid;
-      grid-template-columns:minmax(0,1.1fr);
-      gap:22px;
-      animation:fadeInUp 0.6s ease-out 0.1s both;
+    .row {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      color: var(--text-light);
     }
 
-    @media (min-width:900px) {
-      .registration-card {
-        grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
-        padding:32px;
-      }
+    .row:last-child {
+      border-bottom: none;
+      font-weight: 600;
+      color: white;
     }
 
-    .card-main {
-      border-right:1px solid rgba(148,163,184,0.15);
-      padding-right:0;
-      margin-right:0;
+    .soulmark-box {
+      margin-top: 30px;
+      padding: 25px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, rgba(244,163,73,0.12), rgba(255,191,124,0.1));
+      border: 1px solid rgba(244,163,73,0.4);
+      text-align: left;
     }
 
-    @media (min-width:900px) {
-      .card-main {
-        padding-right:24px;
-        margin-right:8px;
-      }
+    .soul-label {
+      text-transform: uppercase;
+      font-weight: 700;
+      color: var(--orange);
+      margin-bottom: 10px;
+      letter-spacing: 0.04em;
     }
 
-    .card-title {
-      font-size:1.6rem;
-      font-weight:700;
-      margin-bottom:8px;
-      background:linear-gradient(120deg,#ffffff,#e5e7eb);
-      -webkit-background-clip:text;
-      -webkit-text-fill-color:transparent;
+    .soul-value {
+      font-family: 'Courier New', monospace;
+      font-size: 1em;
+      background: rgba(255,255,255,0.08);
+      padding: 14px;
+      border-radius: 8px;
+      color: white;
+      word-break: break-all;
     }
 
-    .card-subtitle {
-      color:var(--text-muted);
-      margin-bottom:24px;
-      line-height:1.6;
-      font-size:0.98rem;
+    .cta-box {
+      margin-top: 40px;
+      padding: 30px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, var(--orange), var(--orange2));
+      color: #041423;
+      font-weight: 600;
+      box-shadow: 0 0 24px rgba(244,163,73,0.35);
+      text-align: center;
     }
 
-    .highlight {
-      color:var(--iascend-gold);
-      font-weight:600;
+    .cta-title {
+      font-size: 1.55em;
+      font-weight: 800;
+      margin-bottom: 12px;
     }
 
-    .step-pill {
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-      padding:6px 12px;
-      border-radius:999px;
-      background:rgba(15,23,42,0.7);
-      border:1px solid rgba(148,163,184,0.4);
-      font-size:0.8rem;
-      color:var(--text-muted);
-      margin-bottom:12px;
+    .cta-text { font-size: 1.05em; margin-bottom: 25px; opacity: 0.95; }
+
+    .cta-button {
+      display: inline-block;
+      background: #041423;
+      color: white;
+      padding: 16px 42px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 1.1em;
+      text-decoration: none;
+      transition: .3s ease;
     }
 
-    .step-pill-dot {
-      width:8px;
-      height:8px;
-      border-radius:999px;
-      background:linear-gradient(135deg,var(--iascend-orange),var(--iascend-gold));
-      box-shadow:0 0 6px rgba(254,209,3,0.8);
-    }
-
-    .role-selection {
-      display:grid;
-      grid-template-columns:repeat(2,minmax(0,1fr));
-      gap:14px;
-      margin-bottom:22px;
-    }
-
-    .role-option {
-      padding:16px 14px;
-      border-radius:14px;
-      border:1px solid rgba(148,163,184,0.4);
-      background:rgba(15,23,42,0.7);
-      cursor:pointer;
-      transition:all 0.25s ease;
-      text-align:left;
-      display:flex;
-      flex-direction:column;
-      gap:4px;
-    }
-
-    .role-option:hover {
-      border-color:var(--iascend-orange);
-      box-shadow:0 0 18px rgba(244,163,73,0.25);
-      transform:translateY(-1px);
-    }
-
-    .role-option.selected {
-      border-color:var(--iascend-gold);
-      background:radial-gradient(circle at top left, rgba(254,209,3,0.22), rgba(15,23,42,0.9));
-      box-shadow:
-        0 0 22px rgba(254,209,3,0.32),
-        0 0 40px rgba(0,0,0,0.7);
-    }
-
-    .role-icon {
-      font-size:1.4rem;
-    }
-
-    .role-title {
-      font-weight:600;
-      font-size:0.95rem;
-      color:#f9fafb;
-    }
-
-    .role-description {
-      font-size:0.8rem;
-      color:var(--text-muted);
-    }
-
-    .form-group {
-      margin-bottom:18px;
-    }
-
-    label {
-      display:block;
-      font-weight:600;
-      font-size:0.85rem;
-      color:#e5e7eb;
-      margin-bottom:6px;
-    }
-
-    input, textarea {
-      width:100%;
-      padding:11px 13px;
-      border-radius:10px;
-      border:1px solid rgba(148,163,184,0.6);
-      background:rgba(15,23,42,0.8);
-      color:#e5e7eb;
-      font-size:0.95rem;
-      font-family:inherit;
-      transition:all 0.2s ease;
-    }
-
-    input::placeholder,
-    textarea::placeholder {
-      color:rgba(148,163,184,0.8);
-    }
-
-    input:focus,
-    textarea:focus {
-      outline:none;
-      border-color:var(--iascend-orange);
-      box-shadow:0 0 0 1px rgba(244,163,73,0.7);
-      background:rgba(15,23,42,0.95);
-    }
-
-    textarea {
-      min-height:90px;
-      resize:vertical;
-    }
-
-    .username-group {
-      position:relative;
-    }
-
-    .username-suffix {
-      position:absolute;
-      right:12px;
-      top:50%;
-      transform:translateY(-50%);
-      color:var(--text-muted);
-      font-weight:600;
-      font-size:0.9rem;
-      pointer-events:none;
-    }
-
-    .availability-check {
-      font-size:0.8rem;
-      margin-top:4px;
-      display:none;
-    }
-
-    .availability-check.checking {
-      display:block;
-      color:var(--text-muted);
-    }
-
-    .availability-check.available {
-      display:block;
-      color:var(--accent-green);
-    }
-
-    .availability-check.taken {
-      display:block;
-      color:var(--error-red);
-    }
-
-    .survivor-fields {
-      display:none;
-      padding:14px 14px 10px;
-      background:rgba(15,23,42,0.8);
-      border-radius:14px;
-      border:1px solid rgba(148,163,184,0.4);
-      margin-bottom:16px;
-    }
-
-    .survivor-fields.active {
-      display:block;
-    }
-
-    .submit-btn {
-      width:100%;
-      padding:15px;
-      border-radius:999px;
-      border:none;
-      cursor:pointer;
-      font-weight:700;
-      font-size:1rem;
-      color:#111827;
-      background:linear-gradient(135deg,var(--iascend-orange),var(--iascend-gold));
-      box-shadow:
-        0 12px 30px rgba(0,0,0,0.9),
-        0 0 18px rgba(254,209,3,0.5);
-      transition:all 0.2s ease;
-    }
-
-    .submit-btn:hover:not(:disabled) {
-      transform:translateY(-1px);
-      box-shadow:
-        0 16px 40px rgba(0,0,0,0.95),
-        0 0 22px rgba(254,209,3,0.7);
-    }
-
-    .submit-btn:disabled {
-      opacity:0.6;
-      cursor:not-allowed;
-      box-shadow:none;
-      transform:none;
+    .cta-button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 28px rgba(0,0,0,0.25);
     }
 
     .footer-links {
-      margin-top:18px;
-      text-align:center;
-      font-size:0.85rem;
-      color:var(--text-muted);
+      margin-top: 32px;
+      display: flex;
+      justify-content: center;
+      gap: 28px;
+      flex-wrap: wrap;
     }
 
     .footer-links a {
-      color:var(--iascend-gold);
-      text-decoration:none;
-      margin:0 8px;
-      opacity:0.9;
-      transition:opacity 0.2s ease, transform 0.2s ease;
+      color: var(--text-light);
+      text-decoration: none;
+      transition: .3s ease;
     }
 
-    .footer-links a:hover {
-      opacity:1;
-      transform:translateY(-1px);
-    }
-
-    .card-side {
-      display:none;
-    }
-
-    @media (min-width:900px) {
-      .card-side {
-        display:flex;
-        flex-direction:column;
-        justify-content:space-between;
-        gap:18px;
-      }
-    }
-
-    .side-block {
-      background:rgba(15,23,42,0.9);
-      border-radius:18px;
-      padding:16px 16px 14px;
-      border:1px solid rgba(148,163,184,0.3);
-      box-shadow:0 0 18px rgba(15,23,42,0.7);
-      font-size:0.85rem;
-    }
-
-    .side-title {
-      font-weight:600;
-      margin-bottom:6px;
-      color:#f9fafb;
-      font-size:0.9rem;
-    }
-
-    .side-pill {
-      display:inline-flex;
-      align-items:center;
-      gap:6px;
-      padding:4px 9px;
-      border-radius:999px;
-      background:rgba(15,23,42,0.95);
-      border:1px solid rgba(148,163,184,0.45);
-      font-size:0.75rem;
-      color:var(--text-muted);
-      margin-bottom:6px;
-    }
-
-    .side-pill-dot {
-      width:7px;
-      height:7px;
-      border-radius:999px;
-      background:var(--accent-green);
-      box-shadow:0 0 6px rgba(16,185,129,0.8);
-    }
-
-    .side-list {
-      list-style:none;
-      margin-top:6px;
-      color:var(--text-muted);
-    }
-
-    .side-list li {
-      margin-bottom:4px;
-      display:flex;
-      align-items:flex-start;
-      gap:6px;
-    }
-
-    .side-list li span {
-      margin-top:1px;
-      font-size:0.75rem;
-      color:var(--iascend-gold);
-    }
-
-    @keyframes fadeInDown {
-      from { opacity:0; transform:translateY(-18px); }
-      to { opacity:1; transform:translateY(0); }
-    }
-
-    @keyframes fadeInUp {
-      from { opacity:0; transform:translateY(18px); }
-      to { opacity:1; transform:translateY(0); }
-    }
+    .footer-links a:hover { color: var(--orange); }
   </style>
 </head>
+
 <body>
-  <div class="shell">
-    <header class="header">
-      <div class="app-title">iAscendAi</div>
-      <div class="app-subtitle">Create Your Verified Identity</div>
-      <div class="hero-title">Complete Your Registration Below</div>
-    </header>
 
-    <main class="registration-card">
-      <section class="card-main">
-        <h1 class="card-title">Create Your Identity</h1>
-        <p class="card-subtitle">
-          Establish your verified digital identity on the iAscendAi platform. Choose your role and claim your unique
-          <span class="highlight">username@iascendai</span>. Each username is unique — first come, first served.
-        </p>
+  <div class="card">
+    <div class="top-title">Jamaica We Rise × iAscendAi</div>
 
-        <form id="registrationForm">
-          <div class="role-selection">
-            <div class="role-option" data-role="donor">
-              <div class="role-icon">🎁</div>
-              <div class="role-title">Supporter</div>
-              <div class="role-description">I made a donation</div>
-            </div>
-            <div class="role-option" data-role="survivor">
-              <div class="role-icon">🇯🇲</div>
-              <div class="role-title">Survivor</div>
-              <div class="role-description">I need assistance</div>
-            </div>
-          </div>
+    <div class="success-icon">
+      <svg fill="currentColor" viewBox="0 0 24 24">
+        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+      </svg>
+    </div>
 
-          <div class="form-group">
-            <label for="name">Full Name *</label>
-            <input type="text" id="name" required placeholder="Adrian Walker" />
-          </div>
+    <h1>Thank You for Your Support!</h1>
+    <p class="subtitle">
+      Your contribution helps restore hope, rebuild communities, and protect lives across Jamaica.
+    </p>
 
-          <div class="form-group">
-            <label for="email">Email Address *</label>
-            <input type="email" id="email" required placeholder="adrian@example.com" />
-          </div>
+    <div class="summary-box">
+      <div class="row"><span>Donor</span><span id="donorName">Loading...</span></div>
+      <div class="row"><span>Email</span><span id="donorEmail">Loading...</span></div>
+      <div class="row"><span>Donation Date</span><span id="donationDate">Loading...</span></div>
+      <div class="row"><span>Amount</span><span id="donationAmount">Loading...</span></div>
+    </div>
 
-          <div class="form-group">
-            <label for="username">Choose Your Username *</label>
-            <div class="username-group">
-              <input type="text" id="username" required placeholder="adrian" style="padding-right:140px;" />
-              <span class="username-suffix">@iascendai</span>
-            </div>
-            <div class="availability-check" id="availabilityCheck"></div>
-          </div>
+    <div class="soulmark-box">
+      <div class="soul-label">Your SoulMarkⓈ Verification Hash</div>
+      <div class="soul-value" id="soulMark">Loading...</div>
+    </div>
 
-          <div class="survivor-fields" id="survivorFields">
-            <div class="form-group">
-              <label for="location">Current Location *</label>
-              <input type="text" id="location" placeholder="Kingston, Jamaica" />
-            </div>
-            <div class="form-group">
-              <label for="status">Safety Status *</label>
-              <input type="text" id="status" placeholder="Safe / Need Immediate Help / Seeking Shelter" />
-            </div>
-            <div class="form-group">
-              <label for="assistance">Assistance Needed</label>
-              <textarea id="assistance" placeholder="Describe what kind of help you need..."></textarea>
-            </div>
-          </div>
+    <div class="cta-box">
+      <div class="cta-title">Claim Your Digital Identity</div>
+      <div class="cta-text">
+        Secure your verified <strong>username@iascendai</strong> identity now.
+      </div>
+      <a id="identityLink" class="cta-button">Create My Identity →</a>
+    </div>
 
-          <button type="submit" class="submit-btn" id="submitBtn">
-            Create My Identity
-          </button>
-        </form>
+    <div class="footer-links">
+      <a href="/tracker.html">Impact Dashboard</a>
+      <a href="/iascendai-verify.html">Verify SoulMarkⓈ</a>
+      <a href="/">Home</a>
+    </div>
 
-        <div class="footer-links">
-          <span>Already registered?</span>
-          <a href="verify.html">Verify Identity</a> ·
-          <a href="soulregistry.html">View SoulRegistryⓈ</a> ·
-          <a href="iascendai-dashboard.html">Dashboard</a>
-        </div>
-      </section>
-
-      <aside class="card-side">
-        <div class="side-block">
-          <div class="side-title">What your identity unlocks</div>
-          <div class="side-pill">
-            <div class="side-pill-dot"></div>
-            <span>Signal-verified presence</span>
-          </div>
-          <ul class="side-list">
-            <li><span>•</span><div>Connect your donation to a persistent SoulMarkⓈ identity.</div></li>
-            <li><span>•</span><div>Access your personal dashboard and live SoulTrackerⓈ metrics.</div></li>
-            <li><span>•</span><div>Enable future mindsets like LawAid AI and AI Wellness 360.</div></li>
-          </ul>
-        </div>
-
-        <div class="side-block">
-          <div class="side-title">Survivor Identity</div>
-          <div class="side-pill">
-            <div class="side-pill-dot"></div>
-            <span>Priority routing</span>
-          </div>
-          <ul class="side-list">
-            <li><span>•</span><div>Share safe contact, current location, and assistance needs.</div></li>
-            <li><span>•</span><div>Enable verified coordinators to match resources to your status.</div></li>
-          </ul>
-        </div>
-      </aside>
-    </main>
   </div>
 
   <script type="module">
     import { CONFIG } from "./config.js";
     const BACKEND_URL = CONFIG.BACKEND_URL;
 
-    let selectedRole = null;
-    let usernameCheckTimeout = null;
+    async function loadDonationDetails() {
+      const params = new URLSearchParams(window.location.search);
+      const sessionId = params.get("session_id");
 
-    // Prefill data from success page
-    const params = new URLSearchParams(window.location.search);
-    const soulmark = params.get("soulmark");
-    const emailFromUrl = params.get("email");
-    if (emailFromUrl) document.getElementById("email").value = emailFromUrl;
+      const donorName = document.getElementById("donorName");
+      const donorEmail = document.getElementById("donorEmail");
+      const donationDate = document.getElementById("donationDate");
+      const donationAmount = document.getElementById("donationAmount");
+      const soulMarkEl = document.getElementById("soulMark");
+      const identityLink = document.getElementById("identityLink");
 
-    // Role selection toggle
-    document.querySelectorAll(".role-option").forEach(option => {
-      option.addEventListener("click", () => {
-        document.querySelectorAll(".role-option").forEach(opt => opt.classList.remove("selected"));
-        option.classList.add("selected");
-        selectedRole = option.dataset.role;
-        document
-          .getElementById("survivorFields")
-          .classList.toggle("active", selectedRole === "survivor");
-      });
-    });
-
-    // Username availability check
-    document.getElementById("username").addEventListener("input", () => {
-      const username = document.getElementById("username").value.trim().toLowerCase();
-      const availabilityCheck = document.getElementById("availabilityCheck");
-      clearTimeout(usernameCheckTimeout);
-
-      if (username.length < 3) {
-        availabilityCheck.className = "availability-check";
-        availabilityCheck.textContent = "";
+      if (!sessionId) {
+        donorName.textContent = "—";
+        donorEmail.textContent = "—";
+        donationDate.textContent = "—";
+        donationAmount.textContent = "—";
+        soulMarkEl.textContent = "⚠ Missing session_id";
         return;
       }
-
-      availabilityCheck.className = "availability-check checking";
-      availabilityCheck.textContent = "Checking availability...";
-
-      usernameCheckTimeout = setTimeout(async () => {
-        try {
-          const res = await fetch(`${BACKEND_URL}/check-username/${username}`);
-          const data = await res.json();
-          if (data.available) {
-            availabilityCheck.className = "availability-check available";
-            availabilityCheck.textContent = "✓ Available! This username is yours.";
-          } else {
-            availabilityCheck.className = "availability-check taken";
-            availabilityCheck.textContent = "✗ Already taken.";
-          }
-        } catch {
-          availabilityCheck.className = "availability-check";
-          availabilityCheck.textContent = "Could not check availability - backend offline.";
-        }
-      }, 500);
-    });
-
-    // Registration form submit
-    document.getElementById("registrationForm").addEventListener("submit", async (e) => {
-      e.preventDefault();
-
-      const name = document.getElementById("name").value.trim();
-      const email = document.getElementById("email").value.trim();
-      const username = document.getElementById("username").value.trim().toLowerCase();
-
-      if (!selectedRole) {
-        alert("Please select your role (Supporter or Survivor).");
-        return;
-      }
-      if (!name || !email || !username) {
-        alert("Missing required fields.");
-        return;
-      }
-      if (!soulmark) {
-        alert("Missing SoulMark verification. Please return to the success page.");
-        return;
-      }
-
-      const payload = {
-        role: selectedRole,
-        name,
-        email,
-        username,
-        soulmark,
-        location: selectedRole === "survivor" ? document.getElementById("location").value.trim() : null,
-        status: selectedRole === "survivor" ? document.getElementById("status").value.trim() : null,
-        assistance: selectedRole === "survivor" ? document.getElementById("assistance").value.trim() : null
-      };
-
-      const btn = document.getElementById("submitBtn");
-      btn.disabled = true;
-      btn.textContent = "Creating Identity...";
 
       try {
-        const res = await fetch(`${BACKEND_URL}/register`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload)
+        const res = await fetch(`${BACKEND_URL}/verify-session?session_id=${sessionId}`, {
+          cache: "no-store"
         });
+
         const data = await res.json();
 
-        if (!res.ok) throw new Error(data.error || "Registration failed.");
+        if (!data.verified || !data.record) throw new Error("Not verified");
 
-        window.location.href =
-          `/iascendai-dashboard.html?username=${encodeURIComponent(username)}&soulmark=${encodeURIComponent(soulmark)}`;
+        const r = data.record;
+
+        donorName.textContent = r.name || "Anonymous";
+        donorEmail.textContent = r.email || "Not provided";
+        donationDate.textContent = new Date(r.timestamp).toLocaleString("en-US");
+        donationAmount.textContent = `$${r.amount.toFixed(2)}`;
+        soulMarkEl.textContent = r.soulMark;
+
+        // Pass ONLY session_id into the registration flow
+        identityLink.href = `/iascendai-register.html?session_id=${encodeURIComponent(sessionId)}`;
+
       } catch (err) {
-        alert(err.message || "Registration failed. Please try again.");
-        btn.disabled = false;
-        btn.textContent = "Create My Identity";
+        soulMarkEl.textContent = "Error loading";
       }
-    });
+    }
+
+    loadDonationDetails();
   </script>
+
 </body>
 </html>
