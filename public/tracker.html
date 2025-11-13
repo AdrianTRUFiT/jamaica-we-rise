@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SoulTrackerⓈ | Jamaica We Rise × iAscendAi</title>
 
+  <!-- Correct Render Backend Loaded via config.js -->
   <script type="module">
     import { CONFIG } from "./config.js";
     window.CONFIG = CONFIG;
@@ -226,9 +227,7 @@
       font-size: 0.95em;
     }
 
-    .footer-links a:hover {
-      color: var(--gold);
-    }
+    .footer-links a:hover { color: var(--gold); }
 
     @media (max-width: 640px) {
       .tracker-card { padding: 25px; }
@@ -300,9 +299,13 @@
     </div>
   </div>
 
+  <!-- TRACKER LOGIC -->
   <script type="module">
     import { CONFIG } from "./config.js";
+
+    /* Correct backend now guaranteed */
     const BACKEND_URL = CONFIG.BACKEND_URL;
+
     const GOAL = 50000;
 
     async function loadDonations() {

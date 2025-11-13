@@ -4,10 +4,13 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Impact Dashboard | Jamaica We Rise × iAscendAi</title>
+
+  <!-- Loads correct backend URL from config.js -->
   <script type="module">
     import { CONFIG } from "./config.js";
     window.CONFIG = CONFIG;
   </script>
+
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif;
@@ -168,10 +171,13 @@
       try {
         const res = await fetch(`${BACKEND_URL}/registry`, { cache: "no-store" });
         const data = await res.json();
+
         const donations = data.filter(e => typeof e.amount === "number");
         const totalRaised = donations.reduce((sum, d) => sum + d.amount, 0);
         const totalDonors = donations.length;
-        document.getElementById("totalRaised").textContent = `$${totalRaised.toLocaleString(undefined,{minimumFractionDigits:2})}`;
+
+        document.getElementById("totalRaised").textContent =
+          `$${totalRaised.toLocaleString(undefined, { minimumFractionDigits: 2 })}`;
         document.getElementById("donorCount").textContent = totalDonors;
       } catch (err) {
         console.error("Stats error:", err);
@@ -182,8 +188,10 @@
       try {
         const res = await fetch(`${BACKEND_URL}/registry`, { cache: "no-store" });
         const data = await res.json();
+
         const donors = data.filter(d => d.amount);
         const tbody = document.querySelector("#donorsTable tbody");
+
         tbody.innerHTML = donors.length
           ? donors.slice(-10).reverse().map(d => `
             <tr>
@@ -202,8 +210,10 @@
       try {
         const res = await fetch(`${BACKEND_URL}/registry`, { cache: "no-store" });
         const data = await res.json();
+
         const verified = data.filter(i => i.verified);
         document.getElementById("verifiedCount").textContent = verified.length;
+
         const tbody = document.querySelector("#registryTable tbody");
         tbody.innerHTML = data.length
           ? data.slice(-10).reverse().map(i => `
@@ -223,7 +233,7 @@
     loadDonors();
     loadRegistry();
 
-    // 🔁 Auto-refresh every 20 seconds
+    // Refresh every 20 seconds
     setInterval(() => {
       loadStats();
       loadDonors();

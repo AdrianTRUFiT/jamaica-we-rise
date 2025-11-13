@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>iAscendAi — Digital Identity Dashboard</title>
 
+  <!-- Load correct backend URL -->
   <script type="module">
     import { CONFIG } from "./config.js";
     window.CONFIG = CONFIG;
@@ -232,7 +233,7 @@
         </div>
       </div>
 
-      <!-- OTHER TABS (kept same layout, colors inherit correctly) -->
+      <!-- OTHER TABS -->
       <div class="tab-content" id="soulaid"><h2>💛 Your SoulAidⓈ Contributions</h2></div>
       <div class="tab-content" id="tracker"><h2>🌍 Live SoulTrackerⓈ</h2></div>
       <div class="tab-content" id="updates"><h2>✉️ Field Updates</h2></div>
@@ -241,6 +242,7 @@
     </div>
   </div>
 
+  <!-- DASHBOARD LOGIC -->
   <script type="module">
     import { CONFIG } from "./config.js";
     const BACKEND_URL = CONFIG.BACKEND_URL;
@@ -263,6 +265,9 @@
       document.getElementById("user-username").textContent = username ? `${username}@iascendai` : "Anonymous";
       document.getElementById("identity-type").textContent = role === "survivor" ? "SurvivorⓈ" : "SupporterⓈ";
 
+      const now = new Date();
+      document.getElementById("reg-date").textContent = now.toLocaleDateString();
+
       initTabs();
     });
 
@@ -282,5 +287,6 @@
       });
     }
   </script>
+
 </body>
 </html>

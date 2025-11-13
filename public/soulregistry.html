@@ -4,10 +4,13 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SoulRegistryⓈ Directory | Jamaica We Rise × iAscendAi</title>
+
+  <!-- Load Correct Backend URL -->
   <script type="module">
     import { CONFIG } from "./config.js";
     window.CONFIG = CONFIG;
   </script>
+
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif;
@@ -111,6 +114,8 @@
 
   <script type="module">
     import { CONFIG } from "./config.js";
+
+    /* Correct backend URL pulled from config.js */
     const BACKEND_URL = CONFIG.BACKEND_URL;
 
     async function loadRegistry() {
@@ -120,6 +125,7 @@
       try {
         const response = await fetch(`${BACKEND_URL}/registry`, { cache: "no-store" });
         if (!response.ok) throw new Error("Failed to fetch registry");
+
         const data = await response.json();
 
         if (!data || data.length === 0) {
@@ -130,7 +136,7 @@
         loading.style.display = "none";
         registryContainer.style.display = "grid";
 
-        // Verified first
+        /* Sort verified first */
         const sorted = data.sort((a, b) => (b.verified === true) - (a.verified === true));
 
         registryContainer.innerHTML = sorted

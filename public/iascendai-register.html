@@ -3,283 +3,822 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Donation Successful | Jamaica We Rise × iAscendAi</title>
+  <title>Create Your Identity | iAscendAi</title>
 
+  <!-- Config for BACKEND_URL -->
   <script type="module">
     import { CONFIG } from "./config.js";
     window.CONFIG = CONFIG;
   </script>
 
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
     :root {
+      --bg-deep: #020617;
+      --bg-mid: #041423;
+      --glass: rgba(11, 25, 45, 0.92);
+      --glass-soft: rgba(10, 24, 45, 0.85);
+      --border-soft: rgba(148, 163, 184, 0.45);
+
       --gold: #fed103;
-      --green: #059c3a;
-      --deep-navy: #041423;
-      --glass-bg: rgba(255,255,255,0.04);
-      --glass-border: rgba(255,255,255,0.1);
-      --text-light: #d1d5db;
-      --text-soft: #9ca3af;
       --orange: #f4a349;
       --orange2: #ffb562;
+      --aqua: #b8edee;
+      --teal: #22d3ee;
+
+      --text-bright: #e5f2ff;
+      --text-soft: #9ca3af;
+      --pill-bg: rgba(15, 23, 42, 0.85);
+      --error: #f97373;
+      --success: #4ade80;
     }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Inter','Segoe UI',Roboto,sans-serif;
-      background: var(--deep-navy);
-      color: white;
-      padding: 30px 20px;
+      font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, sans-serif;
+      min-height: 100vh;
+      padding: 32px 16px;
+      color: var(--text-bright);
+      background:
+        radial-gradient(circle at top, #0f172a 0, #020617 38%, #000814 90%);
       display: flex;
       justify-content: center;
       align-items: flex-start;
-      min-height: 100vh;
-      text-align: center;
     }
 
-    .top-title {
-      font-size: 2.3em;
+    .shell {
+      width: 100%;
+      max-width: 1120px;
+    }
+
+    /* HEADER */
+    .brand-header {
+      text-align: center;
+      margin-bottom: 26px;
+    }
+
+    .brand-title {
+      font-size: 3.0rem;
       font-weight: 800;
-      background: linear-gradient(135deg, var(--gold), var(--orange));
+      letter-spacing: 0.10em;
+      margin-bottom: 8px;
+      background: linear-gradient(120deg, var(--aqua), var(--gold));
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
+    }
+
+    .brand-subtitle {
+      font-size: 1.8rem;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--gold);
+    }
+
+    .brand-subtitle span {
+      color: var(--orange2);
+    }
+
+    .brand-caption {
+      margin-top: 8px;
+      font-size: 0.95rem;
+      color: var(--text-soft);
+    }
+
+    /* MAIN CARD */
+    .identity-card {
+      background: radial-gradient(circle at top left, rgba(34, 211, 238, 0.12), transparent 55%),
+                  radial-gradient(circle at bottom right, rgba(244, 163, 73, 0.1), transparent 60%),
+                  var(--glass-soft);
+      border-radius: 24px;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.65);
+      padding: 24px;
+      display: grid;
+      grid-template-columns: minmax(0, 3fr) minmax(0, 2.7fr);
+      gap: 22px;
+    }
+
+    @media (max-width: 900px) {
+      .identity-card {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* LEFT: USERNAME + ROLE */
+    .panel {
+      background: linear-gradient(145deg, rgba(15, 23, 42, 0.92), rgba(15, 23, 42, 0.85));
+      border-radius: 18px;
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      padding: 22px 22px 24px;
+    }
+
+    .panel h2 {
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+      color: var(--text-bright);
+    }
+
+    .panel p.lead {
+      font-size: 0.95rem;
+      color: var(--text-soft);
+      line-height: 1.6;
+      margin-bottom: 18px;
+    }
+
+    .hint {
+      margin-bottom: 18px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border-left: 3px solid var(--orange);
+      background: rgba(15, 23, 42, 0.95);
+      font-size: 0.8rem;
+      color: var(--text-soft);
+    }
+
+    .hint strong {
+      color: var(--orange2);
+      font-weight: 700;
+    }
+
+    .hint em {
+      font-style: normal;
+      color: var(--aqua);
+    }
+
+    .panel-label {
+      font-size: 0.75rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--text-soft);
+      margin-bottom: 10px;
+    }
+
+    .role-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
       margin-bottom: 20px;
     }
 
-    .card {
-      width: 100%;
-      max-width: 640px;
-      background: var(--glass-bg);
-      border: 1px solid var(--glass-border);
-      border-radius: 20px;
-      padding: 50px 45px;
-      backdrop-filter: blur(12px);
-      box-shadow: 0 0 28px rgba(5,156,58,0.25);
-      animation: fadeInUp .7s ease-out;
+    .role-option {
+      position: relative;
+      padding: 14px 14px 16px;
+      border-radius: 14px;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      background: radial-gradient(circle at top, rgba(15, 23, 42, 0.9), rgba(15, 23, 42, 0.96));
+      cursor: pointer;
+      transition: all 0.22s ease;
+      text-align: left;
     }
 
-    .success-icon {
-      width: 90px;
-      height: 90px;
-      margin: 0 auto 20px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, var(--green), #047d2f);
-      box-shadow: 0 0 24px rgba(5,156,58,0.4);
+    .role-option:hover {
+      border-color: rgba(254, 209, 3, 0.8);
+      box-shadow: 0 0 0 1px rgba(254, 209, 3, 0.3);
+      transform: translateY(-1px);
+    }
+
+    .role-option.selected {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 1px rgba(234, 179, 8, 0.9), 0 0 30px rgba(234, 179, 8, 0.35);
+      background: radial-gradient(circle at top left, rgba(234, 179, 8, 0.16), rgba(15, 23, 42, 0.96));
+    }
+
+    .role-icon {
+      font-size: 1.4rem;
+      margin-bottom: 6px;
+    }
+
+    .role-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      margin-bottom: 2px;
+      color: var(--text-bright);
+    }
+
+    .role-description {
+      font-size: 0.8rem;
+      color: var(--text-soft);
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-soft);
+      margin-bottom: 6px;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 10px;
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      background: rgba(15, 23, 42, 0.96);
+      color: var(--text-bright);
+      font-size: 0.95rem;
+    }
+
+    input::placeholder {
+      color: rgba(148, 163, 184, 0.7);
+    }
+
+    input:focus {
+      outline: none;
+      border-color: var(--teal);
+      box-shadow: 0 0 0 1px rgba(34, 211, 238, 0.65);
+    }
+
+    .username-row {
       display: flex;
-      justify-content: center;
+      gap: 6px;
       align-items: center;
     }
 
-    .success-icon svg { width: 45px; height: 45px; color: white; }
-
-    h1 { font-size: 2em; margin-bottom: 10px; font-weight: 700; }
-
-    .subtitle {
-      color: var(--text-light);
-      font-size: 1.15em;
-      max-width: 540px;
-      margin: 0 auto 35px;
-      line-height: 1.6;
+    .username-row input {
+      flex: 1;
+      padding-right: 0;
     }
 
-    .summary-box {
-      margin-top: 30px;
-      background: rgba(255,255,255,0.06);
-      border: 1px solid rgba(255,255,255,0.15);
-      border-radius: 14px;
-      padding: 25px;
-      text-align: left;
+    .username-suffix-pill {
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.95);
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      font-size: 0.8rem;
+      color: var(--aqua);
+      white-space: nowrap;
     }
 
-    .row {
+    .availability {
+      font-size: 0.8rem;
+      margin-top: 4px;
+      min-height: 1.1em;
+    }
+
+    .availability.checking {
+      color: var(--text-soft);
+    }
+
+    .availability.ok {
+      color: var(--success);
+    }
+
+    .availability.bad {
+      color: var(--error);
+    }
+
+    .suggestion-box {
+      display: none;
+      margin-top: 8px;
+      padding: 8px 10px;
+      border-radius: 10px;
+      background: rgba(15, 23, 42, 0.96);
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      font-size: 0.8rem;
+      color: var(--text-soft);
+    }
+
+    .suggestions-list {
+      margin-top: 6px;
       display: flex;
-      justify-content: space-between;
-      padding: 10px 0;
-      border-bottom: 1px solid rgba(255,255,255,0.08);
-      color: var(--text-light);
+      flex-wrap: wrap;
+      gap: 6px;
     }
 
-    .row:last-child {
-      border-bottom: none;
+    .suggestion-btn {
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(252, 211, 77, 0.9);
+      background: radial-gradient(circle at top, rgba(234, 179, 8, 0.25), rgba(15, 23, 42, 0.96));
+      color: var(--text-bright);
+      font-size: 0.8rem;
       font-weight: 600;
-      color: white;
+      cursor: pointer;
+      transition: all 0.2s ease;
     }
 
-    .soulmark-box {
-      margin-top: 30px;
-      padding: 25px;
-      border-radius: 14px;
-      background: linear-gradient(135deg, rgba(244,163,73,0.12), rgba(255,191,124,0.1));
-      border: 1px solid rgba(244,163,73,0.4);
-      text-align: left;
-    }
-
-    .soul-label {
-      text-transform: uppercase;
-      font-weight: 700;
-      color: var(--orange);
-      margin-bottom: 10px;
-      letter-spacing: 0.04em;
-    }
-
-    .soul-value {
-      font-family: 'Courier New', monospace;
-      font-size: 1em;
-      background: rgba(255,255,255,0.08);
-      padding: 14px;
-      border-radius: 8px;
-      color: white;
-      word-break: break-all;
-    }
-
-    .cta-box {
-      margin-top: 40px;
-      padding: 30px;
-      border-radius: 16px;
+    .suggestion-btn:hover {
       background: linear-gradient(135deg, var(--orange), var(--orange2));
       color: #041423;
-      font-weight: 600;
-      box-shadow: 0 0 24px rgba(244,163,73,0.35);
-      text-align: center;
+      box-shadow: 0 6px 16px rgba(248, 181, 23, 0.45);
+      transform: translateY(-1px);
     }
 
-    .cta-title {
-      font-size: 1.55em;
+    .submit-btn {
+      width: 100%;
+      margin-top: 6px;
+      padding: 14px 18px;
+      border-radius: 999px;
+      border: none;
+      background: linear-gradient(135deg, var(--orange), var(--gold));
+      color: #041423;
       font-weight: 800;
-      margin-bottom: 12px;
+      font-size: 1.05rem;
+      cursor: pointer;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.7);
+      transition: all 0.2s ease;
     }
 
-    .cta-text { font-size: 1.05em; margin-bottom: 25px; opacity: 0.95; }
-
-    .cta-button {
-      display: inline-block;
-      background: #041423;
-      color: white;
-      padding: 16px 42px;
-      border-radius: 10px;
-      font-weight: 700;
-      font-size: 1.1em;
-      text-decoration: none;
-      transition: .3s ease;
+    .submit-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 24px 55px rgba(0, 0, 0, 0.85);
     }
 
-    .cta-button:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 10px 28px rgba(0,0,0,0.25);
+    .submit-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
     }
 
     .footer-links {
-      margin-top: 32px;
-      display: flex;
-      justify-content: center;
-      gap: 28px;
-      flex-wrap: wrap;
+      margin-top: 12px;
+      font-size: 0.8rem;
+      color: var(--text-soft);
+      text-align: center;
     }
 
     .footer-links a {
-      color: var(--text-light);
+      color: var(--aqua);
       text-decoration: none;
-      transition: .3s ease;
     }
 
-    .footer-links a:hover { color: var(--orange); }
+    .footer-links a:hover {
+      color: var(--orange2);
+    }
+
+    /* RIGHT PANEL: LINKED DONATION */
+    .panel-right-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+      color: var(--text-bright);
+    }
+
+    .panel-right-caption {
+      font-size: 0.82rem;
+      color: var(--text-soft);
+      margin-bottom: 14px;
+      line-height: 1.5;
+    }
+
+    .field-pill-label {
+      font-size: 0.7rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-soft);
+      margin-bottom: 4px;
+    }
+
+    .value-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      padding: 10px 12px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.95);
+      border: 1px solid rgba(148, 163, 184, 0.55);
+      font-size: 0.9rem;
+    }
+
+    .value-label {
+      color: var(--text-soft);
+      font-size: 0.8rem;
+    }
+
+    .value-main {
+      font-weight: 600;
+      color: var(--text-bright);
+    }
+
+    .value-status {
+      font-size: 0.75rem;
+      padding: 4px 9px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.96);
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      color: var(--text-soft);
+    }
+
+    .value-status.ok {
+      border-color: rgba(74, 222, 128, 0.8);
+      color: var(--success);
+    }
+
+    .value-status.warn {
+      border-color: rgba(250, 204, 21, 0.8);
+      color: #facc15;
+    }
+
+    .value-status.bad {
+      border-color: rgba(248, 113, 113, 0.8);
+      color: var(--error);
+    }
+
+    .soulmark-display {
+      margin-top: 14px;
+      border-radius: 12px;
+      padding: 12px 12px 13px;
+      background: radial-gradient(circle at top left, rgba(248, 181, 23, 0.24), rgba(15, 23, 42, 0.96));
+      border: 1px solid rgba(248, 181, 23, 0.85);
+      font-size: 0.8rem;
+      color: var(--text-bright);
+    }
+
+    .soulmark-tag {
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      font-size: 0.7rem;
+      opacity: 0.9;
+    }
+
+    .soulmark-hash {
+      margin-top: 6px;
+      padding: 8px 10px;
+      border-radius: 8px;
+      background: rgba(15, 23, 42, 0.96);
+      font-family: "SF Mono", ui-monospace, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 0.8rem;
+      word-break: break-all;
+    }
+
+    .panel-note {
+      margin-top: 16px;
+      font-size: 0.78rem;
+      color: var(--text-soft);
+      line-height: 1.5;
+    }
+
+    .panel-note a {
+      color: var(--aqua);
+      text-decoration: none;
+    }
+
+    .panel-note a:hover {
+      color: var(--orange2);
+    }
   </style>
 </head>
-
 <body>
-
-  <div class="card">
-    <div class="top-title">Jamaica We Rise × iAscendAi</div>
-
-    <div class="success-icon">
-      <svg fill="currentColor" viewBox="0 0 24 24">
-        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
-      </svg>
-    </div>
-
-    <h1>Thank You for Your Support!</h1>
-    <p class="subtitle">
-      Your contribution helps restore hope, rebuild communities, and protect lives across Jamaica.
-    </p>
-
-    <div class="summary-box">
-      <div class="row"><span>Donor</span><span id="donorName">Loading...</span></div>
-      <div class="row"><span>Email</span><span id="donorEmail">Loading...</span></div>
-      <div class="row"><span>Donation Date</span><span id="donationDate">Loading...</span></div>
-      <div class="row"><span>Amount</span><span id="donationAmount">Loading...</span></div>
-    </div>
-
-    <div class="soulmark-box">
-      <div class="soul-label">Your SoulMarkⓈ Verification Hash</div>
-      <div class="soul-value" id="soulMark">Loading...</div>
-    </div>
-
-    <div class="cta-box">
-      <div class="cta-title">Claim Your Digital Identity</div>
-      <div class="cta-text">
-        Secure your verified <strong>username@iascendai</strong> identity now.
+  <div class="shell">
+    <header class="brand-header">
+      <div class="brand-title">iAscendAi</div>
+      <div class="brand-subtitle">Create Your <span>Identity</span></div>
+      <div class="brand-caption">
+        Claim your verified <strong>username@iascendai</strong> to automatically link to your SoulMarkⓈ.
       </div>
-      <a id="identityLink" class="cta-button">Create My Identity →</a>
-    </div>
+    </header>
 
-    <div class="footer-links">
-      <a href="/tracker.html">Impact Dashboard</a>
-      <a href="/iascendai-verify.html">Verify SoulMarkⓈ</a>
-      <a href="/">Home</a>
-    </div>
+    <main class="identity-card">
+      <!-- LEFT PANEL -->
+      <section class="panel">
+        <h2>Claim Your Username</h2>
+        <p class="lead">
+          Like a social handle, each username can only be claimed once. Your identity will be linked
+          to your donation and protected inside the iAscendAi trust layer.
+        </p>
 
+        <div class="hint">
+          <strong>ATTENTION:</strong> Chose your username@iascendai. If your preferred username is taken, try variations like
+          <em>firstname_lastname</em>, <em>firstname2025</em>.
+        </div>
+
+        <div class="panel-label">Choose Your Role</div>
+        <div class="role-grid">
+          <button type="button" class="role-option" data-role="supporter">
+            <div class="role-icon">🎁</div>
+            <div class="role-title">Supporter</div>
+            <div class="role-description">I made a donation and want to register.</div>
+          </button>
+
+          <button type="button" class="role-option" data-role="survivor">
+            <div class="role-icon">🆘</div>
+            <div class="role-title">Survivor</div>
+            <div class="role-description">I was impacted and need assistance.</div>
+          </button>
+        </div>
+
+        <form id="registrationForm" novalidate>
+          <div class="form-group">
+            <label for="name">Full Name *</label>
+            <input id="name" name="name" type="text" required placeholder="Adrian McKenzie" />
+          </div>
+
+          <div class="form-group">
+            <label for="email">Email Address *</label>
+            <input id="email" name="email" type="email" required placeholder="you@example.com" />
+          </div>
+
+          <div class="form-group">
+            <label for="username">Choose Your Username *</label>
+            <div class="username-row">
+              <input
+                id="username"
+                name="username"
+                type="text"
+                required
+                minlength="3"
+                placeholder="adrian"
+              />
+              <div class="username-suffix-pill">@iascendai</div>
+            </div>
+            <div id="availability" class="availability"></div>
+            <div id="suggestionBox" class="suggestion-box">
+              <strong>Suggestions:</strong>
+              <div id="suggestionsList" class="suggestions-list"></div>
+            </div>
+          </div>
+
+          <button id="submitBtn" type="submit" class="submit-btn">
+            Create My Identity
+          </button>
+
+          <div class="footer-links">
+            <a href="/iascendai-verify.html">Verify an existing identity</a> ·
+            <a href="/">Back to home</a>
+          </div>
+        </form>
+      </section>
+
+      <!-- RIGHT PANEL -->
+      <section class="panel">
+        <div class="panel-right-title">Linked Donation</div>
+        <div class="panel-right-caption">
+          Pulled from your Stripe session and success page. This is what will link your username to
+          your SoulMarkⓈ record.
+        </div>
+
+        <div class="form-group">
+          <div class="field-pill-label">Amount</div>
+          <div class="value-row">
+            <div class="value-main" id="linkedAmount">$—</div>
+            <div class="value-status" id="amountStatus">Waiting…</div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <div class="field-pill-label">Email</div>
+          <div class="value-row">
+            <div class="value-main" id="linkedEmail">Not detected</div>
+            <div class="value-status" id="emailStatus">—</div>
+          </div>
+        </div>
+
+        <div class="soulmark-display">
+          <div class="soulmark-tag">SoulMarkⓈ hash</div>
+          <div id="linkedSoulmark" class="soulmark-hash">
+            Waiting for donation handoff…
+          </div>
+        </div>
+
+        <p class="panel-note">
+          If something looks wrong, you can still finish registration — we’ll reconcile your record
+          using your email + SoulMarkⓈ from the registry.<br />
+          Need to verify an existing identity? <a href="/iascendai-verify.html">Open the verifier.</a>
+        </p>
+      </section>
+    </main>
   </div>
 
   <script type="module">
     import { CONFIG } from "./config.js";
     const BACKEND_URL = CONFIG.BACKEND_URL;
 
-    async function loadDonationDetails() {
+    let selectedRole = null;
+    let usernameCheckTimer = null;
+    let linkedDonation = { email: "", amount: "", soulmark: "" };
+
+    const roleButtons = document.querySelectorAll(".role-option");
+    const availabilityEl = document.getElementById("availability");
+    const suggestionBox = document.getElementById("suggestionBox");
+    const suggestionsList = document.getElementById("suggestionsList");
+    const usernameInput = document.getElementById("username");
+    const nameInput = document.getElementById("name");
+    const emailInput = document.getElementById("email");
+    const submitBtn = document.getElementById("submitBtn");
+
+    const linkedAmountEl = document.getElementById("linkedAmount");
+    const amountStatusEl = document.getElementById("amountStatus");
+    const linkedEmailEl = document.getElementById("linkedEmail");
+    const emailStatusEl = document.getElementById("emailStatus");
+    const linkedSoulmarkEl = document.getElementById("linkedSoulmark");
+
+    /* ----- ROLE SELECTION ----- */
+    roleButtons.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        roleButtons.forEach((b) => b.classList.remove("selected"));
+        btn.classList.add("selected");
+        selectedRole = btn.dataset.role;
+      });
+    });
+
+    /* ----- DONATION HANDOFF (URL + localStorage) ----- */
+    function hydrateFromDonation() {
       const params = new URLSearchParams(window.location.search);
-      const sessionId = params.get("session_id");
 
-      const donorName = document.getElementById("donorName");
-      const donorEmail = document.getElementById("donorEmail");
-      const donationDate = document.getElementById("donationDate");
-      const donationAmount = document.getElementById("donationAmount");
-      const soulMarkEl = document.getElementById("soulMark");
-      const identityLink = document.getElementById("identityLink");
+      const urlEmail = params.get("email");
+      const urlSoul = params.get("soulmark");
+      const urlAmount = params.get("amount");
 
-      if (!sessionId) {
-        donorName.textContent = "—";
-        donorEmail.textContent = "—";
-        donationDate.textContent = "—";
-        donationAmount.textContent = "—";
-        soulMarkEl.textContent = "⚠ Missing session_id";
-        return;
+      const lsEmail = localStorage.getItem("donor_email");
+      const lsSoul = localStorage.getItem("donor_soulmark");
+      const lsAmount = localStorage.getItem("donation_amount");
+
+      const email = urlEmail || lsEmail || "";
+      const soulmark = urlSoul || lsSoul || "";
+      const amount = urlAmount || lsAmount || "";
+
+      linkedDonation = { email, soulmark, amount };
+
+      // Fill UI
+      if (amount) {
+        const num = Number(amount);
+        linkedAmountEl.textContent = isNaN(num)
+          ? amount
+          : `$${num.toFixed(2)}`;
+        amountStatusEl.textContent = "Linked";
+        amountStatusEl.classList.add("ok");
+      } else {
+        linkedAmountEl.textContent = "$—";
+        amountStatusEl.textContent = "Not detected";
+        amountStatusEl.classList.add("warn");
       }
 
-      try {
-        const res = await fetch(`${BACKEND_URL}/verify-session?session_id=${sessionId}`, {
-          cache: "no-store"
-        });
+      if (email) {
+        linkedEmailEl.textContent = email;
+        emailStatusEl.textContent = "Linked";
+        emailStatusEl.classList.add("ok");
+        // Autofill email input if empty
+        if (!emailInput.value) emailInput.value = email;
+      } else {
+        linkedEmailEl.textContent = "Not detected";
+        emailStatusEl.textContent = "—";
+      }
 
-        const data = await res.json();
-
-        if (!data.verified || !data.record) throw new Error("Not verified");
-
-        const r = data.record;
-
-        donorName.textContent = r.name || "Anonymous";
-        donorEmail.textContent = r.email || "Not provided";
-        donationDate.textContent = new Date(r.timestamp).toLocaleString("en-US");
-        donationAmount.textContent = `$${r.amount.toFixed(2)}`;
-        soulMarkEl.textContent = r.soulMark;
-
-        // Pass ONLY session_id into the registration flow
-        identityLink.href = `/iascendai-register.html?session_id=${encodeURIComponent(sessionId)}`;
-
-      } catch (err) {
-        soulMarkEl.textContent = "Error loading";
+      if (soulmark) {
+        linkedSoulmarkEl.textContent = soulmark;
+      } else {
+        linkedSoulmarkEl.textContent = "Not yet assigned — will be generated or reconciled at verification.";
       }
     }
 
-    loadDonationDetails();
-  </script>
+    hydrateFromDonation();
 
+    /* ----- USERNAME AVAILABILITY CHECK ----- */
+    usernameInput.addEventListener("input", () => {
+      const username = usernameInput.value.trim().toLowerCase();
+      suggestionBox.style.display = "none";
+      availabilityEl.className = "availability";
+      availabilityEl.textContent = "";
+
+      if (username.length < 3) return;
+
+      availabilityEl.classList.add("checking");
+      availabilityEl.textContent = "Checking availability…";
+
+      if (usernameCheckTimer) clearTimeout(usernameCheckTimer);
+
+      usernameCheckTimer = setTimeout(async () => {
+        try {
+          const res = await fetch(`${BACKEND_URL}/check-username/${encodeURIComponent(username)}`);
+          const data = await res.json();
+
+          if (data.available) {
+            availabilityEl.className = "availability ok";
+            availabilityEl.textContent = "✓ Available — this username is yours.";
+            suggestionBox.style.display = "none";
+          } else {
+            availabilityEl.className = "availability bad";
+            availabilityEl.textContent = "✗ Already taken — try one of these:";
+            generateSuggestions(username);
+          }
+        } catch (err) {
+          availabilityEl.className = "availability";
+          availabilityEl.textContent = "Could not check availability (connection issue).";
+        }
+      }, 500);
+    });
+
+    async function generateSuggestions(baseUsername) {
+      suggestionBox.style.display = "block";
+      suggestionsList.textContent = "Generating…";
+
+      const fullName = nameInput.value.trim().toLowerCase();
+      let base = baseUsername;
+      if (fullName) {
+        const parts = fullName.split(" ").filter(Boolean);
+        if (parts.length >= 1) base = parts[0];
+      }
+
+      const year = new Date().getFullYear();
+      const candidates = [
+        `${base}_${Math.floor(Math.random() * 99 + 1)}`,
+        `${base}${year}`,
+        `${base}.ai`,
+        `the_${base}`,
+        `${base}_trust`,
+        `${base}${Math.floor(Math.random() * 999 + 1)}`,
+      ];
+
+      const available = [];
+
+      for (const candidate of candidates) {
+        try {
+          const res = await fetch(
+            `${BACKEND_URL}/check-username/${encodeURIComponent(candidate)}`
+          );
+          const data = await res.json();
+          if (data.available) available.push(candidate);
+          if (available.length >= 4) break;
+        } catch {
+          // ignore suggestion errors silently
+        }
+      }
+
+      if (available.length === 0) {
+        suggestionsList.innerHTML =
+          `<span style="color: var(--text-soft);">Try adding numbers, underscores, or your last name (e.g., <em>${base}_lastname</em>, <em>${base}123</em>).</span>`;
+        return;
+      }
+
+      suggestionsList.innerHTML = "";
+      available.forEach((s) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "suggestion-btn";
+        btn.textContent = s;
+        btn.addEventListener("click", () => {
+          usernameInput.value = s;
+          usernameInput.dispatchEvent(new Event("input"));
+        });
+        suggestionsList.appendChild(btn);
+      });
+    }
+
+    /* ----- FORM SUBMIT ----- */
+    document.getElementById("registrationForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      if (!selectedRole) {
+        alert("Please select your role (Supporter or Survivor).");
+        return;
+      }
+
+      const name = nameInput.value.trim();
+      const email = emailInput.value.trim();
+      const username = usernameInput.value.trim().toLowerCase();
+
+      if (!name || !email || !username) {
+        alert("Please fill in all required fields.");
+        return;
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = "Creating Identity…";
+
+      const payload = {
+        role: selectedRole,
+        name,
+        email,
+        username,
+        soulmark: linkedDonation.soulmark || null,
+        donationAmount: linkedDonation.amount || null,
+      };
+
+      try {
+        const res = await fetch(`${BACKEND_URL}/register`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+
+        const data = await res.json();
+        if (!res.ok || data.error) {
+          throw new Error(data.error || "Registration failed.");
+        }
+
+        window.location.href = `/iascendai-dashboard.html?username=${encodeURIComponent(
+          username
+        )}`;
+      } catch (err) {
+        alert(err.message || "Registration failed. Please try again.");
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Create My Identity";
+      }
+    });
+  </script>
 </body>
 </html>

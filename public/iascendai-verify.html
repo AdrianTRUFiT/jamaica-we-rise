@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SoulMarkⓈ Verification | iAscendAi</title>
 
+  <!-- Correct backend config loader -->
   <script type="module">
     import { CONFIG } from "./config.js";
     window.CONFIG = CONFIG;
@@ -97,10 +98,12 @@
       transition:all .3s ease;
       white-space:pre-line;
     }
+
     #result.verified {
       color:#10b981;
       text-shadow:0 0 8px rgba(16,185,129,0.6);
     }
+
     #result.invalid {
       color:#ef4444;
       text-shadow:0 0 6px rgba(239,68,68,0.4);
@@ -129,9 +132,8 @@
 
 <body>
 
-  <!-- NEW HEADER TITLE -->
+  <!-- HEADER -->
   <div class="page-title">iAscendAi — Verify Digital Identities</div>
-
   <h1>SoulMarkⓈ Verification</h1>
 
   <div class="verify-box">
@@ -144,15 +146,18 @@
     <div id="result"></div>
   </div>
 
-  <!-- NEW FOOTER NAVIGATION -->
+  <!-- FOOTER NAVIGATION -->
   <div class="footer-links">
     <a href="iascendai-register.html">Create Identity</a>
     <a href="soulregistry.html">Search Registry</a>
     <a href="iascendai-dashboard.html">Dashboard</a>
   </div>
 
+  <!-- SoulMark Verification Logic -->
   <script type="module">
     import { CONFIG } from "./config.js";
+
+    /* pulls the correct production backend */
     const BACKEND_URL = CONFIG.BACKEND_URL;
 
     const resultEl = document.getElementById("result");
@@ -181,6 +186,7 @@
           resultEl.className = "verified";
           resultEl.textContent =
 `✅ Verified SoulMarkⓈ  
+
 Name: ${match.name || "—"}  
 Email: ${match.email || "—"}  
 Username: ${match.username ? match.username + "@iascendai" : "—"}  
