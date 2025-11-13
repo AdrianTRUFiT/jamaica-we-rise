@@ -39,16 +39,16 @@ const LOG_DIR = process.env.LOG_DIR || "./logs";
 app.use(cors());
 app.use(express.json());
 app.use(bodyParser.json());
-app.use(express.static("public")); // Pass-through for frontend (local dev)
+app.use(express.static("public")); // For local dev only
 
 // -------------------------------------------------
-// 3️⃣ Ensure required folders exist
+// 3️⃣ Ensure folders exist
 // -------------------------------------------------
 if (!fs.existsSync("./data")) fs.mkdirSync("./data", { recursive: true });
 if (!fs.existsSync(LOG_DIR)) fs.mkdirSync(LOG_DIR, { recursive: true });
 
 // -------------------------------------------------
-// 4️⃣ Logging helper
+// 4️⃣ Logger
 // -------------------------------------------------
 function logEvent(type, message) {
   const line = `[${new Date().toISOString()}] [${type}] ${message}\n`;
@@ -95,7 +95,7 @@ app.post("/create-checkout-session", async (req, res) => {
       ],
       mode: "payment",
 
-      // 🚨 Redirect to Vercel frontend — NOT backend
+      // 🚨 Redirect MUST go to Vercel frontend
       success_url: `${FRONTEND_URL}/success.html?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${FRONTEND_URL}/index.html`,
 
@@ -112,7 +112,6 @@ app.post("/create-checkout-session", async (req, res) => {
 
 // -------------------------------------------------
 // 7️⃣ CANONICAL ENDPOINT — Verify Donation
-//    (Used by success.html)
 // -------------------------------------------------
 app.get("/verify-donation/:sessionId", async (req, res) => {
   const { sessionId } = req.params;
@@ -128,15 +127,12 @@ app.get("/verify-donation/:sessionId", async (req, res) => {
     if (!session)
       return res.status(404).json({ error: "Session not found" });
 
-    // Donation Success
     const success = session.payment_status === "paid";
 
-    // SoulMark handling
     const soulmark =
       session.metadata?.soulmark ||
       "SM-" + Buffer.from(session.id).toString("base64").slice(0, 12);
 
-    // Build clean donation record
     const donationRecord = {
       type: "donation",
       name: session.customer_details?.name || "Anonymous",
@@ -147,7 +143,6 @@ app.get("/verify-donation/:sessionId", async (req, res) => {
       stripeSessionId: sessionId
     };
 
-    // Append donation record (DO NOT block usernames)
     const registry = fs.existsSync(REGISTRY_PATH)
       ? JSON.parse(fs.readFileSync(REGISTRY_PATH))
       : [];
@@ -157,7 +152,7 @@ app.get("/verify-donation/:sessionId", async (req, res) => {
 
     logEvent(
       "event",
-      `Verified donation from ${donationRecord.email} → ${donationRecord.amount} / ${soulmark}`
+      `Verified donation ${donationRecord.email} → ${donationRecord.amount} / ${soulmark}`
     );
 
     res.json({
@@ -181,7 +176,6 @@ app.get("/check-username/:username", (req, res) => {
       ? JSON.parse(fs.readFileSync(REGISTRY_PATH))
       : [];
 
-    // Only identity records block usernames
     const exists = registry.some(
       (r) => r.type === "identity" && r.username === username
     );
@@ -232,7 +226,7 @@ app.post("/register", (req, res) => {
 });
 
 // -------------------------------------------------
-// 🔟 Registry Access
+// 🔟 Registry
 // -------------------------------------------------
 app.get("/registry", (req, res) => {
   try {

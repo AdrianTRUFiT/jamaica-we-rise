@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>iAscendAi — Digital Identity Dashboard</title>
 
-  <!-- Load correct backend URL -->
+  <!-- Config -->
   <script type="module">
     import { CONFIG } from "./config.js";
     window.CONFIG = CONFIG;
@@ -35,7 +35,6 @@
 
     .container{max-width:1200px;margin:0 auto;}
 
-    /* HEADER */
     .header{
       text-align:center;
       margin-bottom:40px;
@@ -62,7 +61,6 @@
       letter-spacing:.3px;
     }
 
-    /* TABS */
     .tabs{
       display:flex;
       justify-content:center;
@@ -108,7 +106,6 @@
       to{opacity:1;transform:translateY(0)}
     }
 
-    /* SOULMARK PANEL */
     .soulmark-display{
       background:rgba(255,255,255,.05);
       padding:30px;
@@ -138,7 +135,6 @@
       color:white;
     }
 
-    /* INFO CARDS */
     .identity-info{
       display:grid;
       grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
@@ -175,25 +171,17 @@
       background:linear-gradient(135deg,var(--ia-orange),var(--ia-orange-light));
       transition:.3s ease;
     }
-
-    .nav-links a:hover{
-      transform:translateY(-3px);
-      box-shadow:0 0 18px rgba(244,163,73,0.35);
-    }
-
   </style>
 </head>
 
 <body>
   <div class="container">
 
-    <!-- HEADER -->
     <div class="header">
       <h1>iAscendAi — Digital Identity Dashboard</h1>
       <p class="tagline">Your Verified Presence inside the Human Trust Engine</p>
     </div>
 
-    <!-- NAVIGATION TABS -->
     <div class="tabs">
       <div class="tab active" data-tab="soulmark">💠 My SoulMarkⓈ</div>
       <div class="tab" data-tab="soulaid">💛 My SoulAidⓈ</div>
@@ -202,10 +190,8 @@
       <div class="tab" data-tab="settings">⚙️ Settings</div>
     </div>
 
-    <!-- CONTENT AREA -->
     <div class="content">
-
-      <!-- SOULMARK -->
+      
       <div class="tab-content active" id="soulmark">
         <h2>💠 Your SoulMarkⓈ Identity</h2>
 
@@ -220,20 +206,14 @@
         </div>
 
         <div class="identity-info">
-          <div class="info-card"><label>Email</label><value id="user-email">Loading...</value></div>
+          <div class="info-card"><label>Name</label><value id="user-name">Loading...</value></div>
           <div class="info-card"><label>Username</label><value id="user-username">Loading...</value></div>
           <div class="info-card"><label>Type</label><value id="identity-type">SupporterⓈ</value></div>
           <div class="info-card"><label>Registered</label><value id="reg-date">Loading...</value></div>
         </div>
 
-        <div class="nav-links">
-          <a href="tracker.html">🌍 Open SoulTrackerⓈ</a>
-          <a href="soulregistry.html">📜 View SoulRegistryⓈ</a>
-          <a href="iascendai-verify.html">🔍 Verify SoulMarkⓈ</a>
-        </div>
       </div>
 
-      <!-- OTHER TABS -->
       <div class="tab-content" id="soulaid"><h2>💛 Your SoulAidⓈ Contributions</h2></div>
       <div class="tab-content" id="tracker"><h2>🌍 Live SoulTrackerⓈ</h2></div>
       <div class="tab-content" id="updates"><h2>✉️ Field Updates</h2></div>
@@ -247,23 +227,35 @@
     import { CONFIG } from "./config.js";
     const BACKEND_URL = CONFIG.BACKEND_URL;
 
-    /* load + render user info */
-    document.addEventListener("DOMContentLoaded", () => {
+    document.addEventListener("DOMContentLoaded", async () => {
       const params = new URLSearchParams(window.location.search);
 
-      const soulmark = params.get("soulmark") || localStorage.getItem("soulmark");
-      const email = params.get("email") || localStorage.getItem("email");
-      const username = params.get("username") || localStorage.getItem("username");
-      const role = params.get("role") || "supporter";
+      let username = params.get("username") || localStorage.getItem("username");
+      let name = params.get("name") || localStorage.getItem("name");
+      let soulmark = params.get("soulmark") || localStorage.getItem("soulmark");
 
-      if (soulmark) localStorage.setItem("soulmark", soulmark);
-      if (email) localStorage.setItem("email", email);
       if (username) localStorage.setItem("username", username);
+      if (name) localStorage.setItem("name", name);
+      if (soulmark) localStorage.setItem("soulmark", soulmark);
 
+      // Fetch identity from registry
+      if (username) {
+        const res = await fetch(`${BACKEND_URL}/registry`);
+        const registry = await res.json();
+        const identity = registry.find(r => r.type === "identity" && r.username === username);
+
+        if (identity) {
+          name = identity.name;
+          soulmark = identity.soulmark;
+        }
+      }
+
+      // Populate UI
       document.getElementById("soulmark-hash").textContent = soulmark || "Not found";
-      document.getElementById("user-email").textContent = email || "Not available";
+      document.getElementById("user-name").textContent = name || "Unknown";
       document.getElementById("user-username").textContent = username ? `${username}@iascendai` : "Anonymous";
-      document.getElementById("identity-type").textContent = role === "survivor" ? "SurvivorⓈ" : "SupporterⓈ";
+
+      document.getElementById("identity-type").textContent = "SupporterⓈ";
 
       const now = new Date();
       document.getElementById("reg-date").textContent = now.toLocaleDateString();
@@ -271,7 +263,6 @@
       initTabs();
     });
 
-    /* Tab switching */
     function initTabs(){
       const tabs=document.querySelectorAll(".tab");
       const pages=document.querySelectorAll(".tab-content");
@@ -280,7 +271,6 @@
         tab.addEventListener("click",()=>{
           tabs.forEach(t=>t.classList.remove("active"));
           pages.forEach(p=>p.classList.remove("active"));
-
           tab.classList.add("active");
           document.getElementById(tab.dataset.tab).classList.add("active");
         });
