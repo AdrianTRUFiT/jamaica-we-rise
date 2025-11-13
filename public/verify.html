@@ -3,184 +3,206 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Verify Identity | iAscendAi × Jamaica We Rise</title>
+  <title>SoulMarkⓈ Verification | iAscendAi</title>
+
   <script type="module">
     import { CONFIG } from "./config.js";
     window.CONFIG = CONFIG;
   </script>
+
   <style>
-    * { margin:0; padding:0; box-sizing:border-box; }
-    :root {
-      --iascend-orange:#f4a349;
-      --iascend-blue:#b8edee;
-      --text-dark:#1f2937;
-      --text-light:#6b7280;
-      --bg-gray:#f9fafb;
-    }
     body {
-      font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
-      background:linear-gradient(135deg,var(--iascend-blue) 0%,#a0dce0 50%,var(--iascend-orange) 100%);
-      min-height:100vh;padding:20px;
+      font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',Roboto,sans-serif;
+      background:#041423;
+      color:#fff;
+      display:flex;
+      flex-direction:column;
+      justify-content:flex-start;
+      align-items:center;
+      min-height:100vh;
+      margin:0;
+      padding:40px 20px 80px;
+      text-align:center;
     }
-    .container{max-width:600px;margin:0 auto;}
-    .header{text-align:center;color:white;margin-bottom:30px;}
-    .logo{font-size:1.8em;font-weight:800;margin-bottom:10px;}
-    .tagline{font-size:1.1em;opacity:.95;}
-    .verify-card{
-      background:white;border-radius:16px;padding:40px;
-      box-shadow:0 20px 60px rgba(0,0,0,.3);
+
+    /* 🔶 NEW ORANGE GRADIENT HEADER (LARGE) */
+    .top-title {
+      background:linear-gradient(135deg,#f4a349,#fed103);
+      -webkit-background-clip:text;
+      -webkit-text-fill-color:transparent;
+      font-size:2.8em;
+      font-weight:900;
+      letter-spacing:0.5px;
+      margin-bottom:10px;
     }
-    .card-title{font-size:1.8em;font-weight:700;color:var(--text-dark);margin-bottom:10px;}
-    .card-subtitle{color:var(--text-light);margin-bottom:30px;line-height:1.6;}
-    .search-group{margin-bottom:20px;}
-    label{display:block;font-weight:600;color:var(--text-dark);margin-bottom:8px;}
-    input{
-      width:100%;padding:12px 15px;border:2px solid #e5e7eb;
-      border-radius:8px;font-size:1em;transition:all .3s ease;
+
+    /* SoulMark Verification (slightly smaller than header) */
+    h1 {
+      background:linear-gradient(135deg,#fed103,#059c3a);
+      -webkit-background-clip:text;
+      -webkit-text-fill-color:transparent;
+      font-size:2.2em;
+      margin-top:0;
+      margin-bottom:25px;
     }
-    input:focus{
-      outline:none;border-color:var(--iascend-blue);
-      box-shadow:0 0 0 3px rgba(184,237,238,.2);
+
+    .verify-box {
+      background:rgba(255,255,255,0.05);
+      border:1px solid rgba(255,255,255,0.1);
+      border-radius:16px;
+      padding:30px 40px;
+      width:90%;
+      max-width:480px;
+      box-shadow:0 0 25px rgba(5,156,58,0.2);
     }
-    .verify-btn{
-      width:100%;padding:16px;
-      background:linear-gradient(135deg,var(--iascend-blue),#a0dce0);
-      color:var(--text-dark);border:none;border-radius:8px;
-      font-size:1.1em;font-weight:700;cursor:pointer;transition:all .3s ease;
+
+    p { color:#d1d5db; margin-bottom:10px; }
+
+    input {
+      width:100%;
+      padding:14px;
+      border:2px solid rgba(255,255,255,0.1);
+      border-radius:10px;
+      background:rgba(255,255,255,0.05);
+      color:#fff;
+      font-size:1em;
+      margin-top:10px;
+      outline:none;
+      transition:0.3s ease;
     }
-    .verify-btn:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(184,237,238,.3);}
-    .verify-btn:disabled{opacity:.6;cursor:not-allowed;transform:none;}
-    .result-section{display:none;margin-top:30px;padding-top:30px;border-top:2px solid #e5e7eb;}
-    .result-section.show{display:block;animation:fadeInUp .6s ease-out;}
-    .verification-status{text-align:center;padding:25px;border-radius:12px;margin-bottom:20px;}
-    .verification-status.verified{
-      background:linear-gradient(135deg,rgba(16,185,129,.1),rgba(16,185,129,.05));
-      border:2px solid #10b981;
+    input:focus {
+      border-color:#059c3a;
+      box-shadow:0 0 0 3px rgba(5,156,58,0.2);
     }
-    .verification-status.not-found{
-      background:linear-gradient(135deg,rgba(239,68,68,.1),rgba(239,68,68,.05));
-      border:2px solid #ef4444;
+
+    button {
+      width:100%;
+      padding:15px;
+      margin-top:25px;
+      background:linear-gradient(135deg,#059c3a,#047d2f);
+      border:none;
+      border-radius:10px;
+      color:#fff;
+      font-weight:700;
+      cursor:pointer;
+      transition:0.3s ease;
+      box-shadow:0 8px 20px rgba(5,156,58,0.3);
     }
-    .status-icon{font-size:3em;margin-bottom:10px;}
-    .status-title{font-size:1.5em;font-weight:700;color:var(--text-dark);}
-    .status-message{color:var(--text-light);}
-    .identity-details{background:var(--bg-gray);border-radius:12px;padding:25px;}
-    .detail-row{
-      display:flex;justify-content:space-between;align-items:flex-start;
-      margin-bottom:15px;padding-bottom:15px;border-bottom:1px solid #e5e7eb;
+    button:hover {
+      transform:translateY(-3px);
+      box-shadow:0 10px 25px rgba(5,156,58,0.4);
     }
-    .detail-row:last-child{margin-bottom:0;padding-bottom:0;border-bottom:none;}
-    .detail-label{font-weight:600;color:var(--text-dark);font-size:.9em;min-width:120px;}
-    .detail-value{color:var(--text-light);text-align:right;word-break:break-word;flex:1;}
-    .soulmark{font-family:'Courier New',monospace;font-size:.85em;}
-    .footer-links{text-align:center;margin-top:25px;}
-    .footer-links a{
-      color:var(--text-light);text-decoration:none;font-size:.9em;margin:0 10px;transition:color .3s ease;
+
+    #result {
+      margin-top:25px;
+      font-size:1em;
+      color:#f4a349;
+      min-height:1.4em;
+      transition:all .3s ease;
+      white-space:pre-line;
     }
-    .footer-links a:hover{color:var(--iascend-blue);}
-    @keyframes fadeInUp{
-      from{opacity:0;transform:translateY(20px);}
-      to{opacity:1;transform:translateY(0);}
+    #result.verified {
+      color:#10b981;
+      text-shadow:0 0 8px rgba(16,185,129,0.6);
     }
-    @media(max-width:640px){
-      .verify-card{padding:25px;}
-      .detail-row{flex-direction:column;gap:5px;}
-      .detail-value{text-align:left;}
+    #result.invalid {
+      color:#ef4444;
+      text-shadow:0 0 6px rgba(239,68,68,0.4);
+    }
+
+    .footer-links {
+      margin-top:25px;
+      display:flex;
+      gap:20px;
+      justify-content:center;
+      flex-wrap:wrap;
+    }
+
+    .footer-links a {
+      color:#f4a349;
+      font-size:0.9em;
+      text-decoration:none;
+      transition:0.2s ease;
+    }
+
+    .footer-links a:hover {
+      text-decoration:underline;
     }
   </style>
 </head>
 
 <body>
-  <div class="container">
-    <div class="header">
-      <div class="logo">iAscendAi</div>
-      <div class="tagline">Verify Digital Identities</div>
-    </div>
 
-    <div class="verify-card">
-      <h1 class="card-title">Verify Identity</h1>
-      <p class="card-subtitle">
-        Enter a <strong>username@iascendai</strong> or <strong>SoulMarkⓈ hash</strong> to confirm authenticity.
-      </p>
+  <!-- 🔶 NEW LARGE ORANGE GRADIENT TITLE -->
+  <div class="top-title">iAscendAi — Verify Digital Identities</div>
 
-      <form id="verifyForm">
-        <div class="search-group">
-          <label for="query">Username or SoulMarkⓈ Hash</label>
-          <input id="query" name="query" required placeholder="adrian@iascendai or SM_abc123..." />
-        </div>
-        <button type="submit" class="verify-btn" id="verifyBtn">Verify Identity</button>
-      </form>
+  <!-- Existing Gradient Title -->
+  <h1>SoulMarkⓈ Verification</h1>
 
-      <div class="result-section" id="resultSection">
-        <div class="verification-status" id="verificationStatus">
-          <div class="status-icon" id="statusIcon">✓</div>
-          <div class="status-title" id="statusTitle">Verified</div>
-          <div class="status-message" id="statusMessage">Identity verified successfully.</div>
-        </div>
-        <div class="identity-details" id="identityDetails"></div>
-      </div>
+  <div class="verify-box">
+    <p>Enter your SoulMarkⓈ signature to verify identity authenticity.</p>
 
-      <div class="footer-links">
-        <a href="iascendai-register.html">Create Identity</a>
-        <a href="soulregistry.html">Browse Registry</a>
-        <a href="iascendai-dashboard.html">Dashboard</a>
-      </div>
-    </div>
+    <input type="text" id="soulmarkInput" placeholder="Enter SoulMark signature..." />
+
+    <button id="verifyBtn">Verify SoulMarkⓈ</button>
+
+    <div id="result"></div>
+  </div>
+
+  <!-- 🔻 NEW FOOTER NAVIGATION -->
+  <div class="footer-links">
+    <a href="iascendai-register.html">Create Identity</a>
+    <a href="soulregistry.html">Search Registry</a>
+    <a href="iascendai-dashboard.html">Dashboard</a>
   </div>
 
   <script type="module">
     import { CONFIG } from "./config.js";
     const BACKEND_URL = CONFIG.BACKEND_URL;
 
-    const form = document.getElementById("verifyForm");
-    const resultSection = document.getElementById("resultSection");
-    const verificationStatus = document.getElementById("verificationStatus");
-    const identityDetails = document.getElementById("identityDetails");
+    const resultEl = document.getElementById("result");
     const btn = document.getElementById("verifyBtn");
 
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const query = document.getElementById("query").value.trim();
-      btn.disabled = true;
-      btn.textContent = "Verifying...";
-      resultSection.classList.remove("show");
+    btn.addEventListener("click", async () => {
+      const input = document.getElementById("soulmarkInput").value.trim();
+      resultEl.className = "";
+
+      if (!input) {
+        resultEl.textContent = "Please enter your SoulMark signature.";
+        return;
+      }
+
+      resultEl.textContent = "Verifying...";
 
       try {
-        const res = await fetch(`${BACKEND_URL}/verify/${encodeURIComponent(query)}`, { cache: "no-store" });
-        const data = await res.json();
+        const res = await fetch(`${BACKEND_URL}/registry`, { cache: "no-store" });
+        const registry = await res.json();
 
-        if (res.ok && data.verified) {
-          verificationStatus.className = "verification-status verified";
-          document.getElementById("statusIcon").textContent = "✓";
-          document.getElementById("statusTitle").textContent = "Verified Identity";
-          document.getElementById("statusMessage").textContent = "This identity is authentic and verified.";
+        const match = registry.find(r =>
+          (r.soulmark || r.soulMark || "").toLowerCase() === input.toLowerCase()
+        );
 
-          const id = data.identity || {};
-          identityDetails.innerHTML = `
-            <div class="detail-row"><div class="detail-label">Username</div><div class="detail-value">${id.username || "—"}@iascendai</div></div>
-            <div class="detail-row"><div class="detail-label">Full Name</div><div class="detail-value">${id.name || "—"}</div></div>
-            <div class="detail-row"><div class="detail-label">Role</div><div class="detail-value">${id.role || "Supporter"}</div></div>
-            <div class="detail-row"><div class="detail-label">SoulMarkⓈ</div><div class="detail-value soulmark">${id.soulmark || id.soulMark || "—"}</div></div>
-            <div class="detail-row"><div class="detail-label">Registered</div><div class="detail-value">${id.createdAt ? new Date(id.createdAt).toLocaleDateString("en-US",{year:"numeric",month:"long",day:"numeric"}) : "—"}</div></div>
-            ${id.location ? `<div class="detail-row"><div class="detail-label">Location</div><div class="detail-value">${id.location}</div></div>` : ""}
-          `;
+        if (match) {
+          resultEl.className = "verified";
+          resultEl.textContent =
+`✅ Verified SoulMarkⓈ  
+Name: ${match.name || "—"}  
+Email: ${match.email || "—"}  
+Username: ${match.username ? match.username + "@iascendai" : "—"}  
+Role: ${match.role || "Supporter"}  
+Status: ${match.verified ? "Verified" : "Pending"}`;
         } else {
-          verificationStatus.className = "verification-status not-found";
-          document.getElementById("statusIcon").textContent = "✗";
-          document.getElementById("statusTitle").textContent = "Not Found";
-          document.getElementById("statusMessage").textContent = "No identity found with this username or hash.";
-          identityDetails.innerHTML = "";
+          resultEl.className = "invalid";
+          resultEl.textContent = "❌ No matching SoulMarkⓈ found.";
         }
 
-        resultSection.classList.add("show");
       } catch (err) {
-        alert("Verification failed. Please try again later.");
-        console.error("Verification error:", err);
-      } finally {
-        btn.disabled = false;
-        btn.textContent = "Verify Identity";
+        console.error(err);
+        resultEl.className = "invalid";
+        resultEl.textContent = "⚠️ Error reaching verification service.";
       }
     });
   </script>
+
 </body>
 </html>

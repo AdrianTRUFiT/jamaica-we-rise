@@ -3,193 +3,243 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Thank You | Jamaica We Rise</title>
+  <title>Donation Successful | Jamaica We Rise × iAscendAi</title>
+
   <script type="module">
     import { CONFIG } from "./config.js";
-    window.CONFIG = CONFIG; // make globally accessible
+    window.CONFIG = CONFIG;
   </script>
+
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
     :root {
-      --jamaica-green: #1a5f3f;
-      --jamaica-gold: #ffd700;
-      --iascend-orange: #f4a349;
-      --iascend-blue: #b8edee;
-      --text-dark: #1f2937;
-      --text-light: #6b7280;
-      --bg-gray: #f9fafb;
+      --gold: #fed103;
+      --green: #059c3a;
+      --deep-navy: #041423;
+      --glass-bg: rgba(255,255,255,0.04);
+      --glass-border: rgba(255,255,255,0.1);
+      --text-light: #d1d5db;
+      --text-soft: #9ca3af;
+      --orange: #f4a349;
+      --orange2: #ffb562;
     }
+
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: linear-gradient(135deg, var(--jamaica-green) 0%, #0d3d2a 50%, var(--iascend-orange) 100%);
+      font-family: -apple-system, BlinkMacSystemFont, 'Inter','Segoe UI',Roboto,sans-serif;
+      background: var(--deep-navy);
+      color: white;
+      padding: 30px 20px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
       min-height: 100vh;
-      padding: 20px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .container { max-width: 700px; width: 100%; }
-    .thank-you-card {
-      background: white;
-      border-radius: 16px;
-      padding: 50px 40px;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
       text-align: center;
-      animation: fadeInUp 0.6s ease-out;
     }
+
+    /* HEADER */
+    .top-title {
+      font-size: 2.3em;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--gold), var(--orange));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 20px;
+    }
+
+    /* CARD — UPDATED WIDTH */
+    .card {
+      width: 100%;
+      max-width: 640px; /* ← NEW WIDTH */
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 20px;
+      padding: 50px 45px;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 0 28px rgba(5,156,58,0.25);
+      animation: fadeInUp .7s ease-out;
+    }
+
     .success-icon {
-      width: 80px;
-      height: 80px;
+      width: 90px;
+      height: 90px;
       margin: 0 auto 20px;
-      background: linear-gradient(135deg, var(--jamaica-green), #2d8659);
       border-radius: 50%;
+      background: linear-gradient(135deg, var(--green), #047d2f);
+      box-shadow: 0 0 24px rgba(5,156,58,0.4);
       display: flex;
-      align-items: center;
       justify-content: center;
-      animation: scaleIn 0.5s ease-out 0.3s both;
+      align-items: center;
+      animation: scaleIn .5s ease-out .2s both;
     }
-    .success-icon svg { width: 40px; height: 40px; color: white; }
+
+    .success-icon svg { width: 45px; height: 45px; color: white; }
+
     h1 {
-      font-size: 2.2em;
+      font-size: 2em;
+      margin-bottom: 10px;
       font-weight: 700;
-      color: var(--text-dark);
-      margin-bottom: 15px;
     }
+
     .subtitle {
-      font-size: 1.1em;
       color: var(--text-light);
-      margin-bottom: 30px;
+      font-size: 1.15em;
+      max-width: 540px;
+      margin: 0 auto 35px;
       line-height: 1.6;
     }
-    .donation-summary {
-      background: var(--bg-gray);
-      border-radius: 12px;
+
+    /* SUMMARY BOX */
+    .summary-box {
+      margin-top: 30px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 14px;
       padding: 25px;
-      margin-bottom: 30px;
+      text-align: left;
     }
-    .summary-row {
+
+    .row {
       display: flex;
       justify-content: space-between;
-      align-items: center;
-      margin-bottom: 15px;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      color: var(--text-light);
+      font-size: 1em;
     }
-    .summary-row:last-child {
-      margin-bottom: 0;
-      padding-top: 15px;
-      border-top: 2px solid #e5e7eb;
-      font-weight: 700;
-    }
-    .summary-label { color: var(--text-light); font-size: 0.95em; }
-    .summary-value { color: var(--text-dark); font-weight: 600; }
-    .soulmark-box {
-      background: linear-gradient(135deg, rgba(244, 163, 73, 0.1), rgba(184, 237, 238, 0.1));
-      border: 2px solid var(--iascend-orange);
-      border-radius: 12px;
-      padding: 20px;
-      margin-bottom: 30px;
-    }
-    .soulmark-label {
-      font-size: 0.85em;
+
+    .row:last-child {
+      border-bottom: none;
       font-weight: 600;
-      color: var(--iascend-orange);
-      margin-bottom: 10px;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
+      color: white;
     }
-    .soulmark-hash {
-      font-family: 'Courier New', monospace;
+
+    /* SOULMARK BOX */
+    .soulmark-box {
+      margin-top: 30px;
+      padding: 25px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, rgba(244,163,73,0.12), rgba(255,191,124,0.1));
+      border: 1px solid rgba(244,163,73,0.4);
+      text-align: left;
+    }
+
+    .soul-label {
       font-size: 0.9em;
-      color: var(--text-dark);
-      background: white;
-      padding: 12px;
-      border-radius: 6px;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: var(--orange);
+      margin-bottom: 10px;
+      letter-spacing: 0.04em;
+    }
+
+    .soul-value {
+      font-family: 'Courier New', monospace;
+      font-size: 0.95em;
+      background: rgba(255,255,255,0.08);
+      padding: 14px;
+      border-radius: 8px;
+      color: white;
       word-break: break-all;
     }
-    .cta-section {
-      background: linear-gradient(135deg, var(--iascend-orange), #e58f39);
-      color: white;
-      border-radius: 12px;
+
+    /* CTA */
+    .cta-box {
+      margin-top: 40px;
       padding: 30px;
-      margin-bottom: 25px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, var(--orange), var(--orange2));
+      color: #041423;
+      font-weight: 600;
+      box-shadow: 0 0 24px rgba(244,163,73,0.35);
     }
-    .cta-title { font-size: 1.5em; font-weight: 700; margin-bottom: 10px; }
-    .cta-text { font-size: 1em; margin-bottom: 20px; opacity: 0.95; }
+
+    .cta-title { font-size: 1.55em; font-weight: 800; margin-bottom: 12px; }
+    .cta-text { font-size: 1.05em; margin-bottom: 25px; opacity: 0.95; }
+
     .cta-button {
       display: inline-block;
-      background: white;
-      color: var(--iascend-orange);
-      padding: 15px 40px;
-      border-radius: 8px;
-      font-size: 1.1em;
+      background: #041423;
+      color: white;
+      padding: 16px 42px;
+      border-radius: 10px;
       font-weight: 700;
       text-decoration: none;
-      transition: all 0.3s ease;
+      font-size: 1.1em;
+      transition: .3s ease;
     }
-    .cta-button:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2); }
-    .secondary-links {
+    .cta-button:hover { transform: translateY(-3px); box-shadow: 0 10px 28px rgba(0,0,0,0.25); }
+
+    /* FOOTER LINKS */
+    .footer-links {
+      margin-top: 32px;
       display: flex;
-      gap: 20px;
       justify-content: center;
-      margin-top: 25px;
+      gap: 28px;
+      flex-wrap: wrap;
     }
-    .secondary-link {
+
+    .footer-links a {
       color: var(--text-light);
+      font-size: 1em;
       text-decoration: none;
-      font-size: 0.95em;
-      transition: color 0.3s ease;
+      transition: .3s ease;
     }
-    .secondary-link:hover { color: var(--iascend-orange); }
+    .footer-links a:hover { color: var(--orange); }
+
     @keyframes fadeInUp {
-      from { opacity: 0; transform: translateY(20px); }
+      from { opacity: 0; transform: translateY(25px); }
       to { opacity: 1; transform: translateY(0); }
     }
-    @keyframes scaleIn { from { transform: scale(0); } to { transform: scale(1); } }
-    @media (max-width: 640px) {
-      .thank-you-card { padding: 35px 25px; }
-      h1 { font-size: 1.8em; }
-      .secondary-links { flex-direction: column; gap: 10px; }
+    @keyframes scaleIn {
+      from { transform: scale(0); }
+      to { transform: scale(1); }
     }
   </style>
 </head>
+
 <body>
-  <div class="container">
-    <div class="thank-you-card">
-      <div class="success-icon">
-        <svg fill="currentColor" viewBox="0 0 24 24">
-          <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
-        </svg>
-      </div>
-      <h1>Thank You for Your Generosity!</h1>
-      <p class="subtitle">
-        Your donation has been successfully processed and will make a real difference in helping Jamaica rebuild and recover.
-      </p>
-      <div class="donation-summary" id="donationSummary">
-        <div class="summary-row"><span class="summary-label">Donor</span><span class="summary-value" id="donorName">Loading...</span></div>
-        <div class="summary-row"><span class="summary-label">Email</span><span class="summary-value" id="donorEmail">Loading...</span></div>
-        <div class="summary-row"><span class="summary-label">Donation Date</span><span class="summary-value" id="donationDate">Loading...</span></div>
-        <div class="summary-row"><span class="summary-label">Amount</span><span class="summary-value" id="donationAmount">Loading...</span></div>
-      </div>
-      <div class="soulmark-box">
-        <div class="soulmark-label">Your SoulMarkⓈ Verification Hash</div>
-        <div class="soulmark-hash" id="soulMark">Loading your unique verification hash...</div>
-      </div>
-      <div class="cta-section">
-        <div class="cta-title">Claim Your Digital Identity</div>
-        <div class="cta-text">
-          Join the movement. Create your verified username@iascendai identity and be part of the future of human-centered digital verification.
-        </div>
-        <a href="/iascendai-register.html" class="cta-button">Create Your Identity →</a>
-      </div>
-      <div class="secondary-links">
-        <a href="/tracker.html" class="secondary-link">View Impact Dashboard</a>
-        <a href="/iascendai-verify.html" class="secondary-link">Verify Your SoulMarkⓈ</a>
-        <a href="/" class="secondary-link">Return to Home</a>
-      </div>
+
+  <div class="card">
+
+    <div class="top-title">Jamaica We Rise × iAscendAi</div>
+
+    <div class="success-icon">
+      <svg fill="currentColor" viewBox="0 0 24 24">
+        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+      </svg>
     </div>
+
+    <h1>Thank You for Your Support!</h1>
+    <p class="subtitle">
+      Your contribution helps restore hope, rebuild communities, and protect lives across Jamaica.
+    </p>
+
+    <div class="summary-box">
+      <div class="row"><span>Donor</span><span id="donorName">Loading...</span></div>
+      <div class="row"><span>Email</span><span id="donorEmail">Loading...</span></div>
+      <div class="row"><span>Donation Date</span><span id="donationDate">Loading...</span></div>
+      <div class="row"><span>Amount</span><span id="donationAmount">Loading...</span></div>
+    </div>
+
+    <div class="soulmark-box">
+      <div class="soul-label">Your SoulMarkⓈ Verification Hash</div>
+      <div class="soul-value" id="soulMark">Loading...</div>
+    </div>
+
+    <div class="cta-box">
+      <div class="cta-title">Claim Your Digital Identity</div>
+      <div class="cta-text">
+        Secure your verified <strong>username@iascendai</strong> identity now.
+      </div>
+      <a href="/iascendai-register.html" class="cta-button">Create My Identity →</a>
+    </div>
+
+    <div class="footer-links">
+      <a href="/tracker.html">Impact Dashboard</a>
+      <a href="/iascendai-verify.html">Verify SoulMarkⓈ</a>
+      <a href="/">Home</a>
+    </div>
+
   </div>
 
   <script type="module">
@@ -197,55 +247,47 @@
     const BACKEND_URL = CONFIG.BACKEND_URL;
 
     async function loadDonationDetails() {
-      const urlParams = new URLSearchParams(window.location.search);
-      const sessionId = urlParams.get('session_id');
+      const params = new URLSearchParams(window.location.search);
+      const sessionId = params.get("session_id");
+
+      const donorName = document.getElementById("donorName");
+      const donorEmail = document.getElementById("donorEmail");
+      const donationDate = document.getElementById("donationDate");
+      const donationAmount = document.getElementById("donationAmount");
+      const soulMarkEl = document.getElementById("soulMark");
+
       if (!sessionId) {
-        console.error('No session_id parameter in URL');
-        const errorMessage = 'No session ID found. This page should be accessed after completing a donation.';
-        document.getElementById('donorName').textContent = '—';
-        document.getElementById('donorEmail').textContent = '—';
-        document.getElementById('donationDate').textContent = '—';
-        document.getElementById('donationAmount').textContent = '—';
-        document.getElementById('soulMark').textContent = errorMessage;
+        donorName.textContent = "—";
+        donorEmail.textContent = "—";
+        donationDate.textContent = "—";
+        donationAmount.textContent = "—";
+        soulMarkEl.textContent = "⚠️ Missing session_id. Return after donation.";
         return;
       }
 
       try {
-        const response = await fetch(`${BACKEND_URL}/donation-details/${sessionId}`);
-        if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-        const donation = await response.json();
-        document.getElementById('donorName').textContent = donation.name;
-        document.getElementById('donorEmail').textContent = donation.email;
-        document.getElementById('donationDate').textContent = new Date(donation.createdAt).toLocaleDateString('en-US', {
-          year: 'numeric', month: 'long', day: 'numeric'
-        });
-        document.getElementById('donationAmount').textContent = `$${donation.amount}`;
-        document.getElementById('soulMark').textContent = donation.soulMark;
-      } catch (error) {
-        console.error('Error loading donation details:', error);
-        const errorDetails = `
-          Error: ${error.message}
+        const res = await fetch(`${BACKEND_URL}/verify-session?session_id=${sessionId}`, { cache: "no-store" });
+        const data = await res.json();
 
-          Possible causes:
-          1. Backend server not running on ${BACKEND_URL}
-          2. Session ID not found: ${sessionId}
-          3. Network connection issue
+        if (data.verified && data.record) {
+          const r = data.record;
+          donorName.textContent = r.name || "Anonymous";
+          donorEmail.textContent = r.email || "Not provided";
+          donationDate.textContent = new Date(r.timestamp).toLocaleDateString("en-US", { year:"numeric",month:"long",day:"numeric" });
+          donationAmount.textContent = `$${r.amount.toFixed(2)}`;
+          soulMarkEl.textContent = r.soulMark;
+        } else {
+          throw new Error("Donation not found");
+        }
 
-          Check browser console (F12) for more details.
-        `;
-        document.getElementById('donorName').textContent = 'Error loading data';
-        document.getElementById('donorEmail').textContent = 'See console for details';
-        document.getElementById('donationDate').textContent = new Date().toLocaleDateString('en-US', {
-          year: 'numeric', month: 'long', day: 'numeric'
-        });
-        document.getElementById('donationAmount').textContent = '$—';
-        document.getElementById('soulMark').textContent = errorDetails;
-        alert('Unable to load donation details. Please check:\n\n' +
-              '1. Is the backend server running?\n' +
-              '2. Check the browser console (F12) for errors\n' +
-              '3. Contact support if the issue persists');
+      } catch (err) {
+        donorName.textContent = "Error loading";
+        donorEmail.textContent = "See console";
+        donationAmount.textContent = "$—";
+        soulMarkEl.textContent = `Error: ${err.message}`;
       }
     }
+
     loadDonationDetails();
   </script>
 </body>

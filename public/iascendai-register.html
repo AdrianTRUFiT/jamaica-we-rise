@@ -4,162 +4,532 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Create Your Identity | iAscendAi</title>
+
   <script type="module">
     import { CONFIG } from "./config.js";
     window.CONFIG = CONFIG;
   </script>
+
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
     :root {
-      --iascend-orange: #f4a349;
-      --iascend-blue: #b8edee;
-      --text-dark: #1f2937;
-      --text-light: #6b7280;
-      --bg-gray: #f9fafb;
+      --iascend-orange:#f4a349;
+      --iascend-gold:#fed100;
+      --iascend-blue:#b8edee;
+      --bg-dark-1:#050505;
+      --bg-dark-2:#101010;
+      --glass-bg:rgba(255,255,255,0.06);
+      --glass-border:rgba(255,255,255,0.16);
+      --text-main:#e5e7eb;
+      --text-muted:#9ca3af;
+      --accent-green:#10b981;
+      --error-red:#ef4444;
     }
+
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: linear-gradient(135deg, var(--iascend-orange) 0%, #e58f39 50%, var(--iascend-blue) 100%);
-      min-height: 100vh; padding: 20px;
+      font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',Roboto,sans-serif;
+      background:radial-gradient(circle at top, #1f2933 0%, #050505 45%, #000000 100%);
+      min-height:100vh;
+      color:var(--text-main);
+      padding:24px;
+      display:flex;
+      justify-content:center;
+      align-items:center;
     }
-    .container { max-width: 600px; margin: 0 auto; }
-    .header { text-align: center; color: white; margin-bottom: 30px; animation: fadeInDown 0.6s ease-out; }
-    .logo { font-size: 1.8em; font-weight: 800; margin-bottom: 10px; }
-    .tagline { font-size: 1.1em; opacity: 0.95; }
+
+    .shell {
+      width:100%;
+      max-width:900px;
+    }
+
+    .header {
+      text-align:center;
+      margin-bottom:28px;
+      animation:fadeInDown 0.6s ease-out;
+    }
+
+    .app-title {
+      font-size:2.4rem;
+      font-weight:800;
+      letter-spacing:0.04em;
+      margin-bottom:6px;
+      background:linear-gradient(120deg,#ffffff,#e5e7eb);
+      -webkit-background-clip:text;
+      -webkit-text-fill-color:transparent;
+    }
+
+    .app-subtitle {
+      font-size:1.05rem;
+      font-weight:600;
+      background:linear-gradient(120deg,var(--iascend-orange),var(--iascend-gold));
+      -webkit-background-clip:text;
+      -webkit-text-fill-color:transparent;
+      opacity:0.95;
+    }
+
+    .hero-title {
+      margin-top:12px;
+      font-size:1.4rem;
+      font-weight:600;
+      color:var(--text-muted);
+    }
+
     .registration-card {
-      background: white; border-radius: 16px; padding: 40px;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-      animation: fadeInUp 0.6s ease-out 0.2s both;
+      background:var(--glass-bg);
+      border-radius:24px;
+      padding:32px 26px 26px;
+      border:1px solid var(--glass-border);
+      backdrop-filter:blur(18px);
+      box-shadow:
+        0 0 40px rgba(0,0,0,0.8),
+        0 0 25px rgba(244,163,73,0.25);
+      display:grid;
+      grid-template-columns:minmax(0,1.1fr);
+      gap:22px;
+      animation:fadeInUp 0.6s ease-out 0.1s both;
     }
-    .card-title { font-size: 1.8em; font-weight: 700; color: var(--text-dark); margin-bottom: 10px; }
-    .card-subtitle { color: var(--text-light); margin-bottom: 30px; line-height: 1.6; }
+
+    @media (min-width:900px) {
+      .registration-card {
+        grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+        padding:32px;
+      }
+    }
+
+    .card-main {
+      border-right:1px solid rgba(148,163,184,0.15);
+      padding-right:0;
+      margin-right:0;
+    }
+
+    @media (min-width:900px) {
+      .card-main {
+        padding-right:24px;
+        margin-right:8px;
+      }
+    }
+
+    .card-title {
+      font-size:1.6rem;
+      font-weight:700;
+      margin-bottom:8px;
+      background:linear-gradient(120deg,#ffffff,#e5e7eb);
+      -webkit-background-clip:text;
+      -webkit-text-fill-color:transparent;
+    }
+
+    .card-subtitle {
+      color:var(--text-muted);
+      margin-bottom:24px;
+      line-height:1.6;
+      font-size:0.98rem;
+    }
+
+    .highlight {
+      color:var(--iascend-gold);
+      font-weight:600;
+    }
+
+    .step-pill {
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:6px 12px;
+      border-radius:999px;
+      background:rgba(15,23,42,0.7);
+      border:1px solid rgba(148,163,184,0.4);
+      font-size:0.8rem;
+      color:var(--text-muted);
+      margin-bottom:12px;
+    }
+
+    .step-pill-dot {
+      width:8px;
+      height:8px;
+      border-radius:999px;
+      background:linear-gradient(135deg,var(--iascend-orange),var(--iascend-gold));
+      box-shadow:0 0 6px rgba(254,209,3,0.8);
+    }
+
     .role-selection {
-      display: grid; grid-template-columns: repeat(2, 1fr);
-      gap: 15px; margin-bottom: 30px;
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:14px;
+      margin-bottom:22px;
     }
+
     .role-option {
-      padding: 20px; border: 2px solid #e5e7eb; border-radius: 12px;
-      cursor: pointer; transition: all 0.3s ease; text-align: center;
+      padding:16px 14px;
+      border-radius:14px;
+      border:1px solid rgba(148,163,184,0.4);
+      background:rgba(15,23,42,0.7);
+      cursor:pointer;
+      transition:all 0.25s ease;
+      text-align:left;
+      display:flex;
+      flex-direction:column;
+      gap:4px;
     }
-    .role-option:hover { border-color: var(--iascend-orange); background: rgba(244, 163, 73, 0.05); }
-    .role-option.selected { border-color: var(--iascend-orange);
-      background: linear-gradient(135deg, rgba(244,163,73,0.1), rgba(184,237,238,0.1)); }
-    .role-icon { font-size: 2em; margin-bottom: 10px; }
-    .form-group { margin-bottom: 20px; }
-    label { display: block; font-weight: 600; color: var(--text-dark); margin-bottom: 8px; font-size: 0.95em; }
+
+    .role-option:hover {
+      border-color:var(--iascend-orange);
+      box-shadow:0 0 18px rgba(244,163,73,0.25);
+      transform:translateY(-1px);
+    }
+
+    .role-option.selected {
+      border-color:var(--iascend-gold);
+      background:radial-gradient(circle at top left, rgba(254,209,3,0.22), rgba(15,23,42,0.9));
+      box-shadow:
+        0 0 22px rgba(254,209,3,0.32),
+        0 0 40px rgba(0,0,0,0.7);
+    }
+
+    .role-icon {
+      font-size:1.4rem;
+    }
+
+    .role-title {
+      font-weight:600;
+      font-size:0.95rem;
+      color:#f9fafb;
+    }
+
+    .role-description {
+      font-size:0.8rem;
+      color:var(--text-muted);
+    }
+
+    .form-group {
+      margin-bottom:18px;
+    }
+
+    label {
+      display:block;
+      font-weight:600;
+      font-size:0.85rem;
+      color:#e5e7eb;
+      margin-bottom:6px;
+    }
+
     input, textarea {
-      width: 100%; padding: 12px 15px; border: 2px solid #e5e7eb;
-      border-radius: 8px; font-size: 1em; font-family: inherit;
-      transition: all 0.3s ease;
+      width:100%;
+      padding:11px 13px;
+      border-radius:10px;
+      border:1px solid rgba(148,163,184,0.6);
+      background:rgba(15,23,42,0.8);
+      color:#e5e7eb;
+      font-size:0.95rem;
+      font-family:inherit;
+      transition:all 0.2s ease;
     }
-    input:focus, textarea:focus {
-      outline: none; border-color: var(--iascend-orange);
-      box-shadow: 0 0 0 3px rgba(244, 163, 73, 0.1);
+
+    input::placeholder,
+    textarea::placeholder {
+      color:rgba(148,163,184,0.8);
     }
-    textarea { min-height: 100px; resize: vertical; }
-    .username-group { position: relative; }
+
+    input:focus,
+    textarea:focus {
+      outline:none;
+      border-color:var(--iascend-orange);
+      box-shadow:0 0 0 1px rgba(244,163,73,0.7);
+      background:rgba(15,23,42,0.95);
+    }
+
+    textarea {
+      min-height:90px;
+      resize:vertical;
+    }
+
+    .username-group {
+      position:relative;
+    }
+
     .username-suffix {
-      position: absolute; right: 15px; top: 50%;
-      transform: translateY(-50%); color: var(--text-light); font-weight: 600;
+      position:absolute;
+      right:12px;
+      top:50%;
+      transform:translateY(-50%);
+      color:var(--text-muted);
+      font-weight:600;
+      font-size:0.9rem;
+      pointer-events:none;
     }
-    .availability-check { font-size: 0.85em; margin-top: 5px; display: none; }
-    .availability-check.checking { display: block; color: var(--text-light); }
-    .availability-check.available { display: block; color: #10b981; }
-    .availability-check.taken { display: block; color: #ef4444; }
+
+    .availability-check {
+      font-size:0.8rem;
+      margin-top:4px;
+      display:none;
+    }
+
+    .availability-check.checking {
+      display:block;
+      color:var(--text-muted);
+    }
+
+    .availability-check.available {
+      display:block;
+      color:var(--accent-green);
+    }
+
+    .availability-check.taken {
+      display:block;
+      color:var(--error-red);
+    }
+
     .survivor-fields {
-      display: none; padding: 20px; background: var(--bg-gray);
-      border-radius: 12px; margin-bottom: 20px;
+      display:none;
+      padding:14px 14px 10px;
+      background:rgba(15,23,42,0.8);
+      border-radius:14px;
+      border:1px solid rgba(148,163,184,0.4);
+      margin-bottom:16px;
     }
-    .survivor-fields.active { display: block; }
+
+    .survivor-fields.active {
+      display:block;
+    }
+
     .submit-btn {
-      width: 100%; padding: 16px;
-      background: linear-gradient(135deg, var(--iascend-orange), #e58f39);
-      color: white; border: none; border-radius: 8px;
-      font-size: 1.1em; font-weight: 700; cursor: pointer;
-      transition: all 0.3s ease;
+      width:100%;
+      padding:15px;
+      border-radius:999px;
+      border:none;
+      cursor:pointer;
+      font-weight:700;
+      font-size:1rem;
+      color:#111827;
+      background:linear-gradient(135deg,var(--iascend-orange),var(--iascend-gold));
+      box-shadow:
+        0 12px 30px rgba(0,0,0,0.9),
+        0 0 18px rgba(254,209,3,0.5);
+      transition:all 0.2s ease;
     }
-    .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(244, 163, 73, 0.3); }
-    .submit-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
-    .footer-links { text-align: center; margin-top: 20px; }
+
+    .submit-btn:hover:not(:disabled) {
+      transform:translateY(-1px);
+      box-shadow:
+        0 16px 40px rgba(0,0,0,0.95),
+        0 0 22px rgba(254,209,3,0.7);
+    }
+
+    .submit-btn:disabled {
+      opacity:0.6;
+      cursor:not-allowed;
+      box-shadow:none;
+      transform:none;
+    }
+
+    .footer-links {
+      margin-top:18px;
+      text-align:center;
+      font-size:0.85rem;
+      color:var(--text-muted);
+    }
+
     .footer-links a {
-      color: var(--text-light); text-decoration: none; font-size: 0.9em; transition: color 0.3s ease;
+      color:var(--iascend-gold);
+      text-decoration:none;
+      margin:0 8px;
+      opacity:0.9;
+      transition:opacity 0.2s ease, transform 0.2s ease;
     }
-    .footer-links a:hover { color: var(--iascend-orange); }
-    @keyframes fadeInDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
-    @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+    .footer-links a:hover {
+      opacity:1;
+      transform:translateY(-1px);
+    }
+
+    .card-side {
+      display:none;
+    }
+
+    @media (min-width:900px) {
+      .card-side {
+        display:flex;
+        flex-direction:column;
+        justify-content:space-between;
+        gap:18px;
+      }
+    }
+
+    .side-block {
+      background:rgba(15,23,42,0.9);
+      border-radius:18px;
+      padding:16px 16px 14px;
+      border:1px solid rgba(148,163,184,0.3);
+      box-shadow:0 0 18px rgba(15,23,42,0.7);
+      font-size:0.85rem;
+    }
+
+    .side-title {
+      font-weight:600;
+      margin-bottom:6px;
+      color:#f9fafb;
+      font-size:0.9rem;
+    }
+
+    .side-pill {
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:4px 9px;
+      border-radius:999px;
+      background:rgba(15,23,42,0.95);
+      border:1px solid rgba(148,163,184,0.45);
+      font-size:0.75rem;
+      color:var(--text-muted);
+      margin-bottom:6px;
+    }
+
+    .side-pill-dot {
+      width:7px;
+      height:7px;
+      border-radius:999px;
+      background:var(--accent-green);
+      box-shadow:0 0 6px rgba(16,185,129,0.8);
+    }
+
+    .side-list {
+      list-style:none;
+      margin-top:6px;
+      color:var(--text-muted);
+    }
+
+    .side-list li {
+      margin-bottom:4px;
+      display:flex;
+      align-items:flex-start;
+      gap:6px;
+    }
+
+    .side-list li span {
+      margin-top:1px;
+      font-size:0.75rem;
+      color:var(--iascend-gold);
+    }
+
+    @keyframes fadeInDown {
+      from { opacity:0; transform:translateY(-18px); }
+      to { opacity:1; transform:translateY(0); }
+    }
+
+    @keyframes fadeInUp {
+      from { opacity:0; transform:translateY(18px); }
+      to { opacity:1; transform:translateY(0); }
+    }
   </style>
 </head>
-
 <body>
-  <div class="container">
-    <div class="header">
-      <div class="logo">iAscendAi</div>
-      <div class="tagline">Authored Intelligence for Human Sovereignty</div>
-    </div>
+  <div class="shell">
+    <header class="header">
+      <div class="app-title">iAscendAi</div>
+      <div class="app-subtitle">Create Your Verified Identity</div>
+      <div class="hero-title">Complete Your Registration Below</div>
+    </header>
 
-    <div class="registration-card">
-      <h1 class="card-title">Create Your Identity</h1>
-      <p class="card-subtitle">
-        Establish your verified digital identity on the iAscendAi platform. Choose your role and claim your unique
-        <strong>username@iascendai</strong> address. Each username is unique — first come, first served.
-      </p>
+    <main class="registration-card">
+      <section class="card-main">
+        <h1 class="card-title">Create Your Identity</h1>
+        <p class="card-subtitle">
+          Establish your verified digital identity on the iAscendAi platform. Choose your role and claim your unique
+          <span class="highlight">username@iascendai</span>. Each username is unique — first come, first served.
+        </p>
 
-      <form id="registrationForm">
-        <div class="role-selection">
-          <div class="role-option" data-role="donor">
-            <div class="role-icon">🎁</div>
-            <div class="role-title">Supporter</div>
-            <div class="role-description">I made a donation</div>
+        <form id="registrationForm">
+          <div class="role-selection">
+            <div class="role-option" data-role="donor">
+              <div class="role-icon">🎁</div>
+              <div class="role-title">Supporter</div>
+              <div class="role-description">I made a donation</div>
+            </div>
+            <div class="role-option" data-role="survivor">
+              <div class="role-icon">🇯🇲</div>
+              <div class="role-title">Survivor</div>
+              <div class="role-description">I need assistance</div>
+            </div>
           </div>
-          <div class="role-option" data-role="survivor">
-            <div class="role-icon">🇯🇲</div>
-            <div class="role-title">Survivor</div>
-            <div class="role-description">I need assistance</div>
-          </div>
-        </div>
 
-        <div class="form-group">
-          <label for="name">Full Name *</label>
-          <input type="text" id="name" required placeholder="Adrian Walker" />
-        </div>
-
-        <div class="form-group">
-          <label for="email">Email Address *</label>
-          <input type="email" id="email" required placeholder="adrian@example.com" />
-        </div>
-
-        <div class="form-group">
-          <label for="username">Choose Your Username *</label>
-          <div class="username-group">
-            <input type="text" id="username" required placeholder="adrian" style="padding-right: 140px;" />
-            <span class="username-suffix">@iascendai</span>
-          </div>
-          <div class="availability-check" id="availabilityCheck"></div>
-        </div>
-
-        <div class="survivor-fields" id="survivorFields">
           <div class="form-group">
-            <label for="location">Current Location *</label>
-            <input type="text" id="location" placeholder="Kingston, Jamaica" />
+            <label for="name">Full Name *</label>
+            <input type="text" id="name" required placeholder="Adrian Walker" />
           </div>
+
           <div class="form-group">
-            <label for="status">Safety Status *</label>
-            <input type="text" id="status" placeholder="Safe / Need Immediate Help / Seeking Shelter" />
+            <label for="email">Email Address *</label>
+            <input type="email" id="email" required placeholder="adrian@example.com" />
           </div>
+
           <div class="form-group">
-            <label for="assistance">Assistance Needed</label>
-            <textarea id="assistance" placeholder="Describe what kind of help you need..."></textarea>
+            <label for="username">Choose Your Username *</label>
+            <div class="username-group">
+              <input type="text" id="username" required placeholder="adrian" style="padding-right:140px;" />
+              <span class="username-suffix">@iascendai</span>
+            </div>
+            <div class="availability-check" id="availabilityCheck"></div>
           </div>
+
+          <div class="survivor-fields" id="survivorFields">
+            <div class="form-group">
+              <label for="location">Current Location *</label>
+              <input type="text" id="location" placeholder="Kingston, Jamaica" />
+            </div>
+            <div class="form-group">
+              <label for="status">Safety Status *</label>
+              <input type="text" id="status" placeholder="Safe / Need Immediate Help / Seeking Shelter" />
+            </div>
+            <div class="form-group">
+              <label for="assistance">Assistance Needed</label>
+              <textarea id="assistance" placeholder="Describe what kind of help you need..."></textarea>
+            </div>
+          </div>
+
+          <button type="submit" class="submit-btn" id="submitBtn">
+            Create My Identity
+          </button>
+        </form>
+
+        <div class="footer-links">
+          <span>Already registered?</span>
+          <a href="verify.html">Verify Identity</a> ·
+          <a href="soulregistry.html">View SoulRegistryⓈ</a> ·
+          <a href="iascendai-dashboard.html">Dashboard</a>
+        </div>
+      </section>
+
+      <aside class="card-side">
+        <div class="side-block">
+          <div class="side-title">What your identity unlocks</div>
+          <div class="side-pill">
+            <div class="side-pill-dot"></div>
+            <span>Signal-verified presence</span>
+          </div>
+          <ul class="side-list">
+            <li><span>•</span><div>Connect your donation to a persistent SoulMarkⓈ identity.</div></li>
+            <li><span>•</span><div>Access your personal dashboard and live SoulTrackerⓈ metrics.</div></li>
+            <li><span>•</span><div>Enable future mindsets like LawAid AI and AI Wellness 360.</div></li>
+          </ul>
         </div>
 
-        <button type="submit" class="submit-btn" id="submitBtn">Create My Identity</button>
-      </form>
-
-      <div class="footer-links">
-        <a href="/iascendai-verify.html">Verify an existing identity</a> |
-        <a href="/">Back to home</a>
-      </div>
-    </div>
+        <div class="side-block">
+          <div class="side-title">Survivor Identity</div>
+          <div class="side-pill">
+            <div class="side-pill-dot"></div>
+            <span>Priority routing</span>
+          </div>
+          <ul class="side-list">
+            <li><span>•</span><div>Share safe contact, current location, and assistance needs.</div></li>
+            <li><span>•</span><div>Enable verified coordinators to match resources to your status.</div></li>
+          </ul>
+        </div>
+      </aside>
+    </main>
   </div>
 
   <script type="module">
@@ -169,25 +539,27 @@
     let selectedRole = null;
     let usernameCheckTimeout = null;
 
-    // Extract soulmark and email from URL params
+    // Prefill data from success page
     const params = new URLSearchParams(window.location.search);
     const soulmark = params.get("soulmark");
     const emailFromUrl = params.get("email");
     if (emailFromUrl) document.getElementById("email").value = emailFromUrl;
 
-    // Role selection
+    // Role selection toggle
     document.querySelectorAll(".role-option").forEach(option => {
-      option.addEventListener("click", function () {
+      option.addEventListener("click", () => {
         document.querySelectorAll(".role-option").forEach(opt => opt.classList.remove("selected"));
-        this.classList.add("selected");
-        selectedRole = this.dataset.role;
-        document.getElementById("survivorFields").classList.toggle("active", selectedRole === "survivor");
+        option.classList.add("selected");
+        selectedRole = option.dataset.role;
+        document
+          .getElementById("survivorFields")
+          .classList.toggle("active", selectedRole === "survivor");
       });
     });
 
     // Username availability check
-    document.getElementById("username").addEventListener("input", function () {
-      const username = this.value.trim().toLowerCase();
+    document.getElementById("username").addEventListener("input", () => {
+      const username = document.getElementById("username").value.trim().toLowerCase();
       const availabilityCheck = document.getElementById("availabilityCheck");
       clearTimeout(usernameCheckTimeout);
 
@@ -202,8 +574,8 @@
 
       usernameCheckTimeout = setTimeout(async () => {
         try {
-          const response = await fetch(`${BACKEND_URL}/check-username/${username}`);
-          const data = await response.json();
+          const res = await fetch(`${BACKEND_URL}/check-username/${username}`);
+          const data = await res.json();
           if (data.available) {
             availabilityCheck.className = "availability-check available";
             availabilityCheck.textContent = "✓ Available! This username is yours.";
@@ -213,23 +585,33 @@
           }
         } catch {
           availabilityCheck.className = "availability-check";
-          availabilityCheck.textContent = "Could not check availability - backend not connected.";
+          availabilityCheck.textContent = "Could not check availability - backend offline.";
         }
       }, 500);
     });
 
-    // Form submit
-    document.getElementById("registrationForm").addEventListener("submit", async e => {
+    // Registration form submit
+    document.getElementById("registrationForm").addEventListener("submit", async (e) => {
       e.preventDefault();
+
       const name = document.getElementById("name").value.trim();
       const email = document.getElementById("email").value.trim();
       const username = document.getElementById("username").value.trim().toLowerCase();
 
-      if (!selectedRole) return alert("Please select your role.");
-      if (!name || !email || !username || !soulmark)
-        return alert("Missing registration fields.");
+      if (!selectedRole) {
+        alert("Please select your role (Supporter or Survivor).");
+        return;
+      }
+      if (!name || !email || !username) {
+        alert("Missing required fields.");
+        return;
+      }
+      if (!soulmark) {
+        alert("Missing SoulMark verification. Please return to the success page.");
+        return;
+      }
 
-      const formData = {
+      const payload = {
         role: selectedRole,
         name,
         email,
@@ -237,7 +619,7 @@
         soulmark,
         location: selectedRole === "survivor" ? document.getElementById("location").value.trim() : null,
         status: selectedRole === "survivor" ? document.getElementById("status").value.trim() : null,
-        assistance: selectedRole === "survivor" ? document.getElementById("assistance").value.trim() : null,
+        assistance: selectedRole === "survivor" ? document.getElementById("assistance").value.trim() : null
       };
 
       const btn = document.getElementById("submitBtn");
@@ -248,13 +630,14 @@
         const res = await fetch(`${BACKEND_URL}/register`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(formData),
+          body: JSON.stringify(payload)
         });
-
         const data = await res.json();
+
         if (!res.ok) throw new Error(data.error || "Registration failed.");
 
-        window.location.href = `/iascendai-dashboard.html?username=${username}`;
+        window.location.href =
+          `/iascendai-dashboard.html?username=${encodeURIComponent(username)}&soulmark=${encodeURIComponent(soulmark)}`;
       } catch (err) {
         alert(err.message || "Registration failed. Please try again.");
         btn.disabled = false;
