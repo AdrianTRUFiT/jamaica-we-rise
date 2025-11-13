@@ -75,7 +75,7 @@ app.post("/create-checkout-session", async (req, res) => {
         },
       ],
       mode: "payment",
-      success_url: `${FRONTEND_URL}/success.html?session_id={{CHECKOUT_SESSION_ID}}`,
+      success_url: `${FRONTEND_URL}/success.html?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${FRONTEND_URL}/index.html`,
       metadata: { soulmark }, // <— Soulmark stored here
     });
