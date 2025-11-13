@@ -3,52 +3,284 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Jamaica We Rise — Home</title>
+  <title>iAscendAi — Digital Identity Dashboard</title>
+
+  <script type="module">
+    import { CONFIG } from "./config.js";
+    window.CONFIG = CONFIG;
+  </script>
+
   <style>
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif;
-      background: radial-gradient(circle at top left, #023618, #020617 55%, #000);
-      color: white;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      text-align: center;
-      margin: 0;
-      padding: 20px;
+    *{margin:0;padding:0;box-sizing:border-box}
+    :root{
+      --ia-orange:#f4a349;
+      --ia-orange-light:#ffb76b;
+      --ia-gold:#ffc37a;
+      --ia-text-light:#ffffff;
+      --ia-bg-dark:#0a0a0a;
+      --ia-bg-mid:#1a1a1a;
+      --glass-bg:rgba(255,255,255,0.08);
+      --glass-border:rgba(255,255,255,0.18);
+      --verified-green:#10b981;
     }
-    h1 {
-      font-size: 2.6em;
-      background: linear-gradient(135deg, #fed103, #059c3a);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      margin-bottom: 20px;
+
+    body{
+      font-family:"Segoe UI",Tahoma,Geneva,Verdana,sans-serif;
+      background:linear-gradient(135deg,var(--ia-bg-dark),var(--ia-bg-mid),var(--ia-bg-dark));
+      min-height:100vh;
+      color:var(--ia-text-light);
+      padding:20px;
     }
-    p {
-      color: #9ca3af;
-      max-width: 400px;
-      margin-bottom: 30px;
+
+    .container{max-width:1200px;margin:0 auto;}
+
+    /* HEADER */
+    .header{
+      text-align:center;
+      margin-bottom:40px;
+      padding:30px;
+      background:var(--glass-bg);
+      border:1px solid var(--glass-border);
+      border-radius:20px;
+      backdrop-filter:blur(12px);
     }
-    a {
-      display: inline-block;
-      background: linear-gradient(135deg, #059c3a, #fed103);
-      color: #111827;
-      padding: 12px 24px;
-      border-radius: 999px;
-      font-weight: 700;
-      text-decoration: none;
-      transition: 0.3s ease;
+
+    .header h1{
+      font-size:2.4em;
+      font-weight:750;
+      letter-spacing:0.2px;
+      background:linear-gradient(90deg,var(--ia-orange),var(--ia-orange-light));
+      -webkit-background-clip:text;
+      -webkit-text-fill-color:transparent;
+      margin-bottom:8px;
     }
-    a:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 0 20px rgba(254,209,3,0.3);
+
+    .tagline{
+      font-size:1.55em;
+      opacity:.8;
+      letter-spacing:.3px;
     }
+
+    /* TABS */
+    .tabs{
+      display:flex;
+      justify-content:center;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-bottom:30px;
+    }
+
+    .tab{
+      padding:14px 24px;
+      background:var(--glass-bg);
+      border:2px solid var(--glass-border);
+      border-radius:14px;
+      cursor:pointer;
+      transition:.3s ease;
+      font-size:1.05em;
+      display:flex;
+      align-items:center;
+      gap:8px;
+      backdrop-filter:blur(8px);
+    }
+
+    .tab.active{
+      background:linear-gradient(135deg,var(--ia-orange),var(--ia-orange-light));
+      color:#000;
+      font-weight:bold;
+    }
+
+    .content{
+      background:var(--glass-bg);
+      border:1px solid var(--glass-border);
+      border-radius:20px;
+      padding:40px;
+      min-height:500px;
+      backdrop-filter:blur(10px);
+    }
+
+    .tab-content{display:none;animation:fadeIn .4s ease}
+    .tab-content.active{display:block}
+
+    @keyframes fadeIn{
+      from{opacity:0;transform:translateY(10px)}
+      to{opacity:1;transform:translateY(0)}
+    }
+
+    /* SOULMARK PANEL */
+    .soulmark-display{
+      background:rgba(255,255,255,.05);
+      padding:30px;
+      border-radius:15px;
+      margin-bottom:30px;
+      border:2px solid var(--ia-orange);
+    }
+
+    .soulmark-hash{
+      font-family:"Courier New",monospace;
+      font-size:1.2em;
+      background:rgba(0,0,0,.4);
+      padding:14px;
+      border-radius:10px;
+      margin:12px 0;
+      color:var(--ia-gold);
+      word-break:break-all;
+    }
+
+    .status-badge{
+      display:inline-block;
+      padding:6px 14px;
+      border-radius:25px;
+      font-size:.9em;
+      font-weight:bold;
+      background:var(--verified-green);
+      color:white;
+    }
+
+    /* INFO CARDS */
+    .identity-info{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+      gap:20px;
+    }
+
+    .info-card{
+      padding:20px;
+      background:rgba(255,255,255,.05);
+      border-radius:12px;
+      border-left:4px solid var(--ia-orange);
+    }
+
+    .info-card label{
+      display:block;
+      font-size:.85em;
+      opacity:.7;
+      margin-bottom:6px;
+    }
+
+    .nav-links{
+      margin-top:40px;
+      text-align:center;
+    }
+
+    .nav-links a{
+      margin:10px;
+      display:inline-block;
+      padding:12px 22px;
+      border-radius:30px;
+      font-weight:700;
+      text-decoration:none;
+      color:#000;
+      background:linear-gradient(135deg,var(--ia-orange),var(--ia-orange-light));
+      transition:.3s ease;
+    }
+
+    .nav-links a:hover{
+      transform:translateY(-3px);
+      box-shadow:0 0 18px rgba(244,163,73,0.35);
+    }
+
   </style>
 </head>
+
 <body>
-  <h1>Jamaica We Rise</h1>
-  <p>Together we’re building a verified, transparent aid and donation network powered by iAscendAi + SoulMarkⓈ.</p>
-  <a href="donate.html">Donate Now</a>
+  <div class="container">
+
+    <!-- HEADER -->
+    <div class="header">
+      <h1>iAscendAi — Digital Identity Dashboard</h1>
+      <p class="tagline">Your Verified Presence inside the Human Trust Engine</p>
+    </div>
+
+    <!-- NAVIGATION TABS -->
+    <div class="tabs">
+      <div class="tab active" data-tab="soulmark">💠 My SoulMarkⓈ</div>
+      <div class="tab" data-tab="soulaid">💛 My SoulAidⓈ</div>
+      <div class="tab" data-tab="tracker">🌍 SoulTrackerⓈ</div>
+      <div class="tab" data-tab="updates">✉️ Updates</div>
+      <div class="tab" data-tab="settings">⚙️ Settings</div>
+    </div>
+
+    <!-- CONTENT AREA -->
+    <div class="content">
+
+      <!-- SOULMARK -->
+      <div class="tab-content active" id="soulmark">
+        <h2>💠 Your SoulMarkⓈ Identity</h2>
+
+        <div class="soulmark-display">
+          <p><strong>Status:</strong> <span class="status-badge">✓ VERIFIED</span></p>
+          <p><strong>Your SoulMarkⓈ Hash:</strong></p>
+          <div class="soulmark-hash" id="soulmark-hash">Loading...</div>
+
+          <p style="font-size:.9em;opacity:.7;">
+            Your cryptographic identity inside the iAscendAi ecosystem.
+          </p>
+        </div>
+
+        <div class="identity-info">
+          <div class="info-card"><label>Email</label><value id="user-email">Loading...</value></div>
+          <div class="info-card"><label>Username</label><value id="user-username">Loading...</value></div>
+          <div class="info-card"><label>Type</label><value id="identity-type">SupporterⓈ</value></div>
+          <div class="info-card"><label>Registered</label><value id="reg-date">Loading...</value></div>
+        </div>
+
+        <div class="nav-links">
+          <a href="tracker.html">🌍 Open SoulTrackerⓈ</a>
+          <a href="soulregistry.html">📜 View SoulRegistryⓈ</a>
+          <a href="iascendai-verify.html">🔍 Verify SoulMarkⓈ</a>
+        </div>
+      </div>
+
+      <!-- OTHER TABS (kept same layout, colors inherit correctly) -->
+      <div class="tab-content" id="soulaid"><h2>💛 Your SoulAidⓈ Contributions</h2></div>
+      <div class="tab-content" id="tracker"><h2>🌍 Live SoulTrackerⓈ</h2></div>
+      <div class="tab-content" id="updates"><h2>✉️ Field Updates</h2></div>
+      <div class="tab-content" id="settings"><h2>⚙️ Settings</h2></div>
+
+    </div>
+  </div>
+
+  <script type="module">
+    import { CONFIG } from "./config.js";
+    const BACKEND_URL = CONFIG.BACKEND_URL;
+
+    /* load + render user info */
+    document.addEventListener("DOMContentLoaded", () => {
+      const params = new URLSearchParams(window.location.search);
+
+      const soulmark = params.get("soulmark") || localStorage.getItem("soulmark");
+      const email = params.get("email") || localStorage.getItem("email");
+      const username = params.get("username") || localStorage.getItem("username");
+      const role = params.get("role") || "supporter";
+
+      if (soulmark) localStorage.setItem("soulmark", soulmark);
+      if (email) localStorage.setItem("email", email);
+      if (username) localStorage.setItem("username", username);
+
+      document.getElementById("soulmark-hash").textContent = soulmark || "Not found";
+      document.getElementById("user-email").textContent = email || "Not available";
+      document.getElementById("user-username").textContent = username ? `${username}@iascendai` : "Anonymous";
+      document.getElementById("identity-type").textContent = role === "survivor" ? "SurvivorⓈ" : "SupporterⓈ";
+
+      initTabs();
+    });
+
+    /* Tab switching */
+    function initTabs(){
+      const tabs=document.querySelectorAll(".tab");
+      const pages=document.querySelectorAll(".tab-content");
+
+      tabs.forEach(tab=>{
+        tab.addEventListener("click",()=>{
+          tabs.forEach(t=>t.classList.remove("active"));
+          pages.forEach(p=>p.classList.remove("active"));
+
+          tab.classList.add("active");
+          document.getElementById(tab.dataset.tab).classList.add("active");
+        });
+      });
+    }
+  </script>
 </body>
 </html>
