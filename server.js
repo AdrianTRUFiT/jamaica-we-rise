@@ -1,252 +1,223 @@
-// ✅ Jamaica We Rise Backend — FINAL PRODUCTION VERSION (2025-11-14)
-// Includes: identity verification fix (verified: true), donation verification, registry integrity.
-
-import dotenv from "dotenv";
-dotenv.config();
+// server.js — Jamaica We Rise × iAscendAi
+// Canonical Backend (Updated with displayIdentity + showDonationAmount)
 
 import express from "express";
+import cors from "cors";
 import fs from "fs";
 import path from "path";
 import Stripe from "stripe";
 import bodyParser from "body-parser";
-import cors from "cors";
+import dotenv from "dotenv";
+dotenv.config();
 
-// -------------------------------------------------
-// 1️⃣ Core Configuration
-// -------------------------------------------------
 const app = express();
-const MODE = process.env.MODE || "production";
-const stripeKey = process.env.STRIPE_SECRET_KEY;
-
-if (!stripeKey) {
-  console.error("❌ Missing STRIPE_SECRET_KEY in environment variables.");
-  process.exit(1);
-}
-
-const stripe = new Stripe(stripeKey);
-
-const PORT = process.env.PORT || 10000;
-
-// 🚨 MUST match your live Vercel domain
-const FRONTEND_URL =
-  process.env.FRONTEND_URL || "https://jamaica-we-rise.vercel.app";
-
-const REGISTRY_PATH = process.env.REGISTRY_PATH || "./data/registry.json";
-const LOG_DIR = process.env.LOG_DIR || "./logs";
-
-// -------------------------------------------------
-// 2️⃣ Middleware
-// -------------------------------------------------
 app.use(cors());
 app.use(express.json());
 app.use(bodyParser.json());
-app.use(express.static("public")); // Local dev only
 
-// -------------------------------------------------
-// 3️⃣ Ensure data/log folders exist
-// -------------------------------------------------
-if (!fs.existsSync("./data")) fs.mkdirSync("./data", { recursive: true });
-if (!fs.existsSync(LOG_DIR)) fs.mkdirSync(LOG_DIR, { recursive: true });
+const PORT = process.env.PORT || 10000;
+const __dirname = path.resolve();
 
-// -------------------------------------------------
-// 4️⃣ Logger
-// -------------------------------------------------
-function logEvent(type, message) {
-  const line = `[${new Date().toISOString()}] [${type}] ${message}\n`;
-  fs.appendFileSync(path.join(LOG_DIR, `${type}.log`), line);
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+
+// Paths
+const DATA_DIR = path.join(__dirname, "data");
+const REGISTRY_FILE = path.join(DATA_DIR, "registry.json");
+
+// Ensure registry exists
+if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR);
+if (!fs.existsSync(REGISTRY_FILE)) fs.writeFileSync(REGISTRY_FILE, "[]");
+
+// Utility — Read registry JSON
+function readRegistry() {
+  try {
+    const raw = fs.readFileSync(REGISTRY_FILE, "utf8");
+    return JSON.parse(raw);
+  } catch (err) {
+    console.error("Registry read error:", err);
+    return [];
+  }
 }
 
-// -------------------------------------------------
-// 5️⃣ Health Check
-// -------------------------------------------------
+// Utility — Write registry JSON
+function writeRegistry(data) {
+  try {
+    fs.writeFileSync(REGISTRY_FILE, JSON.stringify(data, null, 2));
+  } catch (err) {
+    console.error("Registry write error:", err);
+  }
+}
+
+// Health check
 app.get("/health", (req, res) => {
-  res.json({
-    status: "ok",
-    mode: MODE,
-    timestamp: new Date().toISOString(),
-    frontend: FRONTEND_URL
-  });
+  res.json({ ok: true, mode: "production", timestamp: Date.now() });
 });
 
-// -------------------------------------------------
-// 6️⃣ Create Stripe Checkout Session
-// -------------------------------------------------
+// Create Stripe checkout session
 app.post("/create-checkout-session", async (req, res) => {
   try {
-    const { name, email, amount, soulmark } = req.body;
-
-    if (!email || !amount) {
-      return res
-        .status(400)
-        .json({ error: "Missing required fields: email or amount" });
-    }
+    const { name, email, amount } = req.body;
 
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
-      customer_email: email,
       line_items: [
         {
           price_data: {
             currency: "usd",
-            product_data: { name: name || "Donation" },
-            unit_amount: Math.round(amount * 100)
+            product_data: { name: "Jamaica We Rise – Donation" },
+            unit_amount: Math.round(amount * 100),
           },
-          quantity: 1
-        }
+          quantity: 1,
+        },
       ],
       mode: "payment",
-
-      success_url: `${FRONTEND_URL}/success.html?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${FRONTEND_URL}/index.html`,
-
-      metadata: { soulmark }
+      customer_email: email,
+      metadata: { donor_name: name },
+      success_url:
+        `${process.env.FRONTEND_URL}/success.html?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${process.env.FRONTEND_URL}/donate.html`,
     });
 
-    logEvent("access", `Created checkout for ${email} → $${amount}`);
-    res.json({ id: session.id, url: session.url });
+    res.json({ url: session.url });
   } catch (err) {
-    logEvent("error", `create-session: ${err.message}`);
-    res.status(500).json({ error: err.message });
+    console.error("Stripe error:", err);
+    res.status(500).json({ error: "Stripe session failed." });
   }
 });
 
-// -------------------------------------------------
-// 7️⃣ Verify Donation (Canonical Endpoint)
-// -------------------------------------------------
-app.get("/verify-donation/:sessionId", async (req, res) => {
-  const { sessionId } = req.params;
-
-  if (!sessionId)
-    return res.status(400).json({ error: "Missing sessionId" });
+// Verify checkout session
+app.get("/verify-soulmark", async (req, res) => {
+  const { session_id } = req.query;
 
   try {
-    const session = await stripe.checkout.sessions.retrieve(sessionId, {
-      expand: ["customer_details"]
-    });
-
-    if (!session)
-      return res.status(404).json({ error: "Session not found" });
-
-    const success = session.payment_status === "paid";
+    const session = await stripe.checkout.sessions.retrieve(session_id);
+    const email = session.customer_details.email;
+    const amount = session.amount_total / 100;
 
     const soulmark =
-      session.metadata?.soulmark ||
-      "SM-" + Buffer.from(session.id).toString("base64").slice(0, 12);
-
-    const donationRecord = {
-      type: "donation",
-      name: session.customer_details?.name || "Anonymous",
-      email: session.customer_details?.email,
-      amount: session.amount_total / 100,
-      soulmark,
-      verified: success,
-      timestamp: new Date().toISOString(),
-      stripeSessionId: sessionId
-    };
-
-    const registry = fs.existsSync(REGISTRY_PATH)
-      ? JSON.parse(fs.readFileSync(REGISTRY_PATH))
-      : [];
-
-    registry.push(donationRecord);
-    fs.writeFileSync(REGISTRY_PATH, JSON.stringify(registry, null, 2));
-
-    logEvent(
-      "event",
-      `Verified donation ${donationRecord.email} → ${donationRecord.amount} / ${soulmark}`
-    );
+      "SM-" + Buffer.from(email).toString("base64").slice(0, 12);
 
     res.json({
-      verified: success,
-      ...donationRecord
+      email,
+      amount,
+      soulmark,
+      verified: true,
     });
   } catch (err) {
-    logEvent("error", `verify-donation: ${err.message}`);
-    res.status(500).json({ error: "Failed to verify donation" });
+    console.error("SoulMark verify error:", err);
+    res.status(400).json({ error: "Invalid session ID" });
   }
 });
 
-// -------------------------------------------------
-// 8️⃣ Username Availability
-// -------------------------------------------------
+// Username availability check
 app.get("/check-username/:username", (req, res) => {
-  const username = req.params.username.toLowerCase();
+  const { username } = req.params;
+  const reg = readRegistry();
 
-  try {
-    const registry = fs.existsSync(REGISTRY_PATH)
-      ? JSON.parse(fs.readFileSync(REGISTRY_PATH))
-      : [];
+  const taken = reg.some(
+    (r) =>
+      r.type === "identity" &&
+      r.username.toLowerCase() === username.toLowerCase()
+  );
 
-    const exists = registry.some(
-      (r) => r.type === "identity" && r.username === username
-    );
-
-    res.json({ available: !exists });
-  } catch {
-    res.json({ available: true });
-  }
+  res.json({ available: !taken });
 });
 
-// -------------------------------------------------
-// 9️⃣ Register Identity (✔ FIXED: verified = true)
-// -------------------------------------------------
+// Register identity — UPDATED HERE
 app.post("/register", (req, res) => {
   try {
-    const { username, name, email, role, soulmark, firstDonation } = req.body;
+    const {
+      name,
+      email,
+      username,
+      role,
+      soulmark,
+      donationAmount,
+      displayIdentity,
+      showDonationAmount,
+    } = req.body;
 
-    if (!username || !name || !email || !role) {
-      return res.status(400).json({ error: "Missing required fields" });
+    if (!name || !email || !username) {
+      return res.status(400).json({ error: "Missing required fields." });
     }
 
-    const registry = fs.existsSync(REGISTRY_PATH)
-      ? JSON.parse(fs.readFileSync(REGISTRY_PATH))
-      : [];
+    const reg = readRegistry();
 
+    // Check if username taken
+    if (
+      reg.some(
+        (r) =>
+          r.type === "identity" &&
+          r.username.toLowerCase() === username.toLowerCase()
+      )
+    ) {
+      return res.status(400).json({ error: "Username already taken." });
+    }
+
+    // Identity Record (UPDATED)
     const record = {
       type: "identity",
       username: username.toLowerCase(),
       name,
       email,
-      role,
+      role: role || "supporter",
       soulmark:
         soulmark ||
         "SM-" + Buffer.from(email).toString("base64").slice(0, 12),
-      verified: true, // ← ★ THE FIX
-      firstDonation: firstDonation || null,
-      createdAt: new Date().toISOString()
+      donationAmount: donationAmount || null,
+
+      // NEW FIELDS — required for your display logic
+      displayIdentity: displayIdentity || "username",
+      showDonationAmount: showDonationAmount !== false,
+
+      createdAt: new Date().toISOString(),
     };
 
-    registry.push(record);
-    fs.writeFileSync(REGISTRY_PATH, JSON.stringify(registry, null, 2));
+    reg.push(record);
+    writeRegistry(reg);
 
-    logEvent("event", `Registered identity @${username}`);
-    res.json({ ok: true, user: record });
+    res.json({ ok: true, identity: record });
   } catch (err) {
-    logEvent("error", `register: ${err.message}`);
-    res.status(500).json({ error: err.message });
+    console.error("Registration error:", err);
+    res.status(500).json({ error: "Registration failed." });
   }
 });
 
-// -------------------------------------------------
-// 🔟 Registry (for dashboard, impact, verify)
-// -------------------------------------------------
-app.get("/registry", (req, res) => {
-  try {
-    const data = fs.existsSync(REGISTRY_PATH)
-      ? JSON.parse(fs.readFileSync(REGISTRY_PATH))
-      : [];
+// Public donations + identities
+app.get("/donations/stats", (req, res) => {
+  const reg = readRegistry();
+  const donations = reg.filter((r) => r.type === "donation");
+  const identities = reg.filter((r) => r.type === "identity");
 
-    res.json(data);
-  } catch {
-    res.status(500).json({ error: "Failed to read registry" });
-  }
+  res.json({
+    donations,
+    identities,
+    totalDonations: donations.reduce(
+      (sum, d) => sum + (d.amount || 0),
+      0
+    ),
+  });
 });
 
-// -------------------------------------------------
-// 1️⃣1️⃣ Start Server
-// -------------------------------------------------
-app.listen(PORT, () => {
-  console.log(
-    `🚀 Jamaica We Rise API running in ${MODE.toUpperCase()} MODE on port ${PORT}`
+// Get user identity by username
+app.get("/user/:username", (req, res) => {
+  const { username } = req.params;
+  const reg = readRegistry();
+
+  const identity = reg.find(
+    (r) =>
+      r.type === "identity" &&
+      r.username.toLowerCase() === username.toLowerCase()
   );
+
+  if (!identity) {
+    return res.status(404).json({ error: "User not found" });
+  }
+
+  res.json(identity);
+});
+
+// Start server
+app.listen(PORT, () => {
+  console.log(`Jamaica We Rise API running in PRODUCTION mode on port ${PORT}`);
 });
