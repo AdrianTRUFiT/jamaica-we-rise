@@ -17,7 +17,7 @@ All routes, backend endpoints, and live connections are documented in:
 | 🏠 4. Dashboard | [`iascendai-dashboard.html`](./public/iascendai-dashboard.html) | View verified profile + activity |
 | 📈 5. Tracker | [`tracker.html`](./public/tracker.html) | Display live donation metrics |
 | 🔗 6. Registry | [`soulregistry.html`](./public/soulregistry.html) | Browse verified identities |
-| 🔍 7. Verify | [`verify.html`](./public/verify.html) | Search and confirm SoulMarksⓈ |
+| 🔍 7. Verify | [`iascendai-verify.html`](./public/iascendai-verify.html) | Search and confirm SoulMarksⓈ |
 | 🌍 8. Impact | [`impact-dashboard.html`](./public/impact-dashboard.html) | Aggregate transparency dashboard |
 
 ---
