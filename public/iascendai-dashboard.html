@@ -3,443 +3,184 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>iAscendAi — Digital Identity Dashboard</title>
+  <title>Your SoulMarkⓈ Identity | iAscendAi Dashboard</title>
 
-  <!-- Config -->
   <script type="module">
     import { CONFIG } from "./config.js";
     window.CONFIG = CONFIG;
   </script>
 
   <style>
-    * { margin:0; padding:0; box-sizing:border-box; }
-
-    :root {
-      --ia-orange: #f4a349;
-      --ia-orange-light: #ffb76b;
-      --ia-gold: #ffc37a;
-      --ia-text-light: #ffffff;
-      --ia-text-soft: #9ca3af;
-      --ia-bg-dark: #020617;
-      --ia-bg-mid: #0b1220;
-      --glass-bg: rgba(15,23,42,0.96);
-      --glass-border: rgba(148,163,184,0.45);
-      --verified-green: #10b981;
-    }
-
     body {
-      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(135deg, var(--ia-bg-dark), var(--ia-bg-mid), var(--ia-bg-dark));
+      font-family: Inter, sans-serif;
+      background: linear-gradient(145deg, #03131f 0%, #041423 50%, #020c15 100%);
+      color: #fff;
+      margin: 0;
+      padding: 24px;
       min-height: 100vh;
-      color: var(--ia-text-light);
-      padding: 20px;
     }
-
-    .container { max-width: 1200px; margin: 0 auto; }
-
-    /* HEADER */
-    .header {
+    .card {
+      max-width: 680px;
+      margin: 0 auto;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 18px;
+      padding: 28px;
+      box-shadow: 0 0 30px rgba(5,156,58,0.15);
+    }
+    h1 {
+      font-size: 1.9rem;
+      margin-bottom: 12px;
       text-align: center;
-      margin-bottom: 30px;
-      padding: 26px;
-      background: var(--glass-bg);
-      border: 1px solid var(--glass-border);
-      border-radius: 20px;
-      backdrop-filter: blur(14px);
-      box-shadow: 0 18px 60px rgba(0,0,0,0.8);
-    }
-
-    .header h1 {
-      font-size: 2.2em;
-      font-weight: 750;
-      letter-spacing: 0.4px;
-      background: linear-gradient(90deg, var(--ia-orange), var(--ia-orange-light));
+      background: linear-gradient(135deg,#fed103,#059c3a);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      margin-bottom: 8px;
     }
-
-    .tagline {
-      font-size: 0.98em;
-      opacity: 0.85;
-      color: var(--ia-text-soft);
+    .label {
+      font-size: 0.78rem;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      margin-top: 14px;
     }
-
-    /* TABS */
-    .tabs {
-      display: flex;
-      justify-content: center;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin: 24px auto 18px;
-    }
-
-    .tab {
-      padding: 12px 20px;
-      background: var(--glass-bg);
-      border: 2px solid var(--glass-border);
-      border-radius: 14px;
-      cursor: pointer;
-      transition: 0.25s ease;
-      font-size: 0.98em;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      backdrop-filter: blur(8px);
-      color: var(--ia-text-light);
-    }
-
-    .tab.active {
-      background: linear-gradient(135deg, var(--ia-orange), var(--ia-orange-light));
-      color: #000;
-      font-weight: 700;
-      box-shadow: 0 12px 30px rgba(0,0,0,0.7);
-    }
-
-    .tab:hover {
-      transform: translateY(-2px);
-    }
-
-    /* CONTENT */
-    .content {
-      background: var(--glass-bg);
-      border: 1px solid var(--glass-border);
-      border-radius: 20px;
-      padding: 30px;
-      min-height: 420px;
-      backdrop-filter: blur(12px);
-      box-shadow: 0 20px 60px rgba(0,0,0,0.85);
-    }
-
-    .tab-content {
-      display: none;
-      animation: fadeIn 0.4s ease;
-    }
-
-    .tab-content.active {
-      display: block;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-
-    /* SOULMARK PANEL */
-    .soulmark-display {
-      background: rgba(15,23,42,0.98);
-      padding: 24px;
-      border-radius: 16px;
-      margin-bottom: 22px;
-      border: 2px solid var(--ia-orange);
-    }
-
-    .soulmark-display p {
+    .value {
+      font-size: 1.1rem;
+      font-weight: 600;
       margin-bottom: 6px;
-      font-size: 0.92rem;
     }
 
-    .soulmark-hash {
-      font-family: "Courier New", monospace;
-      font-size: 1rem;
-      background: rgba(0,0,0,0.7);
-      padding: 12px;
+    .status-box {
+      margin-top: 18px;
+      padding: 16px;
+      border-radius: 14px;
+      background: rgba(0,0,0,0.35);
+      border: 1px solid rgba(255,255,255,0.15);
+    }
+    .verified {
+      color: #10b981;
+      font-weight: 700;
+    }
+    .soulmark-box {
+      margin-top: 10px;
+      padding: 14px;
+      background: rgba(0,0,0,0.55);
       border-radius: 10px;
-      margin: 10px 0;
-      color: var(--ia-gold);
+      font-family: monospace;
+      font-size: 0.95rem;
       word-break: break-all;
     }
 
-    .status-badge {
-      display: inline-block;
-      padding: 5px 12px;
-      border-radius: 999px;
-      font-size: 0.78rem;
-      font-weight: 700;
-      background: var(--verified-green);
-      color: #ecfdf5;
-    }
-
-    /* INFO GRID */
-    .identity-info {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 16px;
-    }
-
-    .info-card {
-      padding: 16px;
-      background: rgba(15,23,42,0.98);
-      border-radius: 12px;
-      border-left: 3px solid var(--ia-orange);
-    }
-
-    .info-card label {
+    .btn {
+      width: 100%;
       display: block;
-      font-size: 0.8rem;
-      opacity: 0.7;
-      margin-bottom: 4px;
-    }
-
-    .info-value {
-      font-size: 0.98rem;
-      font-weight: 600;
-    }
-
-    .empty-state {
+      margin-top: 20px;
+      padding: 14px;
       text-align: center;
-      padding: 40px 16px;
-      color: var(--ia-text-soft);
-      font-size: 0.9rem;
+      border-radius: 10px;
+      font-weight: 700;
+      color: #041423;
+      background: linear-gradient(135deg,#f4a349,#fed103);
+      text-decoration: none;
+      box-shadow: 0 12px 25px rgba(0,0,0,0.4);
     }
 
-    /* FOOTER */
-    .global-footer {
-      margin-top: 26px;
-      text-align: center;
-      padding: 20px;
-      background: rgba(15,23,42,0.96);
-      border: 1px solid var(--glass-border);
-      border-radius: 16px;
-      backdrop-filter: blur(10px);
-      box-shadow: 0 16px 45px rgba(0,0,0,0.8);
-    }
-
-    .footer-links {
+    .nav-links {
+      margin-top: 25px;
       display: flex;
       justify-content: center;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-bottom: 10px;
+      gap: 18px;
     }
-
-    .footer-links a,
-    .logout-btn {
-      padding: 9px 18px;
-      border-radius: 24px;
-      text-decoration: none;
-      font-weight: 650;
+    .nav-links a {
+      color: #fed103;
       font-size: 0.9rem;
-      background: linear-gradient(135deg, var(--ia-orange), var(--ia-orange-light));
-      color: #000;
-      min-width: 150px;
-      display: inline-block;
-      border: none;
-      cursor: pointer;
-      transition: 0.25s ease;
+      text-decoration: none;
     }
 
-    .footer-links a:hover,
-    .logout-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 0 16px rgba(244,163,73,0.35);
-    }
-
-    .logout-btn {
-      background: linear-gradient(135deg, #f97373, #fb4b4b);
-      color: #fff;
-      margin-top: 4px;
-    }
-
-    /* RESPONSIVE */
-    @media (max-width: 768px) {
-      .header h1 {
-        font-size: 1.7em;
-      }
-
-      .content {
-        padding: 22px;
-      }
-
-      .tabs {
-        gap: 6px;
-      }
-    }
   </style>
 </head>
 
 <body>
-  <div class="container">
-    <!-- HEADER -->
-    <div class="header">
-      <h1>iAscendAi — Digital Identity Dashboard</h1>
-      <p class="tagline">Your verified presence inside the Jamaica We Rise movement.</p>
+  <div class="card">
+    <h1>Your SoulMarkⓈ Identity</h1>
+
+    <div id="statusBox" class="status-box">
+      <span class="label">Status</span>
+      <div id="statusValue" class="value">Loading…</div>
+
+      <div class="label">Your SoulMarkⓈ Hash</div>
+      <div id="soulmarkValue" class="soulmark-box">Loading…</div>
     </div>
 
-    <!-- TABS -->
-    <div class="tabs">
-      <div class="tab active" data-tab="soulmark">💠 My SoulMarkⓈ</div>
-      <div class="tab" data-tab="soulaid">💛 My SoulAidⓈ</div>
-      <div class="tab" data-tab="tracker">🌍 SoulTrackerⓈ</div>
-      <div class="tab" data-tab="updates">✉️ Updates</div>
-      <div class="tab" data-tab="settings">⚙️ Settings</div>
-    </div>
+    <div class="label">Name</div>
+    <div id="nameValue" class="value">—</div>
 
-    <!-- CONTENT -->
-    <div class="content">
-      <!-- SoulMark Tab -->
-      <div class="tab-content active" id="soulmark">
-        <h2 style="margin-bottom: 14px;">💠 Your SoulMarkⓈ Identity</h2>
+    <div class="label">Username</div>
+    <div id="usernameValue" class="value">—</div>
 
-        <div class="soulmark-display">
-          <p><strong>Status:</strong> <span class="status-badge" id="statusBadge">Verifying…</span></p>
-          <p style="margin-top: 10px;"><strong>Your SoulMarkⓈ Hash:</strong></p>
-          <div class="soulmark-hash" id="soulmarkHash">Loading…</div>
-          <p style="font-size:0.82rem; opacity:0.75;">
-            This cryptographic signature anchors your identity and contributions inside the iAscendAi ecosystem.
-          </p>
-        </div>
+    <div class="label">Identity Type</div>
+    <div id="roleValue" class="value">SupporterⓈ</div>
 
-        <div class="identity-info">
-          <div class="info-card">
-            <label>Name</label>
-            <div class="info-value" id="infoName">Loading…</div>
-          </div>
-          <div class="info-card">
-            <label>Username</label>
-            <div class="info-value" id="infoUsername">Loading…</div>
-          </div>
-          <div class="info-card">
-            <label>Identity Type</label>
-            <div class="info-value" id="infoType">SupporterⓈ</div>
-          </div>
-          <div class="info-card">
-            <label>Linked Email</label>
-            <div class="info-value" id="infoEmail">Loading…</div>
-          </div>
-        </div>
-      </div>
+    <!-- Hidden email (not displayed) -->
+    <div id="hiddenEmail" style="display:none;"></div>
 
-      <!-- SoulAid Tab (placeholder for now) -->
-      <div class="tab-content" id="soulaid">
-        <h2>💛 Your SoulAidⓈ Contributions</h2>
-        <div class="empty-state">
-          Your verified contribution history will appear here as we finalize the SoulAidⓈ view.
-        </div>
-      </div>
+    <a id="verifyBtn" class="btn" href="#">🔍 Verify SoulMarkⓈ</a>
 
-      <!-- Tracker Tab (placeholder for now) -->
-      <div class="tab-content" id="tracker">
-        <h2>🌍 Live SoulTrackerⓈ</h2>
-        <div class="empty-state">
-          Public, real-time Jamaica We Rise impact metrics will be surfaced here.
-        </div>
-      </div>
-
-      <!-- Updates Tab (placeholder for now) -->
-      <div class="tab-content" id="updates">
-        <h2>✉️ Field Updates</h2>
-        <div class="empty-state">
-          Updates from coordinators and impact stories will live here.
-        </div>
-      </div>
-
-      <!-- Settings Tab (placeholder for now) -->
-      <div class="tab-content" id="settings">
-        <h2>⚙️ Settings</h2>
-        <div class="empty-state">
-          Notification and privacy preferences will be configurable here.
-        </div>
-      </div>
-    </div>
-
-    <!-- GLOBAL FOOTER -->
-    <div class="global-footer">
-      <div class="footer-links">
-        <a href="iascendai-verify.html">🔍 Verify SoulMarkⓈ</a>
-        <a href="soulregistry.html">📜 SoulRegistryⓈ Directory</a>
-        <a href="tracker.html">🌍 View SoulTrackerⓈ</a>
-        <a href="index.html">🏠 Donate Again</a>
-      </div>
-      <button class="logout-btn" onclick="logoutUser()">🚪 Logout</button>
+    <div class="nav-links">
+      <a href="impact-dashboard.html">Impact</a>
+      <a href="soulregistry.html">Registry</a>
+      <a href="iascendai-verify.html">Verify</a>
     </div>
   </div>
 
-  <script>
-    const BACKEND_URL = (window.CONFIG && window.CONFIG.BACKEND_URL) || "";
+  <script type="module">
+    import { CONFIG } from "./config.js";
 
-    const tabs   = document.querySelectorAll(".tab");
-    const pages  = document.querySelectorAll(".tab-content");
+    const BACKEND_URL = CONFIG.BACKEND_URL;
 
-    const soulmarkHashEl = document.getElementById("soulmarkHash");
-    const statusBadgeEl  = document.getElementById("statusBadge");
-    const infoNameEl     = document.getElementById("infoName");
-    const infoUsernameEl = document.getElementById("infoUsername");
-    const infoEmailEl    = document.getElementById("infoEmail");
-    const infoTypeEl     = document.getElementById("infoType");
+    const params = new URLSearchParams(window.location.search);
+    const username = params.get("username");
 
-    // Tabs
-    tabs.forEach(tab => {
-      tab.addEventListener("click", () => {
-        tabs.forEach(t => t.classList.remove("active"));
-        pages.forEach(p => p.classList.remove("active"));
-
-        tab.classList.add("active");
-        const id = tab.dataset.tab;
-        document.getElementById(id).classList.add("active");
-      });
-    });
-
-    // Identity hydrate
-    document.addEventListener("DOMContentLoaded", async () => {
-      const params = new URLSearchParams(window.location.search);
-
-      let username = params.get("username") || localStorage.getItem("username") || "";
-      let name     = params.get("name")     || localStorage.getItem("name")     || "";
-      let email    = params.get("email")    || localStorage.getItem("email")    || "";
-      let soulmark = params.get("soulmark") || localStorage.getItem("soulmark") || "";
-
-      if (username) localStorage.setItem("username", username);
-      if (name)     localStorage.setItem("name", name);
-      if (email)    localStorage.setItem("email", email);
-      if (soulmark) localStorage.setItem("soulmark", soulmark);
-
-      // Try to fetch a fresher record from registry if username is present
-      if (BACKEND_URL && username) {
-        try {
-          const res = await fetch(`${BACKEND_URL}/registry`, { cache: "no-store" });
-          if (res.ok) {
-            const registry = await res.json();
-            const identity = registry.find(
-              r => r.username === username || r.identityUsername === username
-            );
-
-            if (identity) {
-              name     = identity.name     || name;
-              email    = identity.email    || email;
-              soulmark = identity.soulmark || identity.soulMark || soulmark;
-
-              if (name)     localStorage.setItem("name", name);
-              if (email)    localStorage.setItem("email", email);
-              if (soulmark) localStorage.setItem("soulmark", soulmark);
-            }
-          }
-        } catch (err) {
-          console.warn("Registry fetch failed:", err);
-        }
+    async function loadIdentity() {
+      if (!username) {
+        document.getElementById("statusValue").textContent = "Invalid username";
+        return;
       }
 
-      // Update UI
-      soulmarkHashEl.textContent = soulmark || "No SoulMarkⓈ found yet for this identity.";
-      statusBadgeEl.textContent  = soulmark ? "✓ VERIFIED" : "PENDING";
-      statusBadgeEl.style.backgroundColor = soulmark ? "var(--verified-green)" : "#facc15";
+      const res = await fetch(`${BACKEND_URL}/registry`, { cache: "no-store" });
+      const data = await res.json();
 
-      infoNameEl.textContent     = name     || "Unknown";
-      infoUsernameEl.textContent = username ? `${username}@iascendai` : "Not set";
-      infoEmailEl.textContent    = email    || "Not linked";
-      infoTypeEl.textContent     = "SupporterⓈ";
-    });
+      const entry = data.find(
+        r => r.type === "identity" && r.username === username.toLowerCase()
+      );
 
-    function logoutUser() {
-      localStorage.removeItem("username");
-      localStorage.removeItem("name");
-      localStorage.removeItem("email");
-      localStorage.removeItem("soulmark");
-      localStorage.removeItem("amount");
-      window.location.href = "index.html";
+      if (!entry) {
+        document.getElementById("statusValue").textContent = "Not Found";
+        return;
+      }
+
+      document.getElementById("statusValue").innerHTML =
+        entry.verified ? "<span class='verified'>✔ VERIFIED</span>" : "Pending";
+
+      document.getElementById("soulmarkValue").textContent =
+        entry.soulmark || entry.soulMark;
+
+      document.getElementById("nameValue").textContent = entry.name;
+      document.getElementById("usernameValue").textContent =
+        entry.username + "@iascendai";
+      document.getElementById("roleValue").textContent = entry.role + "Ⓢ";
+
+      // store email invisibly for donation tracking logic
+      document.getElementById("hiddenEmail").textContent = entry.email;
+
+      // route verify button
+      document.getElementById("verifyBtn").href =
+        `iascendai-verify.html?soulmark=${encodeURIComponent(
+          entry.soulmark || entry.soulMark
+        )}`;
     }
 
-    window.logoutUser = logoutUser;
+    loadIdentity();
   </script>
+
 </body>
 </html>
