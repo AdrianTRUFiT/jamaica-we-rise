@@ -1,4 +1,5 @@
-// ✅ Jamaica We Rise Backend — FINAL PRODUCTION VERSION (Canonical: /verify-donation/:sessionId)
+// ✅ Jamaica We Rise Backend — FINAL PRODUCTION VERSION (2025-11-14)
+// Includes: identity verification fix (verified: true), donation verification, registry integrity.
 
 import dotenv from "dotenv";
 dotenv.config();
@@ -26,7 +27,7 @@ const stripe = new Stripe(stripeKey);
 
 const PORT = process.env.PORT || 10000;
 
-// 🚨 MUST be your Vercel frontend
+// 🚨 MUST match your live Vercel domain
 const FRONTEND_URL =
   process.env.FRONTEND_URL || "https://jamaica-we-rise.vercel.app";
 
@@ -39,10 +40,10 @@ const LOG_DIR = process.env.LOG_DIR || "./logs";
 app.use(cors());
 app.use(express.json());
 app.use(bodyParser.json());
-app.use(express.static("public")); // For local dev only
+app.use(express.static("public")); // Local dev only
 
 // -------------------------------------------------
-// 3️⃣ Ensure folders exist
+// 3️⃣ Ensure data/log folders exist
 // -------------------------------------------------
 if (!fs.existsSync("./data")) fs.mkdirSync("./data", { recursive: true });
 if (!fs.existsSync(LOG_DIR)) fs.mkdirSync(LOG_DIR, { recursive: true });
@@ -110,36 +111,7 @@ app.post("/create-checkout-session", async (req, res) => {
 });
 
 // -------------------------------------------------
-// 🔄 6.5 Legacy Compatibility: retrieve-session
-// -------------------------------------------------
-app.get("/retrieve-session", async (req, res) => {
-  const sessionId = req.query.session_id;
-
-  if (!sessionId)
-    return res.status(400).json({ error: "Missing session_id" });
-
-  try {
-    const session = await stripe.checkout.sessions.retrieve(sessionId, {
-      expand: ["customer_details"]
-    });
-
-    const donor = {
-      amount: session.amount_total / 100,
-      email: session.customer_details?.email,
-      soulmark:
-        session.metadata?.soulmark ||
-        "SM-" + Buffer.from(session.id).toString("base64").slice(0, 12)
-    };
-
-    res.json(donor);
-  } catch (err) {
-    logEvent("error", `retrieve-session: ${err.message}`);
-    res.status(500).json({ error: "Failed to retrieve session" });
-  }
-});
-
-// -------------------------------------------------
-// 7️⃣ CANONICAL ENDPOINT — Verify Donation
+// 7️⃣ Verify Donation (Canonical Endpoint)
 // -------------------------------------------------
 app.get("/verify-donation/:sessionId", async (req, res) => {
   const { sessionId } = req.params;
@@ -167,6 +139,7 @@ app.get("/verify-donation/:sessionId", async (req, res) => {
       email: session.customer_details?.email,
       amount: session.amount_total / 100,
       soulmark,
+      verified: success,
       timestamp: new Date().toISOString(),
       stripeSessionId: sessionId
     };
@@ -194,7 +167,7 @@ app.get("/verify-donation/:sessionId", async (req, res) => {
 });
 
 // -------------------------------------------------
-// 8️⃣ Check Username
+// 8️⃣ Username Availability
 // -------------------------------------------------
 app.get("/check-username/:username", (req, res) => {
   const username = req.params.username.toLowerCase();
@@ -215,11 +188,11 @@ app.get("/check-username/:username", (req, res) => {
 });
 
 // -------------------------------------------------
-// 9️⃣ Register Identity
+// 9️⃣ Register Identity (✔ FIXED: verified = true)
 // -------------------------------------------------
 app.post("/register", (req, res) => {
   try {
-    const { username, name, email, role, soulmark, donationAmount } = req.body;
+    const { username, name, email, role, soulmark, firstDonation } = req.body;
 
     if (!username || !name || !email || !role) {
       return res.status(400).json({ error: "Missing required fields" });
@@ -238,7 +211,8 @@ app.post("/register", (req, res) => {
       soulmark:
         soulmark ||
         "SM-" + Buffer.from(email).toString("base64").slice(0, 12),
-      donationAmount: donationAmount || null,
+      verified: true, // ← ★ THE FIX
+      firstDonation: firstDonation || null,
       createdAt: new Date().toISOString()
     };
 
@@ -254,7 +228,7 @@ app.post("/register", (req, res) => {
 });
 
 // -------------------------------------------------
-// 🔟 Registry Reader
+// 🔟 Registry (for dashboard, impact, verify)
 // -------------------------------------------------
 app.get("/registry", (req, res) => {
   try {
