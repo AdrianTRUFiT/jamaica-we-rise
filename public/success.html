@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Donation Successful | Jamaica We Rise × iAscendAi</title>
 
+  <!-- Config -->
   <script type="module">
     import { CONFIG } from "./config.js";
     window.CONFIG = CONFIG;
@@ -14,12 +15,12 @@
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
-      font-family: Inter, sans-serif;
-      background: radial-gradient(circle at top, #0f172a, #020617 40%, #000814);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       min-height: 100vh;
+      background: radial-gradient(circle at top, #0b1220 0%, #020617 40%, #000814 100%);
       display: flex;
-      justify-content: center;
       align-items: center;
+      justify-content: center;
       padding: 24px;
       color: #e5f2ff;
     }
@@ -27,10 +28,11 @@
     .card {
       width: 100%;
       max-width: 620px;
-      background: rgba(11, 25, 45, 0.9);
+      background: rgba(15, 23, 42, 0.96);
       border-radius: 24px;
-      padding: 36px;
-      border: 1px solid rgba(148,163,184,0.35);
+      padding: 32px 28px;
+      border: 1px solid rgba(148,163,184,0.4);
+      box-shadow: 0 25px 60px rgba(0,0,0,0.7);
     }
 
     h1 {
@@ -48,6 +50,7 @@
       color: #9ca3af;
       margin-bottom: 26px;
       font-size: 0.95rem;
+      line-height: 1.5;
     }
 
     .label {
@@ -59,29 +62,62 @@
     }
 
     .value-box {
-      padding: 12px 14px;
+      padding: 11px 13px;
       border-radius: 12px;
-      background: rgba(15,23,42,0.95);
-      border: 1px solid rgba(148,163,184,0.35);
-      margin-bottom: 16px;
-      font-size: 1rem;
+      background: rgba(15,23,42,0.98);
+      border: 1px solid rgba(148,163,184,0.55);
+      margin-bottom: 14px;
+      font-size: 0.98rem;
       font-weight: 600;
       color: #e5f2ff;
       word-break: break-all;
     }
 
-    button {
+    .value-box.small {
+      font-size: 0.86rem;
+      line-height: 1.4;
+    }
+
+    .status {
+      margin-top: 14px;
+      font-size: 0.85rem;
+      text-align: center;
+      color: #9ca3af;
+    }
+
+    .status.error {
+      color: #fecaca;
+    }
+
+    .status.success {
+      color: #bbf7d0;
+    }
+
+    #continueBtn {
       width: 100%;
       margin-top: 22px;
-      padding: 16px;
+      padding: 15px;
       border-radius: 999px;
-      background: linear-gradient(135deg, #f4a349, #fed103);
       border: none;
       font-weight: 800;
-      color: #041423;
-      cursor: pointer;
       font-size: 1rem;
-      box-shadow: 0 20px 45px rgba(0,0,0,0.55);
+      cursor: pointer;
+      background: linear-gradient(135deg, #f4a349, #fed103);
+      color: #041423;
+      box-shadow: 0 22px 50px rgba(0,0,0,0.7);
+      transition: transform 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease;
+    }
+
+    #continueBtn:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 28px 60px rgba(0,0,0,0.9);
+    }
+
+    #continueBtn:disabled {
+      opacity: 0.5;
+      cursor: default;
+      box-shadow: none;
+      transform: none;
     }
   </style>
 </head>
@@ -91,8 +127,8 @@
     <h1>Donation Successful</h1>
 
     <p class="subtitle">
-      Thank you for supporting Jamaica We Rise.  
-      Linking your verified identity…
+      Thank you for supporting <strong>Jamaica We Rise</strong>.<br/>
+      We’re verifying your donation and linking it to your iAscendAi identity.
     </p>
 
     <div>
@@ -103,72 +139,99 @@
       <div id="emailBox" class="value-box">Loading…</div>
 
       <div class="label">SoulMarkⓈ Hash</div>
-      <div id="soulBox" class="value-box" style="font-size:0.85rem">Loading…</div>
+      <div id="soulBox" class="value-box small">Loading…</div>
     </div>
 
-    <button id="continueBtn">Continue to Create Your Identity</button>
+    <div id="statusText" class="status">Verifying your donation…</div>
+
+    <button id="continueBtn" disabled>Continue to Create Your Identity</button>
   </div>
 
-  <script type="module">
-    import { CONFIG } from "./config.js";
-    const BACKEND_URL = CONFIG.BACKEND_URL;
+  <script>
+    const BACKEND_URL = (window.CONFIG && window.CONFIG.BACKEND_URL) || "";
 
     const params = new URLSearchParams(window.location.search);
     let sessionId = params.get("session_id");
 
-    // Normalize brace-wrapped session IDs
+    // 1️⃣ Normalize session_id (remove { } if Stripe added them)
     if (sessionId && sessionId.startsWith("{") && sessionId.endsWith("}")) {
       sessionId = sessionId.slice(1, -1);
     }
 
-    if (!sessionId) {
-      document.getElementById("emailBox").textContent = "Missing session ID.";
-      document.getElementById("soulBox").textContent = "Verification failed.";
-      setTimeout(() => (window.location.href = "/donate.html"), 2000);
-    }
+    const amountBox   = document.getElementById("amountBox");
+    const emailBox    = document.getElementById("emailBox");
+    const soulBox     = document.getElementById("soulBox");
+    const statusText  = document.getElementById("statusText");
+    const continueBtn = document.getElementById("continueBtn");
 
-    async function loadDonation() {
+    async function verifyDonation(id) {
+      if (!id) {
+        statusText.textContent = "Missing session ID in URL.";
+        statusText.classList.add("error");
+        return;
+      }
+
       try {
+        statusText.textContent = "Verifying with iAscendAi…";
+        statusText.classList.remove("error");
+        statusText.classList.remove("success");
+
         const res = await fetch(
-          `${BACKEND_URL}/verify-donation/${encodeURIComponent(sessionId)}`,
+          `${BACKEND_URL}/verify-donation/${encodeURIComponent(id)}`,
           { cache: "no-store" }
         );
 
         const data = await res.json();
 
-        const { name, email, soulmark, amount } = data;
+        if (!res.ok || data.error) {
+          throw new Error(data.error || `HTTP ${res.status}`);
+        }
 
-        document.getElementById("amountBox").textContent =
-          amount ? `$${amount.toFixed(2)}` : "$—";
+        // 2️⃣ Extract fields (support multiple property names just in case)
+        const name     = data.name || data.customer_name || "";
+        const email    = data.email || data.customer_email || "";
+        const amount   = typeof data.amount === "number" ? data.amount : Number(data.amount || 0);
+        const soulmark = data.soulMark || data.soulmark || "";
 
-        document.getElementById("emailBox").textContent =
-          email || "—";
+        amountBox.textContent = amount ? `$${amount.toFixed(2)}` : "$—";
+        emailBox.textContent  = email || "Not available yet";
+        soulBox.textContent   = soulmark || "SoulMarkⓈ will be generated shortly.";
 
-        document.getElementById("soulBox").textContent =
-          soulmark || "Pending generation";
+        // 3️⃣ Save identity to localStorage (canonical keys)
+        if (name)     localStorage.setItem("name", name);
+        if (email)    localStorage.setItem("email", email);
+        if (soulmark) localStorage.setItem("soulmark", soulmark);
+        if (amount)   localStorage.setItem("amount", String(amount));
 
-        // Store — the correct keys
-        localStorage.setItem("name", name || "");
-        localStorage.setItem("email", email || "");
-        localStorage.setItem("soulmark", soulmark || "");
-        localStorage.setItem("amount", amount || "");
+        statusText.textContent = "Donation verified. You can now create your iAscendAi identity.";
+        statusText.classList.add("success");
+
+        continueBtn.disabled = false;
 
       } catch (err) {
-        document.getElementById("emailBox").textContent = "Verification error";
-        document.getElementById("soulBox").textContent = "SoulMark failed";
+        console.error("Verification error:", err);
+        statusText.textContent = "⚠️ We could not verify your donation. Please refresh this page in a few seconds, or contact support if it continues.";
+        statusText.classList.add("error");
+        continueBtn.disabled = true;
       }
     }
 
-    loadDonation();
+    continueBtn.addEventListener("click", () => {
+      const name     = localStorage.getItem("name")     || "";
+      const email    = localStorage.getItem("email")    || "";
+      const soulmark = localStorage.getItem("soulmark") || "";
+      const amount   = localStorage.getItem("amount")   || "";
 
-    document.getElementById("continueBtn").onclick = () => {
-      const email  = localStorage.getItem("email") || "";
-      const soul   = localStorage.getItem("soulmark") || "";
-      const amount = localStorage.getItem("amount") || "";
+      const qs = new URLSearchParams();
+      if (name)     qs.set("name", name);
+      if (email)    qs.set("email", email);
+      if (soulmark) qs.set("soulmark", soulmark);
+      if (amount)   qs.set("amount", amount);
 
-      window.location.href =
-        `/iascendai-register.html?email=${encodeURIComponent(email)}&soulmark=${encodeURIComponent(soul)}&amount=${encodeURIComponent(amount)}`;
-    };
+      window.location.href = `iascendai-register.html?${qs.toString()}`;
+    });
+
+    verifyDonation(sessionId);
   </script>
 </body>
 </html>
