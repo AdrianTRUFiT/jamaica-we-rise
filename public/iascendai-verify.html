@@ -20,7 +20,6 @@
       flex-direction:column;
       justify-content:center;
       align-items:center;
-      height:auto;
       min-height:100vh;
       margin:0;
       padding:20px;
@@ -28,11 +27,11 @@
     }
 
     .page-title {
-      font-size:1.2em;
-      letter-spacing:0.5px;
+      font-size:1.1em;
       opacity:0.9;
       margin-bottom:10px;
       color:#f4a349;
+      letter-spacing:0.5px;
     }
 
     h1 {
@@ -46,30 +45,28 @@
     .verify-box {
       background:rgba(255,255,255,0.05);
       border:1px solid rgba(255,255,255,0.1);
-      border-radius:16px;
-      padding:30px 40px;
+      border-radius:18px;
+      padding:30px 36px;
       width:90%;
       max-width:480px;
-      box-shadow:0 0 25px rgba(5,156,58,0.2);
+      box-shadow:0 0 25px rgba(5,156,58,0.25);
     }
-
-    p { color:#d1d5db; margin-bottom:10px; }
 
     input {
       width:100%;
-      padding:14px;
-      border:2px solid rgba(255,255,255,0.1);
+      padding:15px;
+      border:2px solid rgba(255,255,255,0.15);
       border-radius:10px;
-      background:rgba(255,255,255,0.05);
+      background:rgba(255,255,255,0.06);
       color:#fff;
       font-size:1em;
-      margin-top:10px;
+      margin-top:12px;
       outline:none;
       transition:0.3s ease;
     }
     input:focus {
       border-color:#059c3a;
-      box-shadow:0 0 0 3px rgba(5,156,58,0.2);
+      box-shadow:0 0 0 3px rgba(5,156,58,0.25);
     }
 
     button {
@@ -82,20 +79,18 @@
       color:#fff;
       font-weight:700;
       cursor:pointer;
+      font-size:1em;
+      box-shadow:0 10px 24px rgba(5,156,58,0.3);
       transition:0.3s ease;
-      box-shadow:0 8px 20px rgba(5,156,58,0.3);
     }
     button:hover {
       transform:translateY(-3px);
-      box-shadow:0 10px 25px rgba(5,156,58,0.4);
+      box-shadow:0 12px 32px rgba(5,156,58,0.4);
     }
 
     #result {
       margin-top:25px;
       font-size:1em;
-      color:#f4a349;
-      min-height:1.4em;
-      transition:all .3s ease;
       white-space:pre-line;
     }
 
@@ -106,11 +101,11 @@
 
     #result.invalid {
       color:#ef4444;
-      text-shadow:0 0 6px rgba(239,68,68,0.4);
+      text-shadow:0 0 6px rgba(239,68,68,0.45);
     }
 
     .footer-links {
-      margin-top:25px;
+      margin-top:30px;
       display:flex;
       gap:20px;
       justify-content:center;
@@ -121,10 +116,12 @@
       color:#f4a349;
       font-size:0.9em;
       text-decoration:none;
-      transition:0.2s ease;
+      opacity:.9;
+      transition:.3s ease;
     }
 
     .footer-links a:hover {
+      opacity:1;
       text-decoration:underline;
     }
   </style>
@@ -132,75 +129,73 @@
 
 <body>
 
-  <!-- HEADER -->
-  <div class="page-title">iAscendAi — Verify Digital Identities</div>
+  <div class="page-title">iAscendAi — Identity Verification</div>
   <h1>SoulMarkⓈ Verification</h1>
 
   <div class="verify-box">
-    <p>Enter your SoulMarkⓈ signature to verify identity authenticity.</p>
+    <p>Enter a SoulMarkⓈ signature to validate an identity.</p>
 
-    <input type="text" id="soulmarkInput" placeholder="Enter SoulMark signature..." />
+    <input type="text" id="soulmarkInput" placeholder="Paste SoulMarkⓈ…" />
 
     <button id="verifyBtn">Verify SoulMarkⓈ</button>
 
     <div id="result"></div>
   </div>
 
-  <!-- FOOTER NAVIGATION -->
+  <!-- NAV -->
   <div class="footer-links">
     <a href="iascendai-register.html">Create Identity</a>
-    <a href="soulregistry.html">Search Registry</a>
+    <a href="soulregistry.html">SoulRegistryⓈ</a>
     <a href="iascendai-dashboard.html">Dashboard</a>
   </div>
 
-  <!-- SoulMark Verification Logic -->
   <script type="module">
     import { CONFIG } from "./config.js";
-
-    /* pulls the correct production backend */
     const BACKEND_URL = CONFIG.BACKEND_URL;
 
     const resultEl = document.getElementById("result");
-    const btn = document.getElementById("verifyBtn");
 
-    btn.addEventListener("click", async () => {
+    document.getElementById("verifyBtn").addEventListener("click", async () => {
       const input = document.getElementById("soulmarkInput").value.trim();
       resultEl.className = "";
 
       if (!input) {
-        resultEl.textContent = "Please enter your SoulMark signature.";
+        resultEl.textContent = "Please enter a SoulMarkⓈ.";
         return;
       }
 
-      resultEl.textContent = "Verifying...";
+      resultEl.textContent = "Verifying…";
 
       try {
         const res = await fetch(`${BACKEND_URL}/registry`, { cache: "no-store" });
-        const registry = await res.json();
+        const data = await res.json();
 
-        const match = registry.find(r =>
-          (r.soulmark || r.soulMark || "").toLowerCase() === input.toLowerCase()
+        // Filter ONLY identity entries
+        const identities = data.filter(e => e.type === "identity");
+
+        const match = identities.find(
+          r => (r.soulmark || "").toLowerCase() === input.toLowerCase()
         );
 
         if (match) {
           resultEl.className = "verified";
           resultEl.textContent =
-`✅ Verified SoulMarkⓈ  
+`✅ Verified SoulMarkⓈ
 
-Name: ${match.name || "—"}  
-Email: ${match.email || "—"}  
-Username: ${match.username ? match.username + "@iascendai" : "—"}  
-Role: ${match.role || "Supporter"}  
-Status: ${match.verified ? "Verified" : "Pending"}`;
+Name: ${match.name}
+Username: ${match.username}@iascendai
+Email: ${match.email || "—"}
+Role: ${match.role || "Supporter"}
+Status: Verified`;
         } else {
           resultEl.className = "invalid";
           resultEl.textContent = "❌ No matching SoulMarkⓈ found.";
         }
 
-      } catch (err) {
-        console.error(err);
+      } catch (error) {
         resultEl.className = "invalid";
-        resultEl.textContent = "⚠️ Error reaching verification service.";
+        resultEl.textContent = "⚠️ Verification service unavailable.";
+        console.error(error);
       }
     });
   </script>
