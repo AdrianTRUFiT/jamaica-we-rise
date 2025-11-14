@@ -68,6 +68,27 @@ function logEvent(type, message) {
   fs.appendFileSync(path.join(LOG_DIR, `${type}.log`), line);
 }
 
+// Small helpers to safely load/save registry
+function loadRegistry() {
+  try {
+    if (!fs.existsSync(REGISTRY_PATH)) return [];
+    const raw = fs.readFileSync(REGISTRY_PATH, "utf8");
+    if (!raw.trim()) return [];
+    return JSON.parse(raw);
+  } catch (err) {
+    logEvent("error", `loadRegistry: ${err.message}`);
+    return [];
+  }
+}
+
+function saveRegistry(data) {
+  try {
+    fs.writeFileSync(REGISTRY_PATH, JSON.stringify(data, null, 2));
+  } catch (err) {
+    logEvent("error", `saveRegistry: ${err.message}`);
+  }
+}
+
 // -------------------------------------------------
 // Health Check
 // -------------------------------------------------
@@ -153,14 +174,14 @@ app.get("/verify-donation/:sessionId", async (req, res) => {
       soulmark,
       timestamp: new Date().toISOString(),
       stripeSessionId: sessionId,
+      // default visibility (can be updated later by /register)
+      displayIdentity: "real",
+      showDonationAmount: true
     };
 
-    const registry = fs.existsSync(REGISTRY_PATH)
-      ? JSON.parse(fs.readFileSync(REGISTRY_PATH, "utf8"))
-      : [];
-
+    const registry = loadRegistry();
     registry.push(donationRecord);
-    fs.writeFileSync(REGISTRY_PATH, JSON.stringify(registry, null, 2));
+    saveRegistry(registry);
 
     logEvent(
       "event",
@@ -184,9 +205,7 @@ app.get("/check-username/:username", (req, res) => {
   const username = req.params.username.toLowerCase();
 
   try {
-    const registry = fs.existsSync(REGISTRY_PATH)
-      ? JSON.parse(fs.readFileSync(REGISTRY_PATH, "utf8"))
-      : [];
+    const registry = loadRegistry();
 
     const exists = registry.some(
       (r) => r.type === "identity" && r.username === username
@@ -218,13 +237,29 @@ app.post("/register", (req, res) => {
       return res.status(400).json({ error: "Missing required fields" });
     }
 
-    const registry = fs.existsSync(REGISTRY_PATH)
-      ? JSON.parse(fs.readFileSync(REGISTRY_PATH, "utf8"))
-      : [];
+    const lowerUsername = username.toLowerCase();
+    const identityMode = displayIdentity || "username";
+    const showAmountFlag =
+      typeof showDonationAmount === "boolean" ? showDonationAmount : true;
 
-    const record = {
+    // 1️⃣ Load registry
+    const registry = loadRegistry();
+
+    // 2️⃣ Compute the public name for donations based on identity mode
+    let donationPublicName;
+    if (identityMode === "anonymous") {
+      donationPublicName = "Anonymous";
+    } else if (identityMode === "real") {
+      donationPublicName = name;
+    } else {
+      // default → username handle
+      donationPublicName = `${lowerUsername}@iascendai`;
+    }
+
+    // 3️⃣ Build identity record (full, internal truth)
+    const identityRecord = {
       type: "identity",
-      username: username.toLowerCase(),
+      username: lowerUsername,
       name,
       email,
       role,
@@ -232,17 +267,65 @@ app.post("/register", (req, res) => {
         soulmark ||
         "SM-" + Buffer.from(email).toString("base64").slice(0, 12),
       donationAmount: donationAmount || null,
-      displayIdentity: displayIdentity || "username",
-      showDonationAmount:
-        typeof showDonationAmount === "boolean" ? showDonationAmount : true,
+      displayIdentity: identityMode,      // "username" | "real" | "anonymous"
+      showDonationAmount: showAmountFlag, // true | false
       createdAt: new Date().toISOString(),
     };
 
-    registry.push(record);
-    fs.writeFileSync(REGISTRY_PATH, JSON.stringify(registry, null, 2));
+    // 4️⃣ Update the matching donation record for public display
+    //    Match first by soulmark, then by email as a fallback
+    const identitySoulmark = identityRecord.soulmark;
 
-    logEvent("event", `Registered identity @${username}`);
-    res.json({ ok: true, user: record });
+    let donationIndex = registry.findIndex(
+      (r) => r.type === "donation" && r.soulmark === identitySoulmark
+    );
+
+    if (donationIndex === -1) {
+      // fallback: latest donation by email
+      donationIndex = [...registry]
+        .map((r, idx) => ({ r, idx }))
+        .filter(({ r }) => r.type === "donation" && r.email === email)
+        .sort((a, b) => {
+          const ta = new Date(a.r.timestamp || 0).getTime();
+          const tb = new Date(b.r.timestamp || 0).getTime();
+          return tb - ta;
+        })[0]?.idx ?? -1;
+    }
+
+    if (donationIndex !== -1) {
+      const donation = registry[donationIndex];
+
+      // Apply public-facing identity rules
+      donation.name = donationPublicName;
+      donation.displayIdentity = identityMode;
+      donation.showDonationAmount = showAmountFlag;
+
+      // If anonymous, do not expose email publicly
+      if (identityMode === "anonymous") {
+        donation.email = "—";
+      }
+
+      // Keep the raw amount as-is for now, but add a publicAmount field
+      // so the frontend can choose how to render it later.
+      if (!showAmountFlag) {
+        donation.publicAmount = null; // hide on public tracker when supported
+      } else {
+        donation.publicAmount = donation.amount;
+      }
+
+      registry[donationIndex] = donation;
+      logEvent(
+        "event",
+        `Updated donation visibility for ${donation.email} → mode=${identityMode}, showAmount=${showAmountFlag}`
+      );
+    }
+
+    // 5️⃣ Append identity record
+    registry.push(identityRecord);
+    saveRegistry(registry);
+
+    logEvent("event", `Registered identity @${lowerUsername}`);
+    res.json({ ok: true, user: identityRecord });
   } catch (err) {
     logEvent("error", `register: ${err.message}`);
     res.status(500).json({ error: err.message });
@@ -254,10 +337,7 @@ app.post("/register", (req, res) => {
 // -------------------------------------------------
 app.get("/registry", (req, res) => {
   try {
-    const data = fs.existsSync(REGISTRY_PATH)
-      ? JSON.parse(fs.readFileSync(REGISTRY_PATH, "utf8"))
-      : [];
-
+    const data = loadRegistry();
     res.json(data);
   } catch {
     res.status(500).json({ error: "Failed to read registry" });
