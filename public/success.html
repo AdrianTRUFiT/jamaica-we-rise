@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Donation Successful | Jamaica We Rise × iAscendAi</title>
 
   <script type="module">
@@ -26,27 +26,27 @@
 
     .card {
       width: 100%;
-      max-width: 600px;
+      max-width: 620px;
       background: rgba(11, 25, 45, 0.9);
       border-radius: 24px;
-      padding: 32px;
+      padding: 36px;
       border: 1px solid rgba(148,163,184,0.35);
     }
 
     h1 {
       text-align: center;
-      font-size: 1.8rem;
+      font-size: 1.9rem;
       font-weight: 800;
       background: linear-gradient(120deg, #b8edee, #fed103);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
     }
 
     .subtitle {
       text-align: center;
       color: #9ca3af;
-      margin-bottom: 28px;
+      margin-bottom: 26px;
       font-size: 0.95rem;
     }
 
@@ -72,7 +72,7 @@
 
     button {
       width: 100%;
-      margin-top: 24px;
+      margin-top: 22px;
       padding: 16px;
       border-radius: 999px;
       background: linear-gradient(135deg, #f4a349, #fed103);
@@ -92,7 +92,7 @@
 
     <p class="subtitle">
       Thank you for supporting Jamaica We Rise.  
-      Linking your verified identity now…
+      Linking your verified identity…
     </p>
 
     <div>
@@ -114,46 +114,57 @@
     const BACKEND_URL = CONFIG.BACKEND_URL;
 
     const params = new URLSearchParams(window.location.search);
-    const sessionId = params.get("session_id");
+    let sessionId = params.get("session_id");
 
-    async function loadSession() {
+    // Normalize brace-wrapped session IDs
+    if (sessionId && sessionId.startsWith("{") && sessionId.endsWith("}")) {
+      sessionId = sessionId.slice(1, -1);
+    }
+
+    if (!sessionId) {
+      document.getElementById("emailBox").textContent = "Missing session ID.";
+      document.getElementById("soulBox").textContent = "Verification failed.";
+      setTimeout(() => (window.location.href = "/donate.html"), 2000);
+    }
+
+    async function loadDonation() {
       try {
         const res = await fetch(
-          `${BACKEND_URL}/retrieve-session?session_id=${encodeURIComponent(sessionId)}`
+          `${BACKEND_URL}/verify-donation/${encodeURIComponent(sessionId)}`,
+          { cache: "no-store" }
         );
+
         const data = await res.json();
 
-        // matches your backend exactly
-        const amount = data.amount;
-        const email  = data.email;
-        const soul   = data.soulmark;
+        const { name, email, soulmark, amount } = data;
 
         document.getElementById("amountBox").textContent =
           amount ? `$${amount.toFixed(2)}` : "$—";
 
         document.getElementById("emailBox").textContent =
-          email || "Not available";
+          email || "—";
 
         document.getElementById("soulBox").textContent =
-          soul || "Not yet assigned";
+          soulmark || "Pending generation";
 
-        // Save for register page
-        localStorage.setItem("donation_amount", amount || "");
-        localStorage.setItem("donor_email", email || "");
-        localStorage.setItem("donor_soulmark", soul || "");
+        // Store — the correct keys
+        localStorage.setItem("name", name || "");
+        localStorage.setItem("email", email || "");
+        localStorage.setItem("soulmark", soulmark || "");
+        localStorage.setItem("amount", amount || "");
 
       } catch (err) {
-        document.getElementById("emailBox").textContent = "Error retrieving donation";
-        document.getElementById("soulBox").textContent = "Error generating SoulMark";
+        document.getElementById("emailBox").textContent = "Verification error";
+        document.getElementById("soulBox").textContent = "SoulMark failed";
       }
     }
 
-    loadSession();
+    loadDonation();
 
     document.getElementById("continueBtn").onclick = () => {
-      const email  = localStorage.getItem("donor_email") || "";
-      const soul   = localStorage.getItem("donor_soulmark") || "";
-      const amount = localStorage.getItem("donation_amount") || "";
+      const email  = localStorage.getItem("email") || "";
+      const soul   = localStorage.getItem("soulmark") || "";
+      const amount = localStorage.getItem("amount") || "";
 
       window.location.href =
         `/iascendai-register.html?email=${encodeURIComponent(email)}&soulmark=${encodeURIComponent(soul)}&amount=${encodeURIComponent(amount)}`;
