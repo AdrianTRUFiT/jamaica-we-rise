@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Your Dashboard | iAscendAi × Jamaica We Rise</title>
+  <title>Your Dashboard | Jamaica We Rise × iAscendAi</title>
 
   <script type="module">
     import { CONFIG } from "./config.js";
@@ -11,184 +11,442 @@
   </script>
 
   <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      background: linear-gradient(145deg, #03131f 0%, #041423 50%, #020c15 100%);
-      color: #fff;
-      margin: 0;
-      padding: 30px 20px;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       min-height: 100vh;
+      background: radial-gradient(circle at top, #111827 0%, #020617 45%, #000000 100%);
+      color: #e5e7eb;
+      padding: 24px 16px 32px;
     }
 
-    h1 {
-      text-align: center;
-      font-size: 2.2rem;
-      background: linear-gradient(135deg, #fed103, #059c3a);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      margin-bottom: 6px;
+    .shell {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    header {
+      margin-bottom: 18px;
+    }
+
+    .title {
+      font-size: 1.7rem;
+      font-weight: 800;
+      color: #a5f3fc;
     }
 
     .subtitle {
-      text-align: center;
-      color: rgba(255,255,255,0.7);
-      margin-bottom: 40px;
-      font-size: 0.95rem;
+      font-size: 0.9rem;
+      color: #9ca3af;
+      margin-top: 4px;
+    }
+
+    .nav-row {
+      display: flex;
+      gap: 12px;
+      margin-top: 16px;
+      flex-wrap: wrap;
+    }
+
+    .nav-link {
+      font-size: 0.85rem;
+      color: #facc15;
+      text-decoration: none;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(250,204,21,0.3);
+      background: rgba(15,23,42,0.85);
+    }
+
+    .nav-link:hover {
+      background: rgba(250,204,21,0.08);
+    }
+
+    .status-text {
+      margin-top: 10px;
+      font-size: 0.9rem;
+      color: #9ca3af;
+    }
+
+    .card-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+      gap: 16px;
+      margin-top: 20px;
+    }
+
+    @media (max-width: 768px) {
+      .card-grid {
+        grid-template-columns: minmax(0, 1fr);
+      }
     }
 
     .card {
-      max-width: 620px;
-      margin: 0 auto 40px;
-      padding: 26px;
+      background: rgba(15,23,42,0.96);
       border-radius: 18px;
-      background: rgba(255,255,255,0.06);
-      border: 1px solid rgba(255,255,255,0.1);
-      box-shadow: 0 0 25px rgba(5,156,58,0.2);
+      border: 1px solid rgba(148,163,184,0.4);
+      padding: 16px 16px 14px;
+    }
+
+    .card h2 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 10px;
     }
 
     .label {
-      color: #fed103;
-      font-size: 0.85rem;
+      font-size: 0.75rem;
       text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: #9ca3af;
       margin-bottom: 4px;
     }
 
     .value {
-      font-size: 1rem;
-      margin-bottom: 16px;
-      color: #e5e7eb;
+      font-size: 0.98rem;
+      font-weight: 600;
+      margin-bottom: 10px;
+      word-break: break-all;
     }
 
-    .verified {
-      color: #10b981;
-      font-weight: 700;
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 11px;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      margin-bottom: 8px;
     }
 
-    .pending {
-      color: #f4a349;
-      font-weight: 700;
+    .status-ok {
+      background: rgba(22,163,74,0.14);
+      border: 1px solid rgba(34,197,94,0.7);
+      color: #bbf7d0;
     }
 
-    .nav-links {
+    .status-pending {
+      background: rgba(234,179,8,0.14);
+      border: 1px solid rgba(250,204,21,0.7);
+      color: #facc15;
+    }
+
+    .muted {
+      color: #9ca3af;
+      font-size: 0.84rem;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+      font-size: 0.82rem;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 6px 4px;
+      border-bottom: 1px solid rgba(55,65,81,0.8);
+    }
+
+    th {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: #9ca3af;
+    }
+
+    footer {
+      margin-top: 22px;
+      font-size: 0.78rem;
+      color: #6b7280;
       text-align: center;
-      margin-top: 40px;
-      font-size: 0.9rem;
-    }
-    .nav-links a {
-      color: #f4a349;
-      text-decoration: none;
-      margin: 0 12px;
-    }
-    .nav-links a:hover {
-      text-decoration: underline;
     }
   </style>
 </head>
 
 <body>
-  <h1>Your Dashboard</h1>
-  <div class="subtitle">SoulMarkⓈ Identity • Verified Contribution</div>
+  <div class="shell">
+    <header>
+      <div class="title">Your Dashboard</div>
+      <div class="subtitle">SoulMarkⓈ Identity · Verified Contribution</div>
 
-  <div id="loading" style="text-align:center;color:#9ca3af;font-size:1rem;margin-bottom:20px;">
-    Loading your verified record…
-  </div>
+      <div class="nav-row">
+        <a class="nav-link" href="impact-dashboard.html">Impact Dashboard</a>
+        <a class="nav-link" href="soulregistry.html">SoulRegistryⓈ Directory</a>
+        <a class="nav-link" href="iascendai-verify.html">Verify Identity</a>
+        <a class="nav-link" href="index.html">Donate Again</a>
+      </div>
 
-  <div id="card" class="card" style="display:none;">
-    <div class="label">Identity</div>
-    <div id="identity" class="value"></div>
+      <div id="statusText" class="status-text">Loading your verified record…</div>
+    </header>
 
-    <div class="label">SoulMarkⓈ</div>
-    <div id="soulmark" class="value"></div>
+    <section class="card-grid">
+      <article class="card" id="identityCard">
+        <h2>Your SoulMarkⓈ Identity</h2>
+        <div id="identityStatusPill" class="status-pill status-pending">
+          <span>Pending</span>
+        </div>
 
-    <div class="label">Donation</div>
-    <div id="donation" class="value"></div>
+        <div class="label">SoulMarkⓈ Hash</div>
+        <div id="soulValue" class="value">Loading…</div>
 
-    <div class="label">Status</div>
-    <div id="status" class="value"></div>
+        <div class="label">Name</div>
+        <div id="nameValue" class="value">—</div>
 
-    <div class="label">Joined</div>
-    <div id="joined" class="value"></div>
-  </div>
+        <div class="label">Username</div>
+        <div id="usernameValue" class="value">—</div>
 
-  <div class="nav-links">
-    <a href="impact-dashboard.html">Impact Dashboard</a>
-    <a href="soulregistry.html">SoulRegistryⓈ</a>
-    <a href="iascendai-verify.html">Verify Identity</a>
+        <div class="label">Identity Type</div>
+        <div id="roleValue" class="value">supporterⓈ</div>
+
+        <div class="muted" id="identityNote"></div>
+      </article>
+
+      <article class="card">
+        <h2>Your Support Snapshot</h2>
+        <div class="label">Latest Donation</div>
+        <div id="latestDonation" class="value">$0.00</div>
+
+        <div class="label">Total Contributions</div>
+        <div id="totalDonations" class="value">$0.00</div>
+
+        <div class="label">Entries Linked to You</div>
+        <div id="entryCount" class="value">0</div>
+
+        <p class="muted">
+          These totals are based on verified registry records linked to your
+          username, email, or SoulMarkⓈ hash.
+        </p>
+      </article>
+    </section>
+
+    <section class="card" style="margin-top:18px;">
+      <h2>Recent Activity</h2>
+      <table id="activityTable">
+        <thead>
+          <tr>
+            <th>Type</th>
+            <th>Amount / Role</th>
+            <th>When</th>
+          </tr>
+        </thead>
+        <tbody id="activityBody">
+          <tr><td colspan="3" class="muted">Loading…</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <footer>
+      © 2025 Project Inside Out Jamaica × iAscendAi · Authored Intelligence
+    </footer>
   </div>
 
   <script>
-    const BACKEND_URL = window.CONFIG.BACKEND_URL;
+    const BACKEND_URL = (window.CONFIG && window.CONFIG.BACKEND_URL) || "";
 
-    const params = new URLSearchParams(window.location.search);
-    const username = params.get("username") || localStorage.getItem("username");
+    const statusTextEl = document.getElementById("statusText");
+    const soulValueEl = document.getElementById("soulValue");
+    const nameValueEl = document.getElementById("nameValue");
+    const usernameValueEl = document.getElementById("usernameValue");
+    const roleValueEl = document.getElementById("roleValue");
+    const identityNoteEl = document.getElementById("identityNote");
+    const statusPillEl = document.getElementById("identityStatusPill");
 
-    const loadingEl = document.getElementById("loading");
-    const cardEl = document.getElementById("card");
+    const latestDonationEl = document.getElementById("latestDonation");
+    const totalDonationsEl = document.getElementById("totalDonations");
+    const entryCountEl = document.getElementById("entryCount");
+    const activityBodyEl = document.getElementById("activityBody");
 
-    const identityEl = document.getElementById("identity");
-    const soulEl = document.getElementById("soulmark");
-    const donationEl = document.getElementById("donation");
-    const statusEl = document.getElementById("status");
-    const joinedEl = document.getElementById("joined");
+    function getContext() {
+      const params = new URLSearchParams(window.location.search);
 
-    if (!username) {
-      loadingEl.textContent = "❌ Missing username. Please register again.";
+      const usernameParam = (params.get("username") || "").toLowerCase();
+      const soulParam = params.get("soulmark") || "";
+
+      const storedUsername = (localStorage.getItem("username") || "").toLowerCase();
+      const storedSoul = localStorage.getItem("soulmark") || "";
+      const storedEmail = localStorage.getItem("email") || "";
+
+      const displayIdentity =
+        params.get("mode") ||
+        localStorage.getItem("displayIdentity") ||
+        "username";
+
+      const showDonationFlag =
+        params.get("showDonation") ??
+        localStorage.getItem("showDonationAmount") ??
+        "1";
+
+      const showDonationAmount = showDonationFlag === "1";
+
+      return {
+        username: usernameParam || storedUsername,
+        soulmark: soulParam || storedSoul,
+        email: storedEmail,
+        displayIdentity,
+        showDonationAmount,
+      };
     }
 
-    async function load() {
+    async function loadDashboard() {
+      const ctx = getContext();
+
+      if (!ctx.username && !ctx.email && !ctx.soulmark) {
+        statusTextEl.textContent =
+          "We couldn’t detect a linked identity. Please return to the Success page and complete registration.";
+        return;
+      }
+
+      statusTextEl.textContent = "Loading your verified record…";
+
       try {
         const res = await fetch(`${BACKEND_URL}/registry`);
-        const list = await res.json();
+        const registry = await res.json();
 
-        const record = list.find(r => r.username === username);
-
-        if (!record) {
-          loadingEl.textContent = "❌ Identity not found in registry.";
-          return;
+        if (!Array.isArray(registry)) {
+          throw new Error("Invalid registry format");
         }
 
-        loadingEl.style.display = "none";
-        cardEl.style.display = "block";
+        const identity = registry
+          .filter((r) => r.type === "identity")
+          .find((r) => {
+            const u = (r.username || "").toLowerCase();
+            const e = r.email || "";
+            const s = r.soulmark || "";
+            return (
+              (ctx.username && u === ctx.username) ||
+              (ctx.email && e === ctx.email) ||
+              (ctx.soulmark && s === ctx.soulmark)
+            );
+          });
 
-        // Load user preferences
-        const mode = record.displayIdentity || "username";
-        const showDonation = record.showDonationAmount !== false;
+        const donations = registry.filter((r) => {
+          if (r.type !== "donation") return false;
+          const e = r.email || "";
+          const s = r.soulmark || "";
+          return (
+            (ctx.email && e === ctx.email) ||
+            (ctx.soulmark && s === ctx.soulmark)
+          );
+        });
 
-        // Identity display logic
-        if (mode === "anonymous") {
-          identityEl.textContent = "Anonymous";
-        } else if (mode === "real") {
-          identityEl.textContent = record.name || "Unnamed";
+        if (!identity) {
+          statusTextEl.textContent =
+            "No identity record found yet. Your donation is verified, but identity registration may still be pending.";
+          statusPillEl.classList.remove("status-ok");
+          statusPillEl.classList.add("status-pending");
+          statusPillEl.textContent = "Pending";
         } else {
-          identityEl.textContent = `${record.username}@iascendai`;
+          statusTextEl.textContent = "Identity located and linked to your SoulMarkⓈ.";
+          statusPillEl.classList.remove("status-pending");
+          statusPillEl.classList.add("status-ok");
+          statusPillEl.textContent = "Verified";
+
+          identity.displayIdentity = identity.displayIdentity || ctx.displayIdentity;
+          identity.showDonationAmount =
+            typeof identity.showDonationAmount === "boolean"
+              ? identity.showDonationAmount
+              : ctx.showDonationAmount;
+
+          const chosenUsername = identity.username || ctx.username || "—";
+          const chosenName = identity.name || "";
+
+          if (identity.displayIdentity === "real") {
+            nameValueEl.textContent = chosenName || "—";
+            usernameValueEl.textContent = chosenUsername
+              ? `${chosenUsername}@iascendai`
+              : "—";
+            identityNoteEl.textContent =
+              "You chose to display your real name on the public tracker.";
+          } else if (identity.displayIdentity === "anonymous") {
+            nameValueEl.textContent = "Anonymous";
+            usernameValueEl.textContent = "Hidden";
+            identityNoteEl.textContent =
+              "You chose to appear as Anonymous. Your SoulMarkⓈ remains verifiable.";
+          } else {
+            nameValueEl.textContent = chosenName || "—";
+            usernameValueEl.textContent = chosenUsername
+              ? `${chosenUsername}@iascendai`
+              : "—";
+            identityNoteEl.textContent =
+              "You chose to display your username on the public tracker.";
+          }
+
+          soulValueEl.textContent =
+            identity.soulmark || ctx.soulmark || "Assigned after verification";
+          roleValueEl.textContent = identity.role || "supporterⓈ";
         }
 
-        // SoulMark
-        soulEl.textContent = record.soulmark || record.soulMark || "—";
-
-        // Donation visibility logic
-        if (showDonation && record.donationAmount) {
-          donationEl.textContent = `$${record.donationAmount.toFixed(2)}`;
+        if (donations.length === 0) {
+          latestDonationEl.textContent = "$0.00";
+          totalDonationsEl.textContent = "$0.00";
+          entryCountEl.textContent = identity ? "1" : "0";
+          activityBodyEl.innerHTML =
+            '<tr><td colspan="3" class="muted">No linked donations found yet.</td></tr>';
         } else {
-          donationEl.textContent = "— Hidden —";
+          donations.sort(
+            (a, b) => new Date(b.timestamp) - new Date(a.timestamp)
+          );
+
+          const total = donations.reduce(
+            (sum, d) => sum + (Number(d.amount) || 0),
+            0
+          );
+          const latest = donations[0];
+
+          latestDonationEl.textContent = `$${Number(latest.amount || 0).toFixed(
+            2
+          )}`;
+          totalDonationsEl.textContent = `$${total.toFixed(2)}`;
+          entryCountEl.textContent = String(
+            donations.length + (identity ? 1 : 0)
+          );
+
+          activityBodyEl.innerHTML = "";
+          const rows = [];
+
+          donations.slice(0, 6).forEach((d) => {
+            const when = d.timestamp
+              ? new Date(d.timestamp).toLocaleString()
+              : "—";
+            const amt = `$${Number(d.amount || 0).toFixed(2)}`;
+
+            rows.push(
+              `<tr>
+                 <td>Donation</td>
+                 <td>${amt}</td>
+                 <td>${when}</td>
+               </tr>`
+            );
+          });
+
+          if (identity) {
+            const when = identity.createdAt
+              ? new Date(identity.createdAt).toLocaleString()
+              : "—";
+            rows.unshift(
+              `<tr>
+                 <td>Identity</td>
+                 <td>${identity.role || "supporter"}</td>
+                 <td>${when}</td>
+               </tr>`
+            );
+          }
+
+          activityBodyEl.innerHTML = rows.join("");
         }
-
-        // Status
-        statusEl.textContent = record.verified ? "✔ Verified" : "⚠ Pending";
-        statusEl.className = record.verified ? "verified" : "pending";
-
-        // Timestamp
-        joinedEl.textContent = record.createdAt
-          ? new Date(record.createdAt).toLocaleString()
-          : "—";
-
       } catch (err) {
-        console.error(err);
-        loadingEl.textContent = "⚠ Error loading dashboard.";
+        console.error("Dashboard load failed:", err);
+        statusTextEl.textContent =
+          "We couldn’t load your dashboard right now. Please refresh in a moment.";
+        activityBodyEl.innerHTML =
+          '<tr><td colspan="3" class="muted">Error loading activity.</td></tr>';
       }
     }
 
-    load();
+    loadDashboard();
   </script>
 </body>
 </html>
