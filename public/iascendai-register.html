@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>iAscendAi – Digital Identity Dashboard</title>
+  <title>Create Your Identity | iAscendAi</title>
 
   <!-- Config -->
   <script type="module">
@@ -12,268 +12,463 @@
   </script>
 
   <style>
-    *{margin:0;padding:0;box-sizing:border-box}
-    :root{
-      --ia-orange:#f4a349;
-      --ia-orange-light:#ffb76b;
-      --ia-gold:#ffc37a;
-      --ia-text-light:#ffffff;
-      --ia-bg-dark:#0a0a0a;
-      --ia-bg-mid:#1a1a1a;
-      --glass-bg:rgba(255,255,255,0.08);
-      --glass-border:rgba(255,255,255,0.18);
-      --verified-green:#10b981;
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --iascend-orange: #f4a349;
+      --iascend-orange-soft: #ffb76b;
+      --iascend-blue: #b8edee;
+      --bg-dark: #020617;
+      --bg-mid: #0b1220;
+      --glass-bg: rgba(15,23,42,0.96);
+      --glass-border: rgba(148,163,184,0.45);
+      --text-main: #e5e7eb;
+      --text-soft: #9ca3af;
+      --error: #f97373;
+      --success: #4ade80;
     }
 
-    body{
-      font-family:"Segoe UI",Tahoma,Geneva,Verdana,sans-serif;
-      background:linear-gradient(135deg,var(--ia-bg-dark),var(--ia-bg-mid),var(--ia-bg-dark));
-      min-height:100vh;
-      color:var(--ia-text-light);
-      padding:20px;
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      min-height: 100vh;
+      background: radial-gradient(circle at top, #1f2937 0%, #020617 45%, #000000 100%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 24px;
+      color: var(--text-main);
     }
 
-    .container{max-width:1200px;margin:0 auto;}
-
-    .header{
-      text-align:center;
-      margin-bottom:40px;
-      padding:30px;
-      background:var(--glass-bg);
-      border:1px solid var(--glass-border);
-      border-radius:20px;
-      backdrop-filter:blur(12px);
+    .container {
+      width: 100%;
+      max-width: 640px;
+      background: var(--glass-bg);
+      border-radius: 24px;
+      padding: 30px 26px 26px;
+      border: 1px solid var(--glass-border);
+      box-shadow: 0 30px 80px rgba(0,0,0,0.75);
     }
 
-    .header h1{
-      font-size:2.4em;
-      font-weight:700;
-      background:linear-gradient(90deg,var(--ia-orange),var(--ia-orange-light));
-      -webkit-background-clip:text;
-      -webkit-text-fill-color:transparent;
-      margin-bottom:8px;
+    .header {
+      text-align: center;
+      margin-bottom: 26px;
     }
 
-    .tagline{
-      font-size:1.75em;
-      opacity:.8;
-      letter-spacing:.5px;
+    .logo {
+      font-size: 1.7rem;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      background: linear-gradient(120deg, var(--iascend-orange), var(--iascend-blue));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 4px;
     }
 
-    /* NAV BAR → REAL LINKS NOW */
-    .tabs{
-      display:flex;
-      justify-content:center;
-      gap:10px;
-      flex-wrap:wrap;
-      margin-bottom:30px;
+    .tagline {
+      font-size: 0.96rem;
+      color: var(--text-soft);
     }
 
-    .tab-link{
-      padding:14px 24px;
-      background:var(--glass-bg);
-      border:2px solid var(--glass-border);
-      border-radius:14px;
-      font-size:1.1em;
-      font-weight:600;
-      color:white;
-      text-decoration:none;
-      backdrop-filter:blur(8px);
-      transition:.3s ease;
+    h1.card-title {
+      font-size: 1.5rem;
+      font-weight: 750;
+      margin-bottom: 6px;
     }
 
-    .tab-link:hover{
-      background:linear-gradient(135deg,var(--ia-orange),var(--ia-orange-light));
-      color:black;
-      transform:translateY(-3px);
+    .card-subtitle {
+      font-size: 0.9rem;
+      color: var(--text-soft);
+      line-height: 1.6;
+      margin-bottom: 18px;
     }
 
-    /* CONTENT */
-    .content{
-      background:var(--glass-bg);
-      border:1px solid var(--glass-border);
-      border-radius:20px;
-      padding:40px;
-      min-height:500px;
-      backdrop-filter:blur(10px);
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      background: rgba(22,163,74,0.12);
+      border: 1px solid rgba(34,197,94,0.6);
+      color: #bbf7d0;
+      margin-bottom: 14px;
     }
 
-    .soulmark-display{
-      background:rgba(255,255,255,.05);
-      padding:30px;
-      border-radius:15px;
-      margin-bottom:30px;
-      border:2px solid var(--ia-orange);
+    .highlight-box {
+      background: rgba(15,23,42,0.9);
+      border-radius: 12px;
+      border: 1px solid rgba(148,163,184,0.5);
+      padding: 14px 12px;
+      font-size: 0.85rem;
+      line-height: 1.5;
+      margin-bottom: 18px;
     }
 
-    .soulmark-hash{
-      font-family:"Courier New",monospace;
-      font-size:1.2em;
-      background:rgba(0,0,0,.4);
-      padding:14px;
-      border-radius:10px;
-      margin:12px 0;
-      color:var(--ia-gold);
-      word-break:break-all;
+    .highlight-box strong {
+      color: var(--iascend-orange-soft);
     }
 
-    .status-badge{
-      display:inline-block;
-      padding:6px 16px;
-      border-radius:25px;
-      font-size:.9em;
-      font-weight:bold;
-      background:var(--verified-green);
-      color:white;
+    .form-group {
+      margin-bottom: 16px;
     }
 
-    .identity-info{
-      display:grid;
-      grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
-      gap:20px;
+    label {
+      display: block;
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-bottom: 6px;
     }
 
-    .info-card{
-      padding:20px;
-      background:rgba(255,255,255,.05);
-      border-radius:12px;
-      border-left:4px solid var(--ia-orange);
+    input {
+      width: 100%;
+      padding: 11px 13px;
+      border-radius: 10px;
+      border: 1px solid rgba(148,163,184,0.7);
+      background: rgba(15,23,42,0.96);
+      color: var(--text-main);
+      font-size: 0.95rem;
     }
 
-    .info-card label{
-      display:block;
-      font-size:.85em;
-      opacity:.7;
-      margin-bottom:6px;
+    input::placeholder {
+      color: rgba(148,163,184,0.75);
     }
 
-    /* FOOTER */
-    .global-footer{
-      margin-top:35px;
-      text-align:center;
-      padding:20px 0;
+    input:focus {
+      outline: none;
+      border-color: var(--iascend-orange-soft);
+      box-shadow: 0 0 0 1px rgba(244,163,73,0.6);
     }
 
-    .footer-links{
-      display:flex;
-      justify-content:center;
-      flex-wrap:wrap;
-      gap:12px;
+    .username-group {
+      position: relative;
     }
 
-    .footer-links a,
-    .logout-btn{
-      padding:12px 22px;
-      background:linear-gradient(135deg,var(--ia-orange),var(--ia-orange-light));
-      border-radius:30px;
-      font-weight:700;
-      text-decoration:none;
-      color:#000;
-      min-width:150px;
-      display:inline-block;
-      cursor:pointer;
-      border:none;
-      transition:0.3s ease;
+    .username-suffix {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 0.85rem;
+      color: var(--text-soft);
+      font-weight: 600;
+      pointer-events: none;
     }
 
-    .footer-links a:hover,
-    .logout-btn:hover{
-      transform:translateY(-4px);
-      box-shadow:0 0 18px rgba(244,163,73,0.35);
+    .availability {
+      font-size: 0.8rem;
+      margin-top: 4px;
+      min-height: 18px;
     }
 
+    .availability.checking {
+      color: var(--text-soft);
+    }
+
+    .availability.ok {
+      color: var(--success);
+    }
+
+    .availability.bad {
+      color: var(--error);
+    }
+
+    .meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      font-size: 0.82rem;
+      color: var(--text-soft);
+      margin-bottom: 10px;
+    }
+
+    .meta-pill {
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.45);
+      background: rgba(15,23,42,0.9);
+    }
+
+    .submit-btn {
+      width: 100%;
+      padding: 14px;
+      border-radius: 999px;
+      border: none;
+      margin-top: 8px;
+      font-weight: 750;
+      font-size: 1rem;
+      cursor: pointer;
+      background: linear-gradient(135deg, var(--iascend-orange), var(--iascend-orange-soft));
+      color: #04101f;
+      box-shadow: 0 18px 44px rgba(0,0,0,0.8);
+      transition: transform 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease;
+    }
+
+    .submit-btn:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 24px 55px rgba(0,0,0,1);
+    }
+
+    .submit-btn:disabled {
+      opacity: 0.55;
+      cursor: default;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .small-note {
+      font-size: 0.8rem;
+      color: var(--text-soft);
+      margin-top: 6px;
+    }
+
+    .footer-links {
+      margin-top: 18px;
+      text-align: center;
+      font-size: 0.82rem;
+      color: var(--text-soft);
+    }
+
+    .footer-links a {
+      color: var(--iascend-orange-soft);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .footer-links a:hover {
+      text-decoration: underline;
+    }
   </style>
 </head>
 
 <body>
-
-<div class="container">
-
-  <!-- HEADER -->
-  <div class="header">
-    <h1>iAscendAi — Digital Identity Dashboard</h1>
-    <p class="tagline">Verified • Authentic • Secure</p>
-  </div>
-
-  <!-- TOP NAVIGATION (REAL LINKS NOW) -->
-  <div class="tabs">
-    <a class="tab-link" href="iascendai-dashboard.html">My SoulMarkⓈ</a>
-    <a class="tab-link" href="soulaid.html">SoulAidⓈ</a>
-    <a class="tab-link" href="tracker.html">SoulTrackerⓈ</a>
-    <a class="tab-link" href="updates.html">Updates</a>
-    <a class="tab-link" href="settings.html">Settings</a>
-  </div>
-
-  <!-- MAIN CONTENT -->
-  <div class="content">
-    <h2>💠 Your SoulMarkⓈ Identity</h2>
-
-    <div class="soulmark-display">
-      <p><strong>Status:</strong> <span class="status-badge">✓ VERIFIED</span></p>
-      <p><strong>Your SoulMarkⓈ Hash:</strong></p>
-      <div class="soulmark-hash" id="soulmark-hash">Loading...</div>
+  <div class="container">
+    <div class="header">
+      <div class="logo">iAscendAi</div>
+      <div class="tagline">Claim your verified identity to unlock the dashboard.</div>
     </div>
 
-    <div class="identity-info">
-      <div class="info-card"><label>Name</label><value id="user-name">Loading...</value></div>
-      <div class="info-card"><label>Username</label><value id="user-username">Loading...</value></div>
-      <div class="info-card"><label>Type</label><value id="identity-type">SupporterⓈ</value></div>
-      <div class="info-card"><label>Registered</label><value id="reg-date">Loading...</value></div>
+    <h1 class="card-title">Create Your Identity</h1>
+    <div class="pill">🎁 SupporterⓈ • Jamaica We Rise</div>
+
+    <p class="card-subtitle">
+      You’ve made a verified contribution. Now claim your unique
+      <strong>username@iascendai</strong> so you can view your SoulMarkⓈ,
+      track your SoulAidⓈ, and access the live SoulTrackerⓈ dashboard.
+    </p>
+
+    <div class="highlight-box">
+      <strong>One entry. One identity.</strong>  
+      Every future update, dashboard view, or contribution will be anchored to this username.
+      Choose carefully – just like social handles, each username can only be claimed once.
     </div>
 
-  </div>
+    <form id="registrationForm">
+      <div class="form-group">
+        <label for="name">Full Name *</label>
+        <input id="name" name="name" type="text" required placeholder="Adrian McKenzie" />
+      </div>
 
-  <!-- GLOBAL FOOTER -->
-  <div class="global-footer">
+      <div class="form-group">
+        <label for="email">Email Address *</label>
+        <input id="email" name="email" type="email" required placeholder="you@example.com" />
+        <div class="small-note">We’ll link this email to your SoulMarkⓈ and dashboard access.</div>
+      </div>
+
+      <div class="form-group">
+        <label for="username">Choose Your Username *</label>
+        <div class="username-group">
+          <input id="username" name="username" type="text" required placeholder="adrian" autocomplete="off" />
+          <span class="username-suffix">@iascendai</span>
+        </div>
+        <div class="availability" id="usernameStatus"></div>
+        <div class="small-note">
+          Usernames are first-come, first-served. If your name is taken, try
+          <code>firstname_lastname</code>, <code>firstname123</code>, or similar.
+        </div>
+      </div>
+
+      <div class="meta-row">
+        <div class="meta-pill">💰 First Donation: <span id="donationMeta">$—</span></div>
+        <div class="meta-pill">🧬 Role: SupporterⓈ</div>
+        <div class="meta-pill">🔐 SoulMarkⓈ Linked</div>
+      </div>
+
+      <button id="submitBtn" type="submit" class="submit-btn">
+        Create My Identity & Open Dashboard
+      </button>
+    </form>
+
     <div class="footer-links">
-      <a href="iascendai-verify.html">Verify SoulMarkⓈ</a>
-      <a href="soulregistry.html">SoulRegistryⓈ</a>
-      <a href="tracker.html">SoulTrackerⓈ</a>
-      <a href="index.html">Donate</a>
-      <button class="logout-btn" onclick="logoutUser()">🚪 Logout</button>
+      Already have a username?  
+      <a href="iascendai-verify.html">Verify or look up your identity</a> •
+      <a href="index.html">Back to Donate</a>
     </div>
   </div>
 
-</div>
+  <script>
+    const BACKEND_URL = (window.CONFIG && window.CONFIG.BACKEND_URL) || "";
 
-<!-- JS -->
-<script type="module">
-  import { CONFIG } from "./config.js";
-  const BACKEND_URL = CONFIG.BACKEND_URL;
+    const nameInput      = document.getElementById("name");
+    const emailInput     = document.getElementById("email");
+    const usernameInput  = document.getElementById("username");
+    const usernameStatus = document.getElementById("usernameStatus");
+    const donationMeta   = document.getElementById("donationMeta");
+    const submitBtn      = document.getElementById("submitBtn");
 
-  document.addEventListener("DOMContentLoaded", async () => {
+    let currentSoulmark = "";
+    let currentAmount   = "";
+    let usernameCheckTimeout = null;
+    let usernameAvailable = false;
 
-    let username = localStorage.getItem("username");
-    let name = localStorage.getItem("name");
-    let soulmark = localStorage.getItem("soulmark");
+    // 1️⃣ Load from query + localStorage
+    (function hydrateFromContext() {
+      const params = new URLSearchParams(window.location.search);
 
-    // Pull from registry
-    if (username) {
-      try {
-        const res = await fetch(`${BACKEND_URL}/registry`);
-        const registry = await res.json();
-        const identity = registry.find(r => r.type === "identity" && r.username === username);
-        if (identity) {
-          name = identity.name;
-          soulmark = identity.soulmark;
-        }
-      } catch (err) {
-        console.warn("Registry fetch failed", err);
+      const qName     = params.get("name")     || "";
+      const qEmail    = params.get("email")    || "";
+      const qSoulmark = params.get("soulmark") || "";
+      const qAmount   = params.get("amount")   || "";
+
+      const lsName     = localStorage.getItem("name")     || "";
+      const lsEmail    = localStorage.getItem("email")    || "";
+      const lsSoulmark = localStorage.getItem("soulmark") || "";
+      const lsAmount   = localStorage.getItem("amount")   || "";
+
+      const name   = qName   || lsName;
+      const email  = qEmail  || lsEmail;
+      const soul   = qSoulmark || lsSoulmark;
+      const amount = qAmount || lsAmount;
+
+      if (name)  nameInput.value  = name;
+      if (email) emailInput.value = email;
+
+      currentSoulmark = soul || "";
+      currentAmount   = amount || "";
+
+      if (currentSoulmark) {
+        localStorage.setItem("soulmark", currentSoulmark);
       }
-    }
+      if (currentAmount) {
+        localStorage.setItem("amount", currentAmount);
+      }
+      if (name)  localStorage.setItem("name", name);
+      if (email) localStorage.setItem("email", email);
 
-    document.getElementById("soulmark-hash").textContent = soulmark || "Not found";
-    document.getElementById("user-name").textContent = name || "Unknown";
-    document.getElementById("user-username").textContent = username ? `${username}@iascendai` : "Anonymous";
-    document.getElementById("identity-type").textContent = "SupporterⓈ";
-    document.getElementById("reg-date").textContent = new Date().toLocaleDateString();
-  });
+      donationMeta.textContent = currentAmount ? `$${Number(currentAmount).toFixed(2)}` : "$—";
+    })();
 
-  window.logoutUser = function(){
-    localStorage.clear();
-    window.location.href = "index.html";
-  };
-</script>
+    // 2️⃣ Username availability check
+    usernameInput.addEventListener("input", () => {
+      const raw = usernameInput.value.trim().toLowerCase();
+      const username = raw.replace(/[^a-z0-9._-]/g, "");
 
+      usernameInput.value = username;
+      usernameAvailable = false;
+      usernameStatus.textContent = "";
+      usernameStatus.className = "availability";
+
+      if (username.length < 3) return;
+
+      usernameStatus.textContent = "Checking availability…";
+      usernameStatus.classList.add("checking");
+
+      clearTimeout(usernameCheckTimeout);
+      usernameCheckTimeout = setTimeout(async () => {
+        try {
+          const res = await fetch(`${BACKEND_URL}/check-username/${encodeURIComponent(username)}`);
+          const data = await res.json();
+
+          if (data.available) {
+            usernameAvailable = true;
+            usernameStatus.textContent = "✓ Available. This username is yours if you claim it now.";
+            usernameStatus.className = "availability ok";
+          } else {
+            usernameAvailable = false;
+            usernameStatus.textContent = "✗ This username is already taken. Please try another.";
+            usernameStatus.className = "availability bad";
+          }
+        } catch (err) {
+          console.error("Username check failed:", err);
+          usernameStatus.textContent = "Could not check availability. Please try again.";
+          usernameStatus.className = "availability bad";
+        }
+      }, 450);
+    });
+
+    // 3️⃣ Submit registration
+    document.getElementById("registrationForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const name   = nameInput.value.trim();
+      const email  = emailInput.value.trim();
+      const raw    = usernameInput.value.trim().toLowerCase();
+      const username = raw.replace(/[^a-z0-9._-]/g, "");
+
+      if (!name || !email || !username) {
+        alert("Please fill in name, email, and username.");
+        return;
+      }
+
+      if (!usernameAvailable) {
+        const proceed = confirm("This username may not be confirmed as available yet. Check again or continue?");
+        if (!proceed) return;
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = "Creating Identity…";
+
+      const payload = {
+        role: "supporter",
+        name,
+        email,
+        username,
+        soulmark: currentSoulmark || null,
+        firstDonation: currentAmount
+          ? {
+              amount: Number(currentAmount),
+              currency: "usd",
+              timestamp: new Date().toISOString()
+            }
+          : null
+      };
+
+      try {
+        const res = await fetch(`${BACKEND_URL}/register`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+        if (!res.ok || data.error) {
+          throw new Error(data.error || "Registration failed.");
+        }
+
+        // Save identity for dashboard
+        localStorage.setItem("username", username);
+        localStorage.setItem("name", name);
+        localStorage.setItem("email", email);
+        if (payload.soulmark) {
+          localStorage.setItem("soulmark", payload.soulmark);
+        }
+
+        const qs = new URLSearchParams({
+          username,
+          name,
+          email,
+          soulmark: payload.soulmark || ""
+        });
+
+        window.location.href = `iascendai-dashboard.html?${qs.toString()}`;
+
+      } catch (err) {
+        console.error("Registration error:", err);
+        alert(err.message || "Registration failed. Please try again.");
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Create My Identity & Open Dashboard";
+      }
+    });
+  </script>
 </body>
 </html>
