@@ -120,7 +120,6 @@
     <button id="continueBtn">Continue to Create Your Identity</button>
   </div>
 
-
   <script type="module">
     import { CONFIG } from "./config.js";
     const BACKEND_URL = CONFIG.BACKEND_URL;
@@ -128,7 +127,6 @@
     const params = new URLSearchParams(window.location.search);
     let sessionId = params.get("session_id");
 
-    // Safari/Vercel fix: retry once after delay if missing
     if (!sessionId) {
       setTimeout(() => {
         const retryId = new URLSearchParams(window.location.search).get("session_id");
@@ -154,11 +152,9 @@
         document.getElementById("emailBox").textContent = email;
         document.getElementById("soulBox").textContent = soulmark;
 
-        // Save to localStorage for registration
         localStorage.setItem("donor_email", email);
         localStorage.setItem("donor_soulmark", soulmark);
         localStorage.setItem("donation_amount", amount);
-
       } catch (err) {
         console.error("Verification error:", err);
         document.getElementById("errorBox").style.display = "block";
@@ -174,6 +170,5 @@
         `/iascendai-register.html?email=${email}&soulmark=${soul}&amount=${amount}`;
     };
   </script>
-
 </body>
 </html>
