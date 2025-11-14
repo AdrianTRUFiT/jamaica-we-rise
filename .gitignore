@@ -1,28 +1,3 @@
-HEAD
-# --- Node.js / Backend ---
-node_modules/
-.env
-.env.local
-package-lock.json
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-# --- Logs ---
-logs/
-*.log
-log.txt
-
-# --- Data files ---
-data/*.json
-!data/sample.json   # optional: keep a non-sensitive example
-
-# --- System files ---
-.DS_Store
-Thumbs.db
-
-# --- Build artifacts ---
-=======
 # ================================
 # 🌿 Jamaica We Rise Donation App
 # Node + Express + Frontend Setup
@@ -41,65 +16,45 @@ yarn-error.log*
 package-lock.json
 
 # --- Build Outputs ---
->>>>>>> 21e4dcf175eac466c811e21a08f00e5bb632327c
 dist/
 build/
 .cache/
 .tmp/
 
-<<<<<<< HEAD
-# --- Frontend ---
-frontend/node_modules/
+# --- Logs ---
+logs/
+*.log
+log.txt
+
+# --- Data files ---
+data/*.json
+!data/sample.json
+
+# --- Frontend noise ---
 public/node_modules/
 public/public/
 
-# --- OS / Editor junk ---
-*.swp
-*.swo
-.vscode/
-.idea/
-
-# --- Backup files ---
-*.bak
-*.old
-*.tmp
-
-# --- Local sandbox folders (non-production) ---
-sandbox/
-test/
-=======
 # --- System Files ---
 .DS_Store
 Thumbs.db
-*.log
-*.bak
-*.swp
-*.tmp
+ehthumbs.db
+Desktop.ini
 
 # --- IDE / Editor Files ---
 .vscode/
 .idea/
 *.iml
 
-# --- OS Specific ---
-ehthumbs.db
-Desktop.ini
+# --- Local Sandbox / Non-production ---
+sandbox/
+test/
 
-# --- Local Configuration ---
-*.local
-*.env.local
-*.env.development.local
-*.env.test.local
-*.env.production.local
+# --- Backup files ---
+*.bak
+*.old
+*.tmp
 
-# --- Backups & Secrets ---
-secret_*
-backup/
-credentials/
-private_keys/
-keys.json
-
-# --- Misc (Safety) ---
+# --- Keys / Certificates ---
 *.pem
 *.crt
 *.key
@@ -107,8 +62,5 @@ keys.json
 *.cer
 *.csr
 
-# --- Optional: Ignore uploaded user content if added later ---
-uploads/
-storage/
->>>>>>> 21e4dcf175eac466c811e21a08f00e5bb632327c
+# --- Vercel Metadata ---
 .vercel
