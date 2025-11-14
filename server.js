@@ -21,7 +21,6 @@ if (!stripeKey) {
 }
 
 const stripe = new Stripe(stripeKey);
-
 const PORT = process.env.PORT || 10000;
 
 // Frontend + storage paths
@@ -32,18 +31,27 @@ const REGISTRY_PATH = process.env.REGISTRY_PATH || "./data/registry.json";
 const LOG_DIR = process.env.LOG_DIR || "./logs";
 
 // -------------------------------------------------
-// Middleware
+// CORS (FIXED)
 // -------------------------------------------------
+const allowedOrigins = [
+  "http://localhost:3000",
+  "http://127.0.0.1:3000",
+  "https://jamaica-we-rise.vercel.app",
+  "https://jamaica-we-rise.onrender.com"
+];
+
 app.use(
   cors({
-    origin: FRONTEND_URL,
+    origin: allowedOrigins,
     methods: ["GET", "POST", "OPTIONS"],
+    credentials: true
   })
 );
+
 app.use(express.json());
 app.use(bodyParser.json());
 
-// Static for local dev only (ignored in Render)
+// Static for local dev only
 app.use(express.static("public"));
 
 // -------------------------------------------------
