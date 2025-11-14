@@ -126,11 +126,12 @@
     const BACKEND_URL = CONFIG.BACKEND_URL;
 
     const resultEl = document.getElementById("result");
-    const btn = document.getElementById("verifyBtn");
     const footerNav = document.getElementById("footerNav");
     const dashboardLink = document.getElementById("dashboardLink");
 
-    btn.addEventListener("click", async () => {
+    document.getElementById("verifyBtn").addEventListener("click", verifySoulmark);
+
+    async function verifySoulmark() {
       const input = document.getElementById("soulmarkInput").value.trim();
       resultEl.className = "";
       resultEl.textContent = "Verifying...";
@@ -141,12 +142,22 @@
       }
 
       try {
-        const res = await fetch(`${BACKEND_URL}/registry`, { cache:"no-store" });
+        const res = await fetch(`${BACKEND_URL}/registry`, { cache: "no-store" });
         const registry = await res.json();
 
-        const match = registry.find(r =>
-          (r.soulmark || r.soulMark || "").toLowerCase() === input.toLowerCase()
+        const normalized = input.toLowerCase();
+
+        // PRIORITY: Identity first
+        const identity = registry.find(
+          r => r.type === "identity" && (r.soulmark || "").toLowerCase() === normalized
         );
+
+        // FALLBACK: Donation if identity not found
+        const donation = registry.find(
+          r => r.type === "donation" && (r.soulmark || "").toLowerCase() === normalized
+        );
+
+        const match = identity || donation;
 
         if (!match) {
           resultEl.className = "invalid";
@@ -155,26 +166,31 @@
           return;
         }
 
+        const usernameOut = match.username ? `${match.username}@iascendai` : "—";
+
         resultEl.className = "verified";
         resultEl.textContent =
 `✅ Verified SoulMarkⓈ  
 
 Name: ${match.name || "—"}  
-Username: ${match.username ? match.username + "@iascendai" : "—"}  
+Username: ${usernameOut}  
 Role: ${match.role || "supporter"}  
 Status: Verified`;
 
+        // If identity exists → allow dashboard link
         if (match.username) {
           dashboardLink.href =
             `iascendai-dashboard.html?username=${encodeURIComponent(match.username)}`;
           footerNav.style.display = "flex";
+        } else {
+          footerNav.style.display = "none";
         }
 
       } catch (err) {
         resultEl.className = "invalid";
         resultEl.textContent = "⚠️ Error reaching verification service.";
       }
-    });
+    }
   </script>
 
 </body>
