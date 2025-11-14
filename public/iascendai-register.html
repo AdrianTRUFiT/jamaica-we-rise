@@ -26,6 +26,7 @@
       --text-soft: #9ca3af;
       --error: #f97373;
       --success: #4ade80;
+      --info: #38bdf8;
     }
 
     body {
@@ -51,7 +52,7 @@
 
     .header {
       text-align: center;
-      margin-bottom: 26px;
+      margin-bottom: 22px;
     }
 
     .logo {
@@ -72,14 +73,7 @@
     h1.card-title {
       font-size: 1.5rem;
       font-weight: 750;
-      margin-bottom: 6px;
-    }
-
-    .card-subtitle {
-      font-size: 0.9rem;
-      color: var(--text-soft);
-      line-height: 1.6;
-      margin-bottom: 18px;
+      margin-bottom: 8px;
     }
 
     .pill {
@@ -92,7 +86,14 @@
       background: rgba(22,163,74,0.12);
       border: 1px solid rgba(34,197,94,0.6);
       color: #bbf7d0;
-      margin-bottom: 14px;
+      margin-bottom: 10px;
+    }
+
+    .card-subtitle {
+      font-size: 0.9rem;
+      color: var(--text-soft);
+      line-height: 1.6;
+      margin-bottom: 16px;
     }
 
     .highlight-box {
@@ -102,25 +103,11 @@
       padding: 14px 12px;
       font-size: 0.85rem;
       line-height: 1.5;
-      margin-bottom: 10px;
+      margin-bottom: 18px;
     }
 
     .highlight-box strong {
       color: var(--iascend-orange-soft);
-    }
-
-    .soulmark-status {
-      font-size: 0.8rem;
-      color: var(--text-soft);
-      margin-bottom: 18px;
-    }
-
-    .soulmark-status.ok {
-      color: var(--success);
-    }
-
-    .soulmark-status.pending {
-      color: var(--text-soft);
     }
 
     .form-group {
@@ -187,12 +174,69 @@
       color: var(--error);
     }
 
+    .small-note {
+      font-size: 0.8rem;
+      color: var(--text-soft);
+      margin-top: 6px;
+    }
+
+    .display-section {
+      margin-top: 12px;
+      margin-bottom: 10px;
+      padding: 12px 12px 10px;
+      border-radius: 12px;
+      border: 1px solid rgba(148,163,184,0.5);
+      background: rgba(15,23,42,0.9);
+    }
+
+    .display-section-title {
+      font-size: 0.86rem;
+      font-weight: 650;
+      margin-bottom: 6px;
+    }
+
+    .display-option-group {
+      margin-top: 6px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      font-size: 0.86rem;
+    }
+
+    .display-option-group label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 500;
+      margin-bottom: 0;
+    }
+
+    .display-option-group input[type="radio"],
+    .display-option-group input[type="checkbox"] {
+      width: auto;
+      transform: scale(0.95);
+      accent-color: var(--iascend-orange);
+    }
+
+    .display-hint {
+      margin-top: 6px;
+      font-size: 0.78rem;
+      color: var(--text-soft);
+    }
+
+    .display-note {
+      margin-top: 5px;
+      font-size: 0.78rem;
+      color: var(--info);
+      min-height: 14px;
+    }
+
     .submit-btn {
       width: 100%;
       padding: 14px;
       border-radius: 999px;
       border: none;
-      margin-top: 8px;
+      margin-top: 10px;
       font-weight: 750;
       font-size: 1rem;
       cursor: pointer;
@@ -214,12 +258,6 @@
       box-shadow: none;
     }
 
-    .small-note {
-      font-size: 0.8rem;
-      color: var(--text-soft);
-      margin-top: 6px;
-    }
-
     .footer-links {
       margin-top: 18px;
       text-align: center;
@@ -235,6 +273,12 @@
 
     .footer-links a:hover {
       text-decoration: underline;
+    }
+
+    @media (max-width: 640px) {
+      .container {
+        padding: 22px 18px 20px;
+      }
     }
   </style>
 </head>
@@ -256,14 +300,9 @@
     </p>
 
     <div class="highlight-box">
-      <strong>One entry. One identity.</strong><br>
+      <strong>One entry. One identity.</strong><br/>
       Every future update, dashboard view, or contribution will be anchored to this username.
       Choose carefully – just like social handles, each username can only be claimed once.
-    </div>
-
-    <!-- SoulMark status message (driven by JS based on context) -->
-    <div id="soulmarkStatus" class="soulmark-status pending">
-      Checking your SoulMarkⓈ link…
     </div>
 
     <form id="registrationForm">
@@ -275,7 +314,7 @@
       <div class="form-group">
         <label for="email">Email Address *</label>
         <input id="email" name="email" type="email" required placeholder="you@example.com" />
-        <div class="small-note">We’ll link this email to your SoulMarkⓈ and dashboard access.</div>
+        <div class="small-note">This email is linked to your SoulMarkⓈ and dashboard access. It is not shown publicly by default.</div>
       </div>
 
       <div class="form-group">
@@ -289,6 +328,39 @@
           Usernames are first-come, first-served. If your name is taken, try
           <code>firstname_lastname</code>, <code>firstname123</code>, or similar.
         </div>
+      </div>
+
+      <!-- Display preferences block -->
+      <div class="display-section">
+        <div class="display-section-title">Choose how your donation appears on the public tracker</div>
+
+        <div class="display-option-group">
+          <label>
+            <input type="radio" name="identityMode" value="username" checked />
+            Username@iascendai (default)
+          </label>
+          <label>
+            <input type="radio" name="identityMode" value="real" />
+            Real Name
+          </label>
+          <label>
+            <input type="radio" name="identityMode" value="anonymous" />
+            Anonymous
+          </label>
+        </div>
+
+        <div class="display-option-group" style="margin-top:8px;">
+          <label>
+            <input type="checkbox" id="showDonation" checked />
+            Show Donation Amount
+          </label>
+        </div>
+
+        <div class="display-hint">
+          At least one element must be visible: your name/handle or your donation amount.
+          Anonymous donors can still show their amount.
+        </div>
+        <div class="display-note" id="displayNote"></div>
       </div>
 
       <button id="submitBtn" type="submit" class="submit-btn">
@@ -310,15 +382,19 @@
     const emailInput     = document.getElementById("email");
     const usernameInput  = document.getElementById("username");
     const usernameStatus = document.getElementById("usernameStatus");
-    const soulmarkStatus = document.getElementById("soulmarkStatus");
+    const donationMetaEl = null; // kept for future use if needed
     const submitBtn      = document.getElementById("submitBtn");
+
+    const identityRadios = document.querySelectorAll('input[name="identityMode"]');
+    const showDonationCb = document.getElementById("showDonation");
+    const displayNoteEl  = document.getElementById("displayNote");
 
     let currentSoulmark = "";
     let currentAmount   = "";
     let usernameCheckTimeout = null;
     let usernameAvailable = false;
 
-    // 1️⃣ Load from query + localStorage
+    // 1️⃣ Load from query + localStorage (email/soulmark/amount handoff)
     (function hydrateFromContext() {
       const params = new URLSearchParams(window.location.search);
 
@@ -332,10 +408,15 @@
       const lsSoulmark = localStorage.getItem("soulmark") || "";
       const lsAmount   = localStorage.getItem("amount")   || "";
 
+      // Also pull from donor_ keys written by success.html
+      const donorEmail    = localStorage.getItem("donor_email")    || "";
+      const donorSoulmark = localStorage.getItem("donor_soulmark") || "";
+      const donorAmount   = localStorage.getItem("donation_amount")|| "";
+
       const name   = qName   || lsName;
-      const email  = qEmail  || lsEmail;
-      const soul   = qSoulmark || lsSoulmark;
-      const amount = qAmount || lsAmount;
+      const email  = qEmail  || donorEmail || lsEmail;
+      const soul   = qSoulmark || donorSoulmark || lsSoulmark;
+      const amount = qAmount || donorAmount || lsAmount;
 
       if (name)  nameInput.value  = name;
       if (email) emailInput.value = email;
@@ -343,25 +424,44 @@
       currentSoulmark = soul || "";
       currentAmount   = amount || "";
 
-      // Persist back to localStorage so dashboard and other pages can use them
-      if (name)            localStorage.setItem("name", name);
-      if (email)           localStorage.setItem("email", email);
-      if (currentSoulmark) localStorage.setItem("soulmark", currentSoulmark);
-      if (currentAmount)   localStorage.setItem("amount", currentAmount);
-
-      // SoulMark status messaging
       if (currentSoulmark) {
-        soulmarkStatus.textContent = "✓ SoulMarkⓈ detected. It will be cryptographically linked to this username.";
-        soulmarkStatus.classList.remove("pending");
-        soulmarkStatus.classList.add("ok");
-      } else {
-        soulmarkStatus.textContent = "No existing SoulMarkⓈ detected yet. One will be assigned and linked when your identity is created.";
-        soulmarkStatus.classList.remove("ok");
-        soulmarkStatus.classList.add("pending");
+        localStorage.setItem("soulmark", currentSoulmark);
       }
+      if (currentAmount) {
+        localStorage.setItem("amount", currentAmount);
+      }
+      if (name)  localStorage.setItem("name", name);
+      if (email) localStorage.setItem("email", email);
     })();
 
-    // 2️⃣ Username availability check
+    // Helper: get current identity mode
+    function getIdentityMode() {
+      const selected = Array.from(identityRadios).find(r => r.checked);
+      return selected ? selected.value : "username";
+    }
+
+    // 2️⃣ Enforce visibility rules (auto-correct)
+    function enforceVisibilityRules(source) {
+      const mode = getIdentityMode();
+      const showDonation = showDonationCb.checked;
+
+      displayNoteEl.textContent = "";
+
+      if (mode === "anonymous" && !showDonation) {
+        // Auto-correct: keep amount visible
+        showDonationCb.checked = true;
+        displayNoteEl.textContent =
+          "Anonymous donors must show their donation amount or choose a visible name. Amount has been kept visible automatically.";
+      }
+    }
+
+    identityRadios.forEach(radio => {
+      radio.addEventListener("change", () => enforceVisibilityRules("identity"));
+    });
+
+    showDonationCb.addEventListener("change", () => enforceVisibilityRules("donation"));
+
+    // 3️⃣ Username availability check
     usernameInput.addEventListener("input", () => {
       const raw = usernameInput.value.trim().toLowerCase();
       const username = raw.replace(/[^a-z0-9._-]/g, "");
@@ -399,7 +499,7 @@
       }, 450);
     });
 
-    // 3️⃣ Submit registration
+    // 4️⃣ Submit registration
     document.getElementById("registrationForm").addEventListener("submit", async (e) => {
       e.preventDefault();
 
@@ -408,14 +508,17 @@
       const raw    = usernameInput.value.trim().toLowerCase();
       const username = raw.replace(/[^a-z0-9._-]/g, "");
 
+      const identityMode = getIdentityMode();
+      const showDonation = showDonationCb.checked;
+
+      // Final safety enforcement of rules
+      if (identityMode === "anonymous" && !showDonation) {
+        showDonationCb.checked = true;
+      }
+
       if (!name || !email || !username) {
         alert("Please fill in name, email, and username.");
         return;
-      }
-
-      if (!usernameAvailable) {
-        const proceed = confirm("This username may not be confirmed as available yet. Check again or continue?");
-        if (!proceed) return;
       }
 
       submitBtn.disabled = true;
@@ -427,13 +530,10 @@
         email,
         username,
         soulmark: currentSoulmark || null,
-        firstDonation: currentAmount
-          ? {
-              amount: Number(currentAmount),
-              currency: "usd",
-              timestamp: new Date().toISOString()
-            }
-          : null
+        donationAmount: currentAmount ? Number(currentAmount) : null,
+        // Preferences (backend will ignore for now, but included for forward compatibility)
+        displayIdentity: identityMode,       // "username" | "real" | "anonymous"
+        showDonationAmount: !!showDonation   // true | false
       };
 
       try {
@@ -455,12 +555,15 @@
         if (payload.soulmark) {
           localStorage.setItem("soulmark", payload.soulmark);
         }
+        localStorage.setItem("displayIdentity", identityMode);
+        localStorage.setItem("showDonationAmount", showDonation ? "1" : "0");
 
         const qs = new URLSearchParams({
           username,
           name,
-          email,
-          soulmark: payload.soulmark || ""
+          soulmark: payload.soulmark || "",
+          mode: identityMode,
+          showDonation: showDonation ? "1" : "0"
         });
 
         window.location.href = `iascendai-dashboard.html?${qs.toString()}`;
