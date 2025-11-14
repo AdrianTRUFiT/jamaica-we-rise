@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SoulMarkⓈ Verification | iAscendAi</title>
 
-  <!-- Correct backend config loader -->
+  <!-- Config Loader -->
   <script type="module">
     import { CONFIG } from "./config.js";
     window.CONFIG = CONFIG;
@@ -31,7 +31,6 @@
       opacity:0.9;
       margin-bottom:10px;
       color:#f4a349;
-      letter-spacing:0.5px;
     }
 
     h1 {
@@ -45,28 +44,22 @@
     .verify-box {
       background:rgba(255,255,255,0.05);
       border:1px solid rgba(255,255,255,0.1);
-      border-radius:18px;
-      padding:30px 36px;
+      border-radius:16px;
+      padding:30px 40px;
       width:90%;
       max-width:480px;
-      box-shadow:0 0 25px rgba(5,156,58,0.25);
+      box-shadow:0 0 25px rgba(5,156,58,0.2);
     }
 
     input {
       width:100%;
-      padding:15px;
-      border:2px solid rgba(255,255,255,0.15);
+      padding:14px;
+      border:2px solid rgba(255,255,255,0.1);
       border-radius:10px;
-      background:rgba(255,255,255,0.06);
+      background:rgba(255,255,255,0.05);
       color:#fff;
       font-size:1em;
-      margin-top:12px;
-      outline:none;
-      transition:0.3s ease;
-    }
-    input:focus {
-      border-color:#059c3a;
-      box-shadow:0 0 0 3px rgba(5,156,58,0.25);
+      margin-top:10px;
     }
 
     button {
@@ -79,34 +72,21 @@
       color:#fff;
       font-weight:700;
       cursor:pointer;
-      font-size:1em;
-      box-shadow:0 10px 24px rgba(5,156,58,0.3);
-      transition:0.3s ease;
-    }
-    button:hover {
-      transform:translateY(-3px);
-      box-shadow:0 12px 32px rgba(5,156,58,0.4);
+      box-shadow:0 8px 20px rgba(5,156,58,0.3);
     }
 
     #result {
-      margin-top:25px;
+      margin-top:20px;
+      min-height:1.4em;
       font-size:1em;
       white-space:pre-line;
     }
-
-    #result.verified {
-      color:#10b981;
-      text-shadow:0 0 8px rgba(16,185,129,0.6);
-    }
-
-    #result.invalid {
-      color:#ef4444;
-      text-shadow:0 0 6px rgba(239,68,68,0.45);
-    }
+    #result.verified { color:#10b981; }
+    #result.invalid { color:#ef4444; }
 
     .footer-links {
-      margin-top:30px;
-      display:flex;
+      margin-top:25px;
+      display:none;
       gap:20px;
       justify-content:center;
       flex-wrap:wrap;
@@ -116,37 +96,29 @@
       color:#f4a349;
       font-size:0.9em;
       text-decoration:none;
-      opacity:.9;
-      transition:.3s ease;
-    }
-
-    .footer-links a:hover {
-      opacity:1;
-      text-decoration:underline;
     }
   </style>
 </head>
 
 <body>
 
-  <div class="page-title">iAscendAi — Identity Verification</div>
+  <div class="page-title">iAscendAi — Verify Digital Identities</div>
   <h1>SoulMarkⓈ Verification</h1>
 
   <div class="verify-box">
     <p>Enter a SoulMarkⓈ signature to validate an identity.</p>
 
-    <input type="text" id="soulmarkInput" placeholder="Paste SoulMarkⓈ…" />
+    <input type="text" id="soulmarkInput" placeholder="Enter SoulMarkⓈ signature..." />
 
     <button id="verifyBtn">Verify SoulMarkⓈ</button>
 
     <div id="result"></div>
   </div>
 
-  <!-- NAV -->
-  <div class="footer-links">
-    <a href="iascendai-register.html">Create Identity</a>
-    <a href="soulregistry.html">SoulRegistryⓈ</a>
-    <a href="iascendai-dashboard.html">Dashboard</a>
+  <div class="footer-links" id="footerNav">
+    <a id="createLink" href="iascendai-register.html">Create Identity</a>
+    <a id="registryLink" href="soulregistry.html">SoulRegistryⓈ</a>
+    <a id="dashboardLink" href="#">Dashboard</a>
   </div>
 
   <script type="module">
@@ -154,48 +126,53 @@
     const BACKEND_URL = CONFIG.BACKEND_URL;
 
     const resultEl = document.getElementById("result");
+    const btn = document.getElementById("verifyBtn");
+    const footerNav = document.getElementById("footerNav");
+    const dashboardLink = document.getElementById("dashboardLink");
 
-    document.getElementById("verifyBtn").addEventListener("click", async () => {
+    btn.addEventListener("click", async () => {
       const input = document.getElementById("soulmarkInput").value.trim();
       resultEl.className = "";
+      resultEl.textContent = "Verifying...";
 
       if (!input) {
-        resultEl.textContent = "Please enter a SoulMarkⓈ.";
+        resultEl.textContent = "Please enter your SoulMarkⓈ.";
         return;
       }
 
-      resultEl.textContent = "Verifying…";
-
       try {
-        const res = await fetch(`${BACKEND_URL}/registry`, { cache: "no-store" });
-        const data = await res.json();
+        const res = await fetch(`${BACKEND_URL}/registry`, { cache:"no-store" });
+        const registry = await res.json();
 
-        // Filter ONLY identity entries
-        const identities = data.filter(e => e.type === "identity");
-
-        const match = identities.find(
-          r => (r.soulmark || "").toLowerCase() === input.toLowerCase()
+        const match = registry.find(r =>
+          (r.soulmark || r.soulMark || "").toLowerCase() === input.toLowerCase()
         );
 
-        if (match) {
-          resultEl.className = "verified";
-          resultEl.textContent =
-`✅ Verified SoulMarkⓈ
-
-Name: ${match.name}
-Username: ${match.username}@iascendai
-Email: ${match.email || "—"}
-Role: ${match.role || "Supporter"}
-Status: Verified`;
-        } else {
+        if (!match) {
           resultEl.className = "invalid";
           resultEl.textContent = "❌ No matching SoulMarkⓈ found.";
+          footerNav.style.display = "none";
+          return;
         }
 
-      } catch (error) {
+        resultEl.className = "verified";
+        resultEl.textContent =
+`✅ Verified SoulMarkⓈ  
+
+Name: ${match.name || "—"}  
+Username: ${match.username ? match.username + "@iascendai" : "—"}  
+Role: ${match.role || "supporter"}  
+Status: Verified`;
+
+        if (match.username) {
+          dashboardLink.href =
+            `iascendai-dashboard.html?username=${encodeURIComponent(match.username)}`;
+          footerNav.style.display = "flex";
+        }
+
+      } catch (err) {
         resultEl.className = "invalid";
-        resultEl.textContent = "⚠️ Verification service unavailable.";
-        console.error(error);
+        resultEl.textContent = "⚠️ Error reaching verification service.";
       }
     });
   </script>
