@@ -167,18 +167,26 @@
     import { CONFIG } from "./config.js";
     const BACKEND_URL = CONFIG.BACKEND_URL;
 
+    async function fetchRegistry() {
+      const res = await fetch(`${BACKEND_URL}/registry`, { cache: "no-store" });
+      return res.json();
+    }
+
     async function loadStats() {
       try {
-        const res = await fetch(`${BACKEND_URL}/registry`, { cache: "no-store" });
-        const data = await res.json();
+        const data = await fetchRegistry();
 
-        const donations = data.filter(e => typeof e.amount === "number");
-        const totalRaised = donations.reduce((sum, d) => sum + d.amount, 0);
-        const totalDonors = donations.length;
+        const donations = data.filter(e => e.type === "donation");
+        const identities = data.filter(e => e.type === "identity");
+
+        const totalRaised = donations.reduce((sum, d) => sum + (d.amount || 0), 0);
 
         document.getElementById("totalRaised").textContent =
           `$${totalRaised.toLocaleString(undefined, { minimumFractionDigits: 2 })}`;
-        document.getElementById("donorCount").textContent = totalDonors;
+
+        document.getElementById("donorCount").textContent = donations.length;
+        document.getElementById("verifiedCount").textContent = identities.length;
+
       } catch (err) {
         console.error("Stats error:", err);
       }
@@ -186,12 +194,10 @@
 
     async function loadDonors() {
       try {
-        const res = await fetch(`${BACKEND_URL}/registry`, { cache: "no-store" });
-        const data = await res.json();
+        const data = await fetchRegistry();
+        const donors = data.filter(e => e.type === "donation");
 
-        const donors = data.filter(d => d.amount);
         const tbody = document.querySelector("#donorsTable tbody");
-
         tbody.innerHTML = donors.length
           ? donors.slice(-10).reverse().map(d => `
             <tr>
@@ -208,20 +214,17 @@
 
     async function loadRegistry() {
       try {
-        const res = await fetch(`${BACKEND_URL}/registry`, { cache: "no-store" });
-        const data = await res.json();
-
-        const verified = data.filter(i => i.verified);
-        document.getElementById("verifiedCount").textContent = verified.length;
+        const data = await fetchRegistry();
+        const identities = data.filter(e => e.type === "identity");
 
         const tbody = document.querySelector("#registryTable tbody");
-        tbody.innerHTML = data.length
-          ? data.slice(-10).reverse().map(i => `
+        tbody.innerHTML = identities.length
+          ? identities.slice(-10).reverse().map(i => `
             <tr>
               <td>${i.name || "—"}</td>
               <td>${i.username ? `${i.username}@iascendai` : "—"}</td>
-              <td>${i.soulmark || i.soulMark || "—"}</td>
-              <td>${i.verified ? "✔ Verified" : "⚠ Pending"}</td>
+              <td>${i.soulmark || "—"}</td>
+              <td>✔ Verified</td>
             </tr>`).join("")
           : `<tr><td colspan="4" style="text-align:center;color:#9ca3af;">No identities registered yet.</td></tr>`;
       } catch (err) {
@@ -233,7 +236,6 @@
     loadDonors();
     loadRegistry();
 
-    // Refresh every 20 seconds
     setInterval(() => {
       loadStats();
       loadDonors();
