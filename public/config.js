@@ -1,4 +1,4 @@
 export const CONFIG = {
-  MODE: "test",
+  MODE: "production",
   BACKEND_URL: "https://jamaica-we-rise.onrender.com"
 };
