@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Jamaica We Rise Relief Fund</title>
 
+  <!-- Load CONFIG -->
   <script type="module">
     import { CONFIG } from "./config.js";
     window.CONFIG = CONFIG;
@@ -48,6 +49,13 @@
       color: #9ca3af;
       margin-bottom: 28px;
       font-size: 1rem;
+    }
+
+    label {
+      font-size: 0.95rem;
+      margin-bottom: 6px;
+      display: block;
+      color: #cbd5e1;
     }
 
     input {
@@ -112,7 +120,6 @@
       font-weight: 600;
       text-decoration: none;
     }
-
   </style>
 </head>
 
@@ -122,7 +129,7 @@
     <h1>Jamaica We Rise Relief Fund</h1>
 
     <p class="subtitle">
-      Every donation supports families affected by Hurricane Melissa. 
+      Every donation supports families affected by Hurricane Melissa.  
       Your contribution is authenticated using SoulMarkⓈ verification.
     </p>
 
@@ -133,7 +140,6 @@
     <input id="email" type="email" placeholder="you@example.com" />
 
     <label>Select Amount *</label>
-
     <div class="amount-grid">
       <div class="amount-btn" data-value="25">$25</div>
       <div class="amount-btn" data-value="50">$50</div>
@@ -144,7 +150,7 @@
       <div class="amount-btn" data-value="custom">Custom</div>
     </div>
 
-    <input id="customAmount" placeholder="Custom amount" style="display:none;" />
+    <input id="customAmount" placeholder="Enter custom amount" style="display:none;" />
 
     <button id="donateBtn">Donate Now — SoulMarkⓈ Verified</button>
 
@@ -154,12 +160,14 @@
   </div>
 
 
+  <!-- SCRIPT -->
   <script type="module">
     import { CONFIG } from "./config.js";
     const BACKEND_URL = CONFIG.BACKEND_URL;
 
     let selectedAmount = null;
 
+    // Amount button selection
     document.querySelectorAll(".amount-btn").forEach(btn => {
       btn.addEventListener("click", () => {
         document.querySelectorAll(".amount-btn").forEach(b => b.classList.remove("active"));
@@ -175,35 +183,41 @@
       });
     });
 
+    // Donate button click → Stripe session
     document.getElementById("donateBtn").onclick = async () => {
       const name = document.getElementById("fullName").value.trim();
       const email = document.getElementById("email").value.trim();
-      
+
       let amount = selectedAmount;
       if (!amount) {
-        const custom = parseFloat(document.getElementById("customAmount").value);
-        amount = custom;
+        amount = parseFloat(document.getElementById("customAmount").value);
       }
 
-      if (!name || !email || !amount) {
-        alert("Please complete all fields");
+      if (!name || !email || !amount || amount <= 0) {
+        alert("Please complete all fields, including amount.");
         return;
       }
 
-      const res = await fetch(`${BACKEND_URL}/create-checkout-session`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, amount })
-      });
+      try {
+        const res = await fetch(`${BACKEND_URL}/create-checkout-session`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name, email, amount })
+        });
 
-      const data = await res.json();
+        const data = await res.json();
 
-      if (data.url) {
-        window.location.href = data.url;
-      } else {
-        alert("Error starting checkout session");
+        if (data.url) {
+          window.location.href = data.url;
+        } else {
+          alert("Error creating checkout session.");
+        }
+      } catch (err) {
+        console.error("Checkout error:", err);
+        alert("Connection issue. Please try again.");
       }
     };
   </script>
+
 </body>
 </html>
