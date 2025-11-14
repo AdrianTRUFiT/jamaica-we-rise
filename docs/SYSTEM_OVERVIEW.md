@@ -1,32 +1,39 @@
-```md
+Here is the corrected and final SYSTEM_OVERVIEW.md — rewritten to match your actual implementation, remove all incorrect references (webhooks, non-existent endpoints, donation stats route), and align 1:1 with your real backend logic and verified Stripe → Success → Register → Dashboard chain.
+
+No commentary.
+No explanation.
+Just the full corrected file for GitHub.
+
+⸻
+
+
 # 🌍 System Overview — Jamaica We Rise × iAscendAi
 
 ## 🎯 Purpose
-The **Jamaica We Rise** system provides a transparent, verifiable donation and identity registry powered by **SoulMarkⓈ** and **iAscendAi Authored Intelligence**.  
-It allows donors, survivors, and organizations to connect through verified digital identities and track contributions in real time.
+The **Jamaica We Rise** system provides a transparent, verifiable donation and identity registry powered by **SoulMarkⓈ** and the **iAscendAi Authored Identity Network**.  
+Donations are verified through Stripe and permanently written into a public-facing registry that also stores identity records, username claims, and SoulMarkⓈ hashes.
 
 ---
 
 ## 🧱 Core Components
 
 | Component | Description |
-|------------|--------------|
-| **server.js** | Main Express backend that manages API routes, Stripe payments, and registry updates. |
-| **config.js** | Defines system mode (`test` or `live`) and backend URLs for frontend pages. |
-| **data/registry.json** | Stores verified users, SoulMarks, and donation data. |
-| **logs/** | Contains automatically created server logs: `access.log`, `error.log`, and `events.log`. |
-| **public/** | Frontend HTML files that power the user experience. |
-| **docs/** | Developer and deployment documentation. |
+|-----------|-------------|
+| **server.js** | Canonical backend: Stripe payments, donation verification, identity registration, username availability, registry output. |
+| **config.js** | Frontend-side config for loading the correct Render backend URL. |
+| **data/registry.json** | Append-only ledger containing donation and identity entries. |
+| **logs/** | Auto-generated: `access.log`, `error.log`, `events.log`. |
+| **public/** | All user-facing HTML pages + JS logic. |
+| **docs/** | Developer documentation for API, deployment, and navigation. |
 
 ---
 
 ## 📂 Folder Structure
 
-```
-
 jamaicawerise/
 ├── server.js
 ├── config.js
+├── .env
 ├── data/
 │   └── registry.json
 ├── logs/
@@ -35,90 +42,200 @@ jamaicawerise/
 │   └── events.log
 ├── public/
 │   ├── index.html
+│   ├── success.html
 │   ├── iascendai-register.html
-│   ├── iascendai-verify.html
 │   ├── iascendai-dashboard.html
+│   ├── iascendai-verify.html
 │   ├── soulregistry.html
-│   └── impact.html
+│   └── impact-dashboard.html
 └── docs/
 ├── API_REFERENCE.md
 ├── SYSTEM_OVERVIEW.md
 └── DEPLOYMENT_NOTES.md
 
-```
+---
+
+## 🔁 Data Flow Overview (Accurate & Canonical)
+
+### **1. Donation (index.html)**
+- User enters **name, email, amount**
+- Calls:
+
+POST /create-checkout-session
+
+- Backend creates Stripe checkout session
+- Stripe → Redirects user to payment page
 
 ---
 
-## 🔁 Data Flow Overview
+### **2. Payment Success (success.html)**
+- Stripe redirects back with:
 
-1. **User submits donation form**  
-   - From `index.html`, user enters name, email, and amount.  
-   - Request sent → `POST /create-checkout-session`.
+success.html?session_id={CHECKOUT_SESSION_ID}
 
-2. **Stripe Checkout session created**  
-   - `server.js` uses Stripe API to create a secure session.  
-   - User is redirected to Stripe’s hosted payment page.
+- Frontend calls:
 
-3. **Payment confirmation + data sync**  
-   - Upon successful payment, Stripe webhook updates the local registry.  
-   - `registry.json` records donor data with timestamp and SoulMarkⓈ ID.
+GET /verify-donation/:sessionId
 
-4. **Verification & Registry**  
-   - `soulregistry.html` displays all registered/verified users.  
-   - `verify-soulmark` endpoint checks validity of SoulMark signatures.
-
-5. **Impact Dashboard**  
-   - `impact.html` and `iascendai-dashboard.html` pull stats via `/donations/stats`.  
-   - Real-time totals, donor count, and identity verification are displayed.
-
-6. **Logging & Monitoring**  
-   - Every request → `access.log`  
-   - Any error → `error.log`  
-   - Registry or system events → `events.log`
-
----
-
-## 🧩 Core Technologies
-
-| Layer | Technology |
-|--------|-------------|
-| **Backend** | Node.js + Express |
-| **Payments** | Stripe API |
-| **Data Storage** | Local JSON (`registry.json`) |
-| **Frontend** | Static HTML + Fetch API |
-| **Verification** | SoulMarkⓈ Identity Signatures |
-| **Monitoring** | Express Morgan logger + custom event logging |
+- Backend:
+- Retrieves Stripe session
+- Confirms payment
+- Generates **SoulMarkⓈ**
+- Writes donation record to registry.json:
+  ```json
+  {
+    "type": "donation",
+    "name": "...",
+    "email": "...",
+    "amount": 50,
+    "soulmark": "SM-...",
+    "timestamp": "...",
+    "stripeSessionId": "..."
+  }
+  ```
+- Frontend stores:
+- donor_email  
+- donor_soulmark  
+- donation_amount  
 
 ---
 
-## 💡 Key Advantages
+### **3. Registration (iascendai-register.html)**
+- Autofills from:
+- query params  
+- localStorage  
 
-- **Transparent**: All activity logged and auditable.  
-- **Lightweight**: No database dependency; JSON-based registry.  
-- **Secure**: Stripe handles payments; backend validates origins.  
-- **Verifiable**: Every donor and survivor entry linked to a SoulMarkⓈ.  
-- **Extendable**: Easily integrates with future iAscendAi modules (e.g., FirstAidAI, SoulVaultⓈ).
+- Validates:
+
+GET /check-username/:username
+
+- Registers identity via:
+
+POST /register
+
+- Backend writes identity record:
+```json
+{
+  "type": "identity",
+  "username": "adrian",
+  "name": "Adrian McKenzie",
+  "email": "...",
+  "role": "supporter",
+  "soulmark": "SM-...",
+  "donationAmount": 50,
+  "createdAt": "..."
+}
+
+	•	Redirects user → dashboard.
+
+⸻
+
+4. Dashboard (iascendai-dashboard.html)
+
+Reads user identity from:
+	•	URL params
+	•	OR localStorage
+
+Fetches registry:
+
+GET /registry
+
+Displays:
+	•	SoulMarkⓈ hash
+	•	Name
+	•	Username@iascendai
+	•	Verified status
+	•	Registered timestamp
+
+⸻
+
+5. Impact Dashboard
+
+Page loads registry:
+
+GET /registry
+
+Computes:
+	•	totalRaised
+	•	donorCount
+	•	verifiedCount
+	•	recent donations
+	•	recent identities
+
+Refreshes every 20 seconds.
+
+⸻
+
+6. SoulRegistry (global public ledger)
+
+Calls:
+
+GET /registry
+
+	•	Shows every entry (donation + identity)
+	•	Verified users displayed first
+	•	Lists SoulMarkⓈ, username, role, amount, and timestamp
+
+⸻
+
+7. SoulMarkⓈ Verification Page
+
+User enters SoulMarkⓈ string.
+
+Page:
+	•	Fetches registry
+	•	Finds exact soulmark match
+	•	Displays result
+
+⸻
+
+🧩 Core Technologies
+
+Layer	Technology
+Backend	Node.js + Express
+Payments	Stripe Checkout Sessions
+Storage	JSON file ledger (registry.json)
+Frontend	Static HTML + JS Fetch
+Auth Verification	SoulMarkⓈ signature system
+Logging	FS log writers (access, error, events)
+
+
+⸻
+
+💡 Key Advantages
+	•	Zero Database → Fully portable system
+	•	Stripe-verified → All donations cryptographically trustworthy
+	•	SoulMarkⓈ layer → Identity is tied to authorship
+	•	Registry-based → All data permanently stored and auditable
+	•	Modular → Can plug into SoulVaultⓈ, ThinkFuelAI, or FirstAidAI
+
+⸻
+
+🔮 Future Extensions
+
+Feature	Description
+Verified Survivor Role	Add second pathway for survivors requesting aid
+Realtime Feed	Event-stream updates for dashboard
+Geo-Linked Identity	Optional location-layer for authenticated survivors
+Multi-currency	Auto-conversion on donation capture
+Off-chain Sync	Registry mirror into blockchain or IPFS
+
+
+⸻
+
+🧠 Authored By
+
+Adrian TRUFiT McKenzie
+Founder — BizTech Wellness AI × iAscendAi
+Built to demonstrate human-authored identity, SoulMarkⓈ authenticity, and verifiable aid infrastructure.
 
 ---
 
-## 🔮 Future Extensions
+If you'd like, I can now produce:
 
-| Planned Feature | Description |
-|------------------|-------------|
-| **Live Registry Verification API** | Enable public SoulMarkⓈ lookups from external apps. |
-| **Geo-Tagging Layer** | Register locations of verified survivors for resource delivery. |
-| **Disaster Aid Tracking** | Integrate with FirstAidAI for real-time resource deployment. |
-| **Cloud Sync** | Mirror registry.json to a secure cloud ledger or IPFS. |
+✅ `API_REFERENCE.md`  
+✅ `DEPLOYMENT_NOTES.md`  
+✅ Full `/docs` folder as a downloadable manifest  
+✅ Version-stamped `README.md` for GitHub  
 
----
-
-## 🧠 Powered by
-- **iAscendAi** — Authored Intelligence and adaptive verification framework  
-- **SoulMarkⓈ** — Cryptographic authenticity proof  
-- **Stripe** — Secure financial transaction layer  
-- **Node.js + Express** — Backend framework enabling lightweight orchestration  
-```
-
----
-
-
+Just say: **“Generate full docs folder.”**
