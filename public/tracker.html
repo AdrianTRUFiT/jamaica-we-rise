@@ -3,356 +3,201 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SoulTrackerⓈ | Jamaica We Rise × iAscendAi</title>
+  <title>SoulMarkⓈ Verification | iAscendAi</title>
 
-  <!-- Correct Render Backend Loaded via config.js -->
+  <!-- Correct backend config loader -->
   <script type="module">
     import { CONFIG } from "./config.js";
     window.CONFIG = CONFIG;
   </script>
 
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-
-    :root {
-      --gold: #fed103;
-      --green: #059c3a;
-      --navy: #041423;
-      --navy2: #072033;
-      --glass: rgba(255,255,255,0.04);
-      --glass-border: rgba(255,255,255,0.1);
-      --text-gray: #d1d5db;
-      --text-soft: #9ca3af;
-    }
-
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Inter','Segoe UI',Roboto,sans-serif;
-      background: linear-gradient(135deg, var(--navy), var(--navy2));
-      min-height: 100vh;
-      padding: 30px 20px;
-      color: white;
+      font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',Roboto,sans-serif;
+      background:#041423;
+      color:#fff;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      align-items:center;
+      min-height:100vh;
+      margin:0;
+      padding:20px;
+      text-align:center;
     }
 
-    .container {
-      max-width: 1000px;
-      margin: 0 auto;
+    .page-title {
+      font-size:1.1em;
+      opacity:0.9;
+      margin-bottom:10px;
+      color:#f4a349;
+      letter-spacing:0.5px;
     }
 
-    /* HEADER */
-    .header {
-      text-align: center;
-      margin-bottom: 30px;
+    h1 {
+      background:linear-gradient(135deg,#fed103,#059c3a);
+      -webkit-background-clip:text;
+      -webkit-text-fill-color:transparent;
+      font-size:2.4em;
+      margin-bottom:20px;
     }
 
-    .logo {
-      font-size: 2.2em;
-      font-weight: 800;
-      background: linear-gradient(135deg, var(--gold), var(--green));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      margin-bottom: 8px;
+    .verify-box {
+      background:rgba(255,255,255,0.05);
+      border:1px solid rgba(255,255,255,0.1);
+      border-radius:18px;
+      padding:30px 36px;
+      width:90%;
+      max-width:480px;
+      box-shadow:0 0 25px rgba(5,156,58,0.25);
     }
 
-    .tagline {
-      opacity: .9;
-      color: var(--text-gray);
+    input {
+      width:100%;
+      padding:15px;
+      border:2px solid rgba(255,255,255,0.15);
+      border-radius:10px;
+      background:rgba(255,255,255,0.06);
+      color:#fff;
+      font-size:1em;
+      margin-top:12px;
+      outline:none;
+      transition:0.3s ease;
+    }
+    input:focus {
+      border-color:#059c3a;
+      box-shadow:0 0 0 3px rgba(5,156,58,0.25);
     }
 
-    /* MAIN CARD */
-    .tracker-card {
-      background: var(--glass);
-      border: 1px solid var(--glass-border);
-      border-radius: 20px;
-      padding: 40px;
-      backdrop-filter: blur(12px);
-      box-shadow: 0 0 35px rgba(5,156,58,0.25);
+    button {
+      width:100%;
+      padding:15px;
+      margin-top:25px;
+      background:linear-gradient(135deg,#059c3a,#047d2f);
+      border:none;
+      border-radius:10px;
+      color:#fff;
+      font-weight:700;
+      cursor:pointer;
+      font-size:1em;
+      box-shadow:0 10px 24px rgba(5,156,58,0.3);
+      transition:0.3s ease;
+    }
+    button:hover {
+      transform:translateY(-3px);
+      box-shadow:0 12px 32px rgba(5,156,58,0.4);
     }
 
-    /* STATS GRID */
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 20px;
-      margin-bottom: 40px;
+    #result {
+      margin-top:25px;
+      font-size:1em;
+      white-space:pre-line;
     }
 
-    .stat-card {
-      background: rgba(255,255,255,0.06);
-      border: 1px solid rgba(255,255,255,0.1);
-      padding: 25px;
-      border-radius: 14px;
-      text-align: center;
+    #result.verified {
+      color:#10b981;
+      text-shadow:0 0 8px rgba(16,185,129,0.6);
     }
 
-    .stat-value {
-      font-size: 2.4em;
-      font-weight: 800;
-      background: linear-gradient(135deg, var(--gold), var(--green));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      margin-bottom: 6px;
+    #result.invalid {
+      color:#ef4444;
+      text-shadow:0 0 6px rgba(239,68,68,0.45);
     }
 
-    .stat-label {
-      color: var(--text-soft);
-      font-weight: 600;
-      opacity: 0.9;
-      font-size: 0.95em;
-    }
-
-    /* PROGRESS SECTION */
-    .progress-section {
-      margin-bottom: 40px;
-    }
-
-    .section-title {
-      font-size: 1.6em;
-      font-weight: 700;
-      margin-bottom: 20px;
-    }
-
-    .progress-bar-container {
-      background: rgba(255,255,255,0.06);
-      border-radius: 14px;
-      padding: 25px;
-      border: 1px solid rgba(255,255,255,0.12);
-    }
-
-    .progress-header {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 15px;
-      color: var(--text-gray);
-      font-weight: 600;
-    }
-
-    .progress-bar {
-      width: 100%;
-      height: 30px;
-      background: rgba(255,255,255,0.1);
-      border-radius: 20px;
-      overflow: hidden;
-    }
-
-    .progress-fill {
-      height: 100%;
-      background: linear-gradient(90deg, var(--green), #38b66a);
-      width: 0%;
-      transition: width 1s ease-out;
-      display: flex;
-      align-items: center;
-      justify-content: flex-end;
-      padding-right: 12px;
-      font-size: 0.9em;
-      color: white;
-      font-weight: 700;
-      text-shadow: 0 0 6px rgba(0,0,0,0.4);
-    }
-
-    /* DONATION LIST */
-    .donations-list {
-      display: grid;
-      gap: 14px;
-      max-height: 480px;
-      overflow-y: auto;
-      padding-right: 5px;
-    }
-
-    .donation-item {
-      background: rgba(255,255,255,0.06);
-      border: 1px solid rgba(255,255,255,0.12);
-      padding: 18px 20px;
-      border-radius: 14px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      transition: 0.3s ease;
-    }
-
-    .donation-item:hover {
-      background: rgba(255,255,255,0.12);
-    }
-
-    .donor-name {
-      font-weight: 700;
-      color: var(--gold);
-      margin-bottom: 6px;
-    }
-
-    .donation-date {
-      font-size: 0.85em;
-      color: var(--text-soft);
-    }
-
-    .donation-amount {
-      font-size: 1.4em;
-      font-weight: 800;
-      background: linear-gradient(135deg, var(--gold), var(--green));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-
-    /* LOADING */
-    .loading {
-      text-align: center;
-      padding: 40px;
-      color: var(--text-soft);
-    }
-
-    .spinner {
-      width: 40px;
-      height: 40px;
-      border: 4px solid rgba(255,255,255,0.15);
-      border-top-color: var(--gold);
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-      margin: 0 auto 15px;
-    }
-
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    /* FOOTER */
     .footer-links {
-      text-align: center;
-      margin-top: 45px;
-      padding-top: 35px;
-      border-top: 1px solid rgba(255,255,255,0.15);
+      margin-top:30px;
+      display:flex;
+      gap:20px;
+      justify-content:center;
+      flex-wrap:wrap;
     }
 
     .footer-links a {
-      color: var(--text-soft);
-      text-decoration: none;
-      margin: 0 14px;
-      transition: 0.3s ease;
-      font-size: 0.95em;
+      color:#f4a349;
+      font-size:0.9em;
+      text-decoration:none;
+      opacity:.9;
+      transition:.3s ease;
     }
 
-    .footer-links a:hover { color: var(--gold); }
-
-    @media (max-width: 640px) {
-      .tracker-card { padding: 25px; }
-      .stats-grid { grid-template-columns: 1fr; }
+    .footer-links a:hover {
+      opacity:1;
+      text-decoration:underline;
     }
   </style>
 </head>
 
 <body>
 
-  <div class="container">
+  <div class="page-title">iAscendAi — Identity Verification</div>
+  <h1>SoulMarkⓈ Verification</h1>
 
-    <div class="header">
-      <div class="logo">🇯🇲 SoulTrackerⓈ</div>
-      <div class="tagline">Real-time transparency through iAscendAi × Jamaica We Rise</div>
-    </div>
+  <div class="verify-box">
+    <p>Enter a SoulMarkⓈ signature to validate an identity.</p>
 
-    <div class="tracker-card">
+    <input type="text" id="soulmarkInput" placeholder="Paste SoulMarkⓈ…" />
 
-      <div class="stats-grid">
-        <div class="stat-card">
-          <div class="stat-value" id="totalDonors">0</div>
-          <div class="stat-label">Total Donors</div>
-        </div>
+    <button id="verifyBtn">Verify SoulMarkⓈ</button>
 
-        <div class="stat-card">
-          <div class="stat-value" id="totalRaised">$0</div>
-          <div class="stat-label">Total Raised</div>
-        </div>
-
-        <div class="stat-card">
-          <div class="stat-value" id="averageDonation">$0</div>
-          <div class="stat-label">Average Donation</div>
-        </div>
-      </div>
-
-      <div class="progress-section">
-        <h2 class="section-title">Campaign Progress</h2>
-
-        <div class="progress-bar-container">
-          <div class="progress-header">
-            <span>Goal: $50,000</span>
-            <span id="progressAmount">$0 raised</span>
-          </div>
-
-          <div class="progress-bar">
-            <div class="progress-fill" id="progressFill">
-              <span id="progressPercent">0%</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <h2 class="section-title">Recent Donations</h2>
-
-      <div id="loadingState" class="loading">
-        <div class="spinner"></div>
-        <div>Loading verified donations…</div>
-      </div>
-
-      <div id="donationsList" class="donations-list" style="display:none;"></div>
-
-      <div class="footer-links">
-        <a href="donate.html">💛 Make a Donation</a>
-        <a href="soulregistry.html">📜 View SoulRegistryⓈ</a>
-        <a href="iascendai-dashboard.html">🏠 Dashboard</a>
-      </div>
-
-    </div>
+    <div id="result"></div>
   </div>
 
-  <!-- TRACKER LOGIC -->
+  <!-- NAV -->
+  <div class="footer-links">
+    <a href="iascendai-register.html">Create Identity</a>
+    <a href="soulregistry.html">SoulRegistryⓈ</a>
+    <a href="iascendai-dashboard.html">Dashboard</a>
+  </div>
+
   <script type="module">
     import { CONFIG } from "./config.js";
-
-    /* Correct backend now guaranteed */
     const BACKEND_URL = CONFIG.BACKEND_URL;
 
-    const GOAL = 50000;
+    const resultEl = document.getElementById("result");
 
-    async function loadDonations() {
-      try {
-        const response = await fetch(`${BACKEND_URL}/registry`, { cache: "no-store" });
-        const data = await response.json();
+    document.getElementById("verifyBtn").addEventListener("click", async () => {
+      const input = document.getElementById("soulmarkInput").value.trim();
+      resultEl.className = "";
 
-        const donations = data.filter(e => typeof e.amount === "number");
-        const totalRaised = donations.reduce((sum, d) => sum + d.amount, 0);
-        const totalDonors = donations.length;
-        const average = totalDonors ? Math.round(totalRaised / totalDonors) : 0;
-        const percent = Math.min(Math.round((totalRaised / GOAL) * 100), 100);
-
-        document.getElementById("totalDonors").textContent = totalDonors;
-        document.getElementById("totalRaised").textContent = `$${totalRaised.toLocaleString()}`;
-        document.getElementById("averageDonation").textContent = `$${average}`;
-        document.getElementById("progressAmount").textContent = `$${totalRaised.toLocaleString()} raised`;
-        document.getElementById("progressPercent").textContent = `${percent}%`;
-        document.getElementById("progressFill").style.width = percent + "%";
-
-        const list = document.getElementById("donationsList");
-        list.innerHTML = donations
-          .sort((a, b) => new Date(b.createdAt || b.timestamp) - new Date(a.createdAt || a.timestamp))
-          .slice(0, 30)
-          .map(d => `
-            <div class="donation-item">
-              <div>
-                <div class="donor-name">${d.name || "Anonymous"}</div>
-                <div class="donation-date">
-                  ${new Date(d.createdAt || d.timestamp).toLocaleString()}
-                </div>
-              </div>
-              <div class="donation-amount">$${d.amount}</div>
-            </div>
-          `)
-          .join("");
-
-        document.getElementById("loadingState").style.display = "none";
-        list.style.display = "grid";
-
-      } catch (err) {
-        document.getElementById("loadingState").innerHTML = "⚠️ Failed to load donations.";
+      if (!input) {
+        resultEl.textContent = "Please enter a SoulMarkⓈ.";
+        return;
       }
-    }
 
-    loadDonations();
-    setInterval(loadDonations, 60000);
+      resultEl.textContent = "Verifying…";
+
+      try {
+        const res = await fetch(`${BACKEND_URL}/registry`, { cache: "no-store" });
+        const data = await res.json();
+
+        // Filter ONLY identity entries
+        const identities = data.filter(e => e.type === "identity");
+
+        const match = identities.find(
+          r => (r.soulmark || "").toLowerCase() === input.toLowerCase()
+        );
+
+        if (match) {
+          resultEl.className = "verified";
+          resultEl.textContent =
+`✅ Verified SoulMarkⓈ
+
+Name: ${match.name}
+Username: ${match.username}@iascendai
+Email: ${match.email || "—"}
+Role: ${match.role || "Supporter"}
+Status: Verified`;
+        } else {
+          resultEl.className = "invalid";
+          resultEl.textContent = "❌ No matching SoulMarkⓈ found.";
+        }
+
+      } catch (error) {
+        resultEl.className = "invalid";
+        resultEl.textContent = "⚠️ Verification service unavailable.";
+        console.error(error);
+      }
+    });
   </script>
 
 </body>
