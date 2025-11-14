@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Create Your Identity | iAscendAi</title>
 
-  <!-- Config -->
   <script type="module">
     import { CONFIG } from "./config.js";
     window.CONFIG = CONFIG;
@@ -330,7 +329,6 @@
         </div>
       </div>
 
-      <!-- Display preferences block -->
       <div class="display-section">
         <div class="display-section-title">Choose how your donation appears on the public tracker</div>
 
@@ -382,7 +380,6 @@
     const emailInput     = document.getElementById("email");
     const usernameInput  = document.getElementById("username");
     const usernameStatus = document.getElementById("usernameStatus");
-    const donationMetaEl = null; // kept for future use if needed
     const submitBtn      = document.getElementById("submitBtn");
 
     const identityRadios = document.querySelectorAll('input[name="identityMode"]');
@@ -394,7 +391,6 @@
     let usernameCheckTimeout = null;
     let usernameAvailable = false;
 
-    // 1️⃣ Load from query + localStorage (email/soulmark/amount handoff)
     (function hydrateFromContext() {
       const params = new URLSearchParams(window.location.search);
 
@@ -408,7 +404,6 @@
       const lsSoulmark = localStorage.getItem("soulmark") || "";
       const lsAmount   = localStorage.getItem("amount")   || "";
 
-      // Also pull from donor_ keys written by success.html
       const donorEmail    = localStorage.getItem("donor_email")    || "";
       const donorSoulmark = localStorage.getItem("donor_soulmark") || "";
       const donorAmount   = localStorage.getItem("donation_amount")|| "";
@@ -434,21 +429,18 @@
       if (email) localStorage.setItem("email", email);
     })();
 
-    // Helper: get current identity mode
     function getIdentityMode() {
       const selected = Array.from(identityRadios).find(r => r.checked);
       return selected ? selected.value : "username";
     }
 
-    // 2️⃣ Enforce visibility rules (auto-correct)
-    function enforceVisibilityRules(source) {
+    function enforceVisibilityRules() {
       const mode = getIdentityMode();
       const showDonation = showDonationCb.checked;
 
       displayNoteEl.textContent = "";
 
       if (mode === "anonymous" && !showDonation) {
-        // Auto-correct: keep amount visible
         showDonationCb.checked = true;
         displayNoteEl.textContent =
           "Anonymous donors must show their donation amount or choose a visible name. Amount has been kept visible automatically.";
@@ -456,12 +448,11 @@
     }
 
     identityRadios.forEach(radio => {
-      radio.addEventListener("change", () => enforceVisibilityRules("identity"));
+      radio.addEventListener("change", enforceVisibilityRules);
     });
 
-    showDonationCb.addEventListener("change", () => enforceVisibilityRules("donation"));
+    showDonationCb.addEventListener("change", enforceVisibilityRules);
 
-    // 3️⃣ Username availability check
     usernameInput.addEventListener("input", () => {
       const raw = usernameInput.value.trim().toLowerCase();
       const username = raw.replace(/[^a-z0-9._-]/g, "");
@@ -499,7 +490,6 @@
       }, 450);
     });
 
-    // 4️⃣ Submit registration
     document.getElementById("registrationForm").addEventListener("submit", async (e) => {
       e.preventDefault();
 
@@ -511,7 +501,6 @@
       const identityMode = getIdentityMode();
       const showDonation = showDonationCb.checked;
 
-      // Final safety enforcement of rules
       if (identityMode === "anonymous" && !showDonation) {
         showDonationCb.checked = true;
       }
@@ -531,9 +520,8 @@
         username,
         soulmark: currentSoulmark || null,
         donationAmount: currentAmount ? Number(currentAmount) : null,
-        // Preferences (backend will ignore for now, but included for forward compatibility)
-        displayIdentity: identityMode,       // "username" | "real" | "anonymous"
-        showDonationAmount: !!showDonation   // true | false
+        displayIdentity: identityMode,
+        showDonationAmount: !!showDonation,
       };
 
       try {
@@ -548,7 +536,6 @@
           throw new Error(data.error || "Registration failed.");
         }
 
-        // Save identity for dashboard
         localStorage.setItem("username", username);
         localStorage.setItem("name", name);
         localStorage.setItem("email", email);
@@ -560,14 +547,12 @@
 
         const qs = new URLSearchParams({
           username,
-          name,
           soulmark: payload.soulmark || "",
           mode: identityMode,
           showDonation: showDonation ? "1" : "0"
         });
 
         window.location.href = `iascendai-dashboard.html?${qs.toString()}`;
-
       } catch (err) {
         console.error("Registration error:", err);
         alert(err.message || "Registration failed. Please try again.");
