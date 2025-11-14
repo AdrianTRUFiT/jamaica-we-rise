@@ -27,7 +27,7 @@
     .card {
       width: 100%;
       max-width: 600px;
-      background: rgba(11, 25, 45, 0.9);
+      background: rgba(11,25,45,0.9);
       border-radius: 24px;
       padding: 32px;
       border: 1px solid rgba(148,163,184,0.35);
@@ -59,7 +59,7 @@
     }
 
     .value-box {
-      padding: 12px 14px;
+      padding: 12px;
       border-radius: 12px;
       background: rgba(15,23,42,0.95);
       border: 1px solid rgba(148,163,184,0.35);
@@ -83,6 +83,13 @@
       font-size: 1rem;
       box-shadow: 0 20px 45px rgba(0,0,0,0.55);
     }
+
+    #errorBox {
+      margin-top: 12px;
+      color: #ff6b6b;
+      font-size: .9rem;
+      display: none;
+    }
   </style>
 </head>
 
@@ -92,7 +99,7 @@
 
     <p class="subtitle">
       Thank you for supporting Jamaica We Rise.<br>
-      Verifying your donation and linking your iAscendAi identity…
+      Verifying your donation and linking your identity…
     </p>
 
     <div>
@@ -106,82 +113,67 @@
       <div id="soulBox" class="value-box" style="font-size:0.85rem">Loading…</div>
     </div>
 
-    <div id="errorBox" style="margin-top:12px;color:#ff6b6b;font-size:.9rem;display:none;">
+    <div id="errorBox">
       ⚠️ We could not verify your donation. Please refresh the page.
     </div>
 
     <button id="continueBtn">Continue to Create Your Identity</button>
   </div>
 
+
   <script type="module">
     import { CONFIG } from "./config.js";
     const BACKEND_URL = CONFIG.BACKEND_URL;
 
-    // Capture query params from JS-delivered redirect (Stripe → Vercel)
     const params = new URLSearchParams(window.location.search);
     let sessionId = params.get("session_id");
 
-    console.log("Initial session_id:", sessionId);
-
-    // Retry logic for Safari/Vercel parameter delay bug
+    // Safari/Vercel fix: retry once after delay if missing
     if (!sessionId) {
       setTimeout(() => {
         const retryId = new URLSearchParams(window.location.search).get("session_id");
-        console.log("Retry session_id:", retryId);
         if (retryId) {
           sessionId = retryId;
-          loadSession();
+          loadVerification();
         }
-      }, 600);
+      }, 500);
     }
 
-    async function loadSession() {
-      if (!sessionId) return; // Avoid premature call
+    if (sessionId) loadVerification();
 
+    async function loadVerification() {
       try {
-        const res = await fetch(
-          `${BACKEND_URL}/retrieve-session?session_id=${encodeURIComponent(sessionId)}`
-        );
-
+        const res = await fetch(`${BACKEND_URL}/verify-donation/${sessionId}`);
         const data = await res.json();
-        console.log("Session Data:", data);
 
-        if (!data || !data.email) {
-          throw new Error("Invalid Stripe session data");
-        }
+        if (!data || !data.email) throw new Error("Invalid donation data");
 
-        const amount = data.amount;
-        const email  = data.email;
-        const soul   = data.soulmark;
+        const { amount, email, soulmark } = data;
 
-        document.getElementById("amountBox").textContent =
-          amount ? `$${amount.toFixed(2)}` : "$—";
+        document.getElementById("amountBox").textContent = `$${amount.toFixed(2)}`;
+        document.getElementById("emailBox").textContent = email;
+        document.getElementById("soulBox").textContent = soulmark;
 
-        document.getElementById("emailBox").textContent = email || "Not available";
-        document.getElementById("soulBox").textContent  = soul || "Not assigned";
-
-        // Save for registration
-        localStorage.setItem("donation_amount", amount || "");
-        localStorage.setItem("donor_email", email || "");
-        localStorage.setItem("donor_soulmark", soul || "");
+        // Save to localStorage for registration
+        localStorage.setItem("donor_email", email);
+        localStorage.setItem("donor_soulmark", soulmark);
+        localStorage.setItem("donation_amount", amount);
 
       } catch (err) {
-        console.error("Error retrieving session:", err);
+        console.error("Verification error:", err);
         document.getElementById("errorBox").style.display = "block";
       }
     }
 
-    // Start initial load
-    if (sessionId) loadSession();
-
     document.getElementById("continueBtn").onclick = () => {
-      const email  = localStorage.getItem("donor_email") || "";
-      const soul   = localStorage.getItem("donor_soulmark") || "";
-      const amount = localStorage.getItem("donation_amount") || "";
+      const email  = encodeURIComponent(localStorage.getItem("donor_email") || "");
+      const soul   = encodeURIComponent(localStorage.getItem("donor_soulmark") || "");
+      const amount = encodeURIComponent(localStorage.getItem("donation_amount") || "");
 
       window.location.href =
-        `/iascendai-register.html?email=${encodeURIComponent(email)}&soulmark=${encodeURIComponent(soul)}&amount=${encodeURIComponent(amount)}`;
+        `/iascendai-register.html?email=${email}&soulmark=${soul}&amount=${amount}`;
     };
   </script>
+
 </body>
 </html>
