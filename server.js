@@ -95,7 +95,6 @@ app.post("/create-checkout-session", async (req, res) => {
       ],
       mode: "payment",
 
-      // 🚨 Redirect MUST go to Vercel frontend
       success_url: `${FRONTEND_URL}/success.html?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${FRONTEND_URL}/index.html`,
 
@@ -107,6 +106,35 @@ app.post("/create-checkout-session", async (req, res) => {
   } catch (err) {
     logEvent("error", `create-session: ${err.message}`);
     res.status(500).json({ error: err.message });
+  }
+});
+
+// -------------------------------------------------
+// 🔄 6.5 Legacy Compatibility: retrieve-session
+// -------------------------------------------------
+app.get("/retrieve-session", async (req, res) => {
+  const sessionId = req.query.session_id;
+
+  if (!sessionId)
+    return res.status(400).json({ error: "Missing session_id" });
+
+  try {
+    const session = await stripe.checkout.sessions.retrieve(sessionId, {
+      expand: ["customer_details"]
+    });
+
+    const donor = {
+      amount: session.amount_total / 100,
+      email: session.customer_details?.email,
+      soulmark:
+        session.metadata?.soulmark ||
+        "SM-" + Buffer.from(session.id).toString("base64").slice(0, 12)
+    };
+
+    res.json(donor);
+  } catch (err) {
+    logEvent("error", `retrieve-session: ${err.message}`);
+    res.status(500).json({ error: "Failed to retrieve session" });
   }
 });
 
@@ -166,7 +194,7 @@ app.get("/verify-donation/:sessionId", async (req, res) => {
 });
 
 // -------------------------------------------------
-// 8️⃣ Username Availability
+// 8️⃣ Check Username
 // -------------------------------------------------
 app.get("/check-username/:username", (req, res) => {
   const username = req.params.username.toLowerCase();
@@ -226,7 +254,7 @@ app.post("/register", (req, res) => {
 });
 
 // -------------------------------------------------
-// 🔟 Registry
+// 🔟 Registry Reader
 // -------------------------------------------------
 app.get("/registry", (req, res) => {
   try {
