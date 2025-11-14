@@ -259,6 +259,7 @@
     const entryCountEl = document.getElementById("entryCount");
     const activityBodyEl = document.getElementById("activityBody");
 
+    // Pull context with username as the primary anchor
     function getContext() {
       const params = new URLSearchParams(window.location.search);
 
@@ -282,7 +283,7 @@
       const showDonationAmount = showDonationFlag === "1";
 
       return {
-        username: usernameParam || storedUsername,
+        username: usernameParam || storedUsername, // PRIMARY KEY
         soulmark: soulParam || storedSoul,
         email: storedEmail,
         displayIdentity,
@@ -293,9 +294,9 @@
     async function loadDashboard() {
       const ctx = getContext();
 
-      if (!ctx.username && !ctx.email && !ctx.soulmark) {
+      if (!ctx.username) {
         statusTextEl.textContent =
-          "We couldn’t detect a linked identity. Please return to the Success page and complete registration.";
+          "We couldn’t detect a linked username. Please return to the Success page and complete registration.";
         return;
       }
 
@@ -309,42 +310,54 @@
           throw new Error("Invalid registry format");
         }
 
+        // 🔐 Identity is matched by USERNAME ONLY
         const identity = registry
           .filter((r) => r.type === "identity")
           .find((r) => {
             const u = (r.username || "").toLowerCase();
-            const e = r.email || "";
-            const s = r.soulmark || "";
-            return (
-              (ctx.username && u === ctx.username) ||
-              (ctx.email && e === ctx.email) ||
-              (ctx.soulmark && s === ctx.soulmark)
-            );
+            return ctx.username && u === ctx.username;
           });
 
+        // Decide which keys to use when aggregating donations
+        const keyEmail = identity?.email || ctx.email || null;
+        const keySoul  = identity?.soulmark || ctx.soulmark || null;
+
+        // Donations are linked via the matched identity’s email or SoulMark
         const donations = registry.filter((r) => {
           if (r.type !== "donation") return false;
           const e = r.email || "";
           const s = r.soulmark || "";
           return (
-            (ctx.email && e === ctx.email) ||
-            (ctx.soulmark && s === ctx.soulmark)
+            (keyEmail && e === keyEmail) ||
+            (keySoul && s === keySoul)
           );
         });
 
+        // -------------------------
+        // Identity card
+        // -------------------------
         if (!identity) {
           statusTextEl.textContent =
-            "No identity record found yet. Your donation is verified, but identity registration may still be pending.";
+            "No identity record found for this username yet. Your donation may be verified, but identity registration is still pending.";
           statusPillEl.classList.remove("status-ok");
           statusPillEl.classList.add("status-pending");
           statusPillEl.textContent = "Pending";
+
+          soulValueEl.textContent = ctx.soulmark || "Assigned after verification";
+          nameValueEl.textContent = "—";
+          usernameValueEl.textContent = ctx.username
+            ? `${ctx.username}@iascendai`
+            : "—";
+          identityNoteEl.textContent =
+            "Once your identity is registered, your SoulMarkⓈ will be linked to this username.";
         } else {
           statusTextEl.textContent = "Identity located and linked to your SoulMarkⓈ.";
           statusPillEl.classList.remove("status-pending");
           statusPillEl.classList.add("status-ok");
           statusPillEl.textContent = "Verified";
 
-          identity.displayIdentity = identity.displayIdentity || ctx.displayIdentity;
+          identity.displayIdentity =
+            identity.displayIdentity || ctx.displayIdentity;
           identity.showDonationAmount =
             typeof identity.showDonationAmount === "boolean"
               ? identity.showDonationAmount
@@ -379,6 +392,9 @@
           roleValueEl.textContent = identity.role || "supporterⓈ";
         }
 
+        // -------------------------
+        // Donation aggregation
+        // -------------------------
         if (donations.length === 0) {
           latestDonationEl.textContent = "$0.00";
           totalDonationsEl.textContent = "$0.00";
