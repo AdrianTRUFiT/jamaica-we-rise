@@ -1,9 +1,3 @@
-🧙🏾‍♂️: Perfect. I will complete the entire API Reference in clean, professional developer-grade format — matching your iAscendAi ecosystem style and the final backend you approved.
-
-Below is the full API Reference, fully aligned with your canonical server.js, using dark-themed clarity and structured YAML-style sections for immediate GitHub paste.
-
-⸻
-
 📘 Jamaica We Rise × iAscendAi — API Reference
 
 Base URL:
