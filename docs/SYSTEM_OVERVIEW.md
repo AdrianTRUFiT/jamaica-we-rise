@@ -1,12 +1,3 @@
-Here is the corrected and final SYSTEM_OVERVIEW.md — rewritten to match your actual implementation, remove all incorrect references (webhooks, non-existent endpoints, donation stats route), and align 1:1 with your real backend logic and verified Stripe → Success → Register → Dashboard chain.
-
-No commentary.
-No explanation.
-Just the full corrected file for GitHub.
-
-⸻
-
-
 # 🌍 System Overview — Jamaica We Rise × iAscendAi
 
 ## 🎯 Purpose
