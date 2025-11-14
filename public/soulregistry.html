@@ -21,88 +21,76 @@
       padding: 40px 20px;
     }
     h1 {
-      text-align: center;
-      background: linear-gradient(135deg, #fed103, #059c3a);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      font-size: 2.8em;
-      margin-bottom: 10px;
+      text-align:center;
+      font-size:2.8em;
+      background:linear-gradient(135deg,#fed103,#059c3a);
+      -webkit-background-clip:text;
+      -webkit-text-fill-color:transparent;
+      margin-bottom:10px;
     }
     p {
-      text-align: center;
-      color: rgba(255,255,255,0.8);
-      margin-bottom: 40px;
-      font-size: 1.05em;
+      text-align:center;
+      color:rgba(255,255,255,0.8);
+      margin-bottom:40px;
     }
     .registry {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 20px;
-      max-width: 1200px;
-      margin: 0 auto;
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+      gap:20px;
+      max-width:1200px;
+      margin:0 auto;
     }
     .entry {
-      background: rgba(255,255,255,0.06);
-      border: 1px solid rgba(255,255,255,0.15);
-      border-radius: 16px;
-      padding: 22px 26px;
-      box-shadow: 0 0 25px rgba(5,156,58,0.15);
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      background:rgba(255,255,255,0.06);
+      border:1px solid rgba(255,255,255,0.15);
+      border-radius:16px;
+      padding:22px 26px;
+      box-shadow:0 0 25px rgba(5,156,58,0.15);
+      transition:transform .3s ease, box-shadow .3s ease;
     }
     .entry:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 0 35px rgba(254,209,3,0.3);
+      transform:translateY(-3px);
+      box-shadow:0 0 35px rgba(254,209,3,0.3);
     }
     .entry h2 {
-      margin: 0 0 10px;
-      font-size: 1.4em;
-      color: #fed103;
+      margin:0 0 10px;
+      font-size:1.35em;
+      color:#fed103;
     }
     .entry p {
-      margin: 5px 0;
-      font-size: 0.95em;
-      color: rgba(255,255,255,0.9);
+      margin:5px 0;
+      font-size:0.95em;
+      color:rgba(255,255,255,0.9);
     }
     .verified {
-      color: #05c85b;
-      font-weight: 600;
-    }
-    .unverified {
-      color: #f4a349;
-      font-weight: 500;
+      color:#05c85b;
+      font-weight:600;
     }
     #loading {
-      text-align: center;
-      color: rgba(255,255,255,0.7);
-      font-size: 1.1em;
-      margin-top: 40px;
+      text-align:center;
+      color:rgba(255,255,255,0.7);
+      font-size:1.1em;
+      margin-top:40px;
     }
     .footer {
-      text-align: center;
-      margin-top: 60px;
-      font-size: 0.9em;
-      color: rgba(255,255,255,0.6);
+      text-align:center;
+      margin-top:60px;
+      font-size:0.9em;
+      color:rgba(255,255,255,0.6);
     }
     .footer a {
-      color: #fed103;
-      text-decoration: none;
-      margin-top: 10px;
-      display: inline-block;
-      transition: opacity 0.3s ease;
-    }
-    .footer a:hover {
-      opacity: 0.8;
-    }
-    @media (max-width: 640px) {
-      h1 { font-size: 2.2em; }
-      .entry { padding: 18px; }
+      color:#fed103;
+      text-decoration:none;
+      margin-top:10px;
+      display:inline-block;
     }
   </style>
 </head>
 
 <body>
+
   <h1>SoulRegistryⓈ Directory</h1>
-  <p>Explore verified SoulMarkⓈ identities and transparent contributions through the iAscendAi × Jamaica We Rise ledger.</p>
+  <p>Explore verified SoulMarkⓈ identities across the iAscendAi × Jamaica We Rise network.</p>
 
   <div id="loading">Loading verified entries...</div>
   <div id="registry" class="registry" style="display:none;"></div>
@@ -114,8 +102,6 @@
 
   <script type="module">
     import { CONFIG } from "./config.js";
-
-    /* Correct backend URL pulled from config.js */
     const BACKEND_URL = CONFIG.BACKEND_URL;
 
     async function loadRegistry() {
@@ -124,42 +110,43 @@
 
       try {
         const response = await fetch(`${BACKEND_URL}/registry`, { cache: "no-store" });
-        if (!response.ok) throw new Error("Failed to fetch registry");
-
         const data = await response.json();
 
-        if (!data || data.length === 0) {
-          loading.textContent = "No verified entries yet.";
+        // Filter ONLY identity entries
+        const identities = data.filter(e => e.type === "identity");
+
+        if (identities.length === 0) {
+          loading.textContent = "No verified identities yet.";
           return;
         }
+
+        // Sort newest first
+        identities.sort((a, b) => {
+          const ta = a.firstDonation?.timestamp || "";
+          const tb = b.firstDonation?.timestamp || "";
+          return tb.localeCompare(ta);
+        });
 
         loading.style.display = "none";
         registryContainer.style.display = "grid";
 
-        /* Sort verified first */
-        const sorted = data.sort((a, b) => (b.verified === true) - (a.verified === true));
+        registryContainer.innerHTML = identities.map(entry => `
+          <div class="entry">
+            <h2>${entry.name || "Unnamed Identity"}</h2>
+            <p><strong>Username:</strong> ${entry.username ? `${entry.username}@iascendai` : "—"}</p>
+            <p><strong>SoulMarkⓈ:</strong> ${entry.soulmark || "—"}</p>
+            <p class="verified">✔ Verified Presence</p>
+          </div>
+        `).join("");
 
-        registryContainer.innerHTML = sorted
-          .map(entry => `
-            <div class="entry">
-              <h2>${entry.name || "Unnamed Identity"}</h2>
-              <p><strong>Username:</strong> ${entry.username ? `${entry.username}@iascendai` : "—"}</p>
-              <p><strong>SoulMarkⓈ:</strong> ${entry.soulmark || entry.soulMark || "—"}</p>
-              <p class="${entry.verified ? "verified" : "unverified"}">
-                ${entry.verified ? "✔ Verified Presence" : "⚠ Pending Verification"}
-              </p>
-              ${entry.amount ? `<p><strong>Contribution:</strong> $${entry.amount}</p>` : ""}
-              ${entry.role ? `<p><strong>Role:</strong> ${entry.role}</p>` : ""}
-            </div>
-          `)
-          .join("");
       } catch (error) {
-        console.error("Error loading registry:", error);
-        loading.textContent = "⚠️ Could not load the SoulRegistryⓈ. Please try again later.";
+        console.error("Registry load error:", error);
+        loading.textContent = "⚠️ Could not load the SoulRegistryⓈ.";
       }
     }
 
     loadRegistry();
   </script>
+
 </body>
 </html>
