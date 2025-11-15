@@ -147,7 +147,6 @@
 </head>
 
 <body>
-
   <div class="card">
     <h1>Jamaica We Rise Relief Fund</h1>
 
@@ -188,8 +187,6 @@
     </div>
   </div>
 
-
-  <!-- SCRIPT -->
   <script type="module">
     import { CONFIG } from "./config.js";
     const BACKEND_URL = CONFIG.BACKEND_URL;
@@ -201,25 +198,43 @@
     const identityHandle  = document.getElementById("identityHandle");
 
     let selectedAmount = null;
+    const normalizeEmail = (e) => e.toLowerCase().trim();
 
-    // 🔐 1) Hydrate from existing identity if present
-    (function hydrateFromIdentity() {
-      const storedUsername = (localStorage.getItem("username") || "").trim();
-      const storedName     = (localStorage.getItem("name") || "").trim();
-      const storedEmail    = (localStorage.getItem("email") || "").trim();
+    // 1) Verify stored identity with backend before trusting it
+    (async function hydrateFromIdentity() {
+      const rawStoredEmail = localStorage.getItem("email") || "";
+      const storedEmail = normalizeEmail(rawStoredEmail);
 
-      // If we have a known identity, prefill + lock
-      if (storedUsername && storedEmail) {
-        const handle = `${storedUsername}@iascendai`;
+      if (!storedEmail) return;
 
-        fullNameInput.value  = storedName || "";
-        emailInput.value     = storedEmail;
+      try {
+        const res = await fetch(`${BACKEND_URL}/verify-identity`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: storedEmail })
+        });
 
-        fullNameInput.readOnly = !!storedName;  // if we know their name, lock it
-        emailInput.readOnly    = true;          // email is the stable login anchor
+        const data = await res.json();
 
-        identityHandle.textContent = handle;
-        identityBanner.style.display = "block";
+        if (data && data.valid) {
+          fullNameInput.value = data.name || "";
+          emailInput.value = storedEmail;
+
+          if (data.name) {
+            fullNameInput.readOnly = true;
+          }
+          emailInput.readOnly = true;
+
+          identityHandle.textContent = `${data.username}@iascendai`;
+          identityBanner.style.display = "block";
+        } else {
+          // Clear spoofed values if backend says "no"
+          localStorage.removeItem("email");
+          localStorage.removeItem("name");
+          localStorage.removeItem("username");
+        }
+      } catch (err) {
+        console.error("Identity verification failed:", err);
       }
     })();
 
@@ -242,7 +257,7 @@
     // 3) Donate button → Stripe session
     document.getElementById("donateBtn").onclick = async () => {
       const name  = fullNameInput.value.trim();
-      const email = emailInput.value.trim();
+      const email = normalizeEmail(emailInput.value);
 
       let amount = selectedAmount;
       if (!amount) {
@@ -250,12 +265,12 @@
         if (rawCustom) amount = parseFloat(rawCustom);
       }
 
-      if (!name || !email || !amount || amount <= 0) {
-        alert("Please complete all fields, including amount.");
+      if (!name || !email || !Number.isFinite(amount) || amount <= 0) {
+        alert("Please complete all fields with a valid amount.");
         return;
       }
 
-      // Persist latest name/email so future pages remain seamless
+      // Persist normalized identity
       localStorage.setItem("name", name);
       localStorage.setItem("email", email);
 
@@ -279,6 +294,5 @@
       }
     };
   </script>
-
 </body>
 </html>
