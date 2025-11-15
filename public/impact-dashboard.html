@@ -1,315 +1,252 @@
+<!-- public/impact-dashboard.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Impact Dashboard | Jamaica We Rise × iAscendAi</title>
+<meta charset="UTF-8" />
+<meta
+name="viewport"
+content="width=device-width, initial-scale=1.0" />
 
-  <!-- Loads correct backend URL -->
-  <script type="module">
-    import { CONFIG } from "./config.js";
-    window.CONFIG = CONFIG;
-  </script>
+<title>Impact Dashboard | Jamaica We Rise × iAscendAi</title>
 
-  <style>
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif;
-      background: linear-gradient(145deg, #03131f 0%, #041423 50%, #020c15 100%);
-      color: #fff;
-      margin: 0;
-      padding: 40px 20px;
-      min-height: 100vh;
-      position: relative;
-    }
+<!-- Load CONFIG -->
+<script type="module">
+import { CONFIG } from "./config.js";
+window.CONFIG = CONFIG;
+</script>
 
-    /* LOGOUT BUTTON */
-    .logout-btn {
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      padding: 6px 14px;
-      background: rgba(255,255,255,0.08);
-      border: 1px solid rgba(255,255,255,0.18);
-      border-radius: 999px;
-      color: #fff;
-      cursor: pointer;
-      font-size: 0.82rem;
-    }
+<style>
+body {
+margin:0;
+padding:0;
+font-family:-apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, sans-serif;
+background:linear-gradient(160deg,#031623 0%,#020c15 50%,#00060a 100%);
+color:#fff;
+min-height:100vh;
+}
 
-    h1 {
-      text-align: center;
-      font-size: 2.8em;
-      background: linear-gradient(135deg, #fed103, #059c3a);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      margin-bottom: 10px;
-    }
+header {
+  padding:20px;
+  text-align:center;
+  background:rgba(255,255,255,0.04);
+  border-bottom:1px solid rgba(255,255,255,0.1);
+  position:relative;
+}
 
-    p {
-      text-align: center;
-      color: rgba(255,255,255,0.8);
-      margin-bottom: 40px;
-    }
+.logout-btn {
+  position:absolute;
+  right:20px;
+  top:20px;
+  padding:6px 14px;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,0.2);
+  background:rgba(255,255,255,0.1);
+  color:#fff;
+  font-size:0.8rem;
+  cursor:pointer;
+  backdrop-filter:blur(6px);
+}
 
-    .stats {
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-      gap: 30px;
-      margin-bottom: 50px;
-    }
+h1 {
+  background:linear-gradient(135deg,#fed103,#05c85b);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  font-size:2.4rem;
+  margin-bottom:4px;
+}
 
-    .stat {
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 16px;
-      padding: 30px 40px;
-      text-align: center;
-      min-width: 220px;
-      box-shadow: 0 0 25px rgba(5,156,58,0.2);
-    }
+p {
+  color:rgba(255,255,255,0.75);
+  margin:0;
+  font-size:1rem;
+}
 
-    .stat-value {
-      font-size: 2.2em;
-      font-weight: 800;
-      color: #fed103;
-    }
+.stats-board {
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+  gap:22px;
+  padding:30px;
+  max-width:1200px;
+  margin:0 auto;
+}
 
-    .stat-label {
-      color: rgba(255,255,255,0.7);
-      margin-top: 10px;
-      font-size: 0.95em;
-    }
+.stat-box {
+  background:rgba(255,255,255,0.05);
+  border:1px solid rgba(255,255,255,0.12);
+  padding:24px;
+  border-radius:16px;
+  text-align:center;
+  box-shadow:0 0 22px rgba(4, 132, 68, 0.2);
+  transition:0.3s ease;
+}
 
-    h2 {
-      color: #fed103;
-      margin-bottom: 20px;
-      text-align: center;
-      font-size: 1.6em;
-    }
+.stat-box:hover {
+  transform:translateY(-3px);
+  box-shadow:0 0 36px rgba(254,209,3,0.35);
+}
 
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-bottom: 50px;
-    }
+.stat-label {
+  color:rgba(255,255,255,0.7);
+  font-size:0.95rem;
+  margin-bottom:6px;
+}
 
-    th, td {
-      padding: 14px;
-      border-bottom: 1px solid rgba(255,255,255,0.1);
-      text-align: left;
-    }
+.stat-value {
+  font-size:2.2rem;
+  font-weight:700;
+  color:#fed103;
+}
 
-    th {
-      color: #fed103;
-      font-weight: 600;
-      text-transform: uppercase;
-      font-size: 0.9em;
-    }
+.registry-list {
+  max-width:900px;
+  margin:40px auto;
+  padding:0 20px;
+}
 
-    tr:hover {
-      background: rgba(255,255,255,0.05);
-    }
+.entry {
+  background:rgba(255,255,255,0.04);
+  border:1px solid rgba(255,255,255,0.12);
+  padding:20px;
+  border-radius:14px;
+  margin-bottom:16px;
+  transition: 0.2s;
+}
 
-    .footer {
-      text-align: center;
-      color: rgba(255,255,255,0.6);
-      font-size: 0.85em;
-      margin-top: 40px;
-    }
+.entry:hover {
+  border-color:#fed103;
+  background:rgba(255,255,255,0.08);
+}
 
-    .footer a {
-      color: #f4a349;
-      text-decoration: none;
-    }
+.entry h3 {
+  margin:0 0 6px;
+  font-size:1.2rem;
+  color:#fed103;
+}
 
-    @media (max-width: 640px) {
-      h1 { font-size: 2.2em; }
-      .stat { padding: 20px; min-width: 160px; }
-      th, td { font-size: 0.9em; }
-    }
-  </style>
+.entry p {
+  margin:3px 0;
+  color:rgba(255,255,255,0.85);
+  font-size:0.95rem;
+}
+
+footer {
+  text-align:center;
+  padding:30px;
+  color:rgba(255,255,255,0.5);
+  margin-top:40px;
+}
+
+footer a {
+  color:#fed103;
+  text-decoration:none;
+}
+
+</style>
 </head>
 
 <body>
-  <button class="logout-btn" id="logoutBtn">Logout</button>
 
-  <h1>Impact Dashboard</h1>
-  <p>Live summary of verified donations and SoulRegistryⓈ participation.</p>
+<header>
+<button class="logout-btn" id="logoutBtn">Logout</button>
+<h1>Impact Dashboard</h1>
+<p>Live donations · Verified identities · SoulMarkⓈ anchored</p>
+</header>
 
-  <div class="stats">
-    <div class="stat">
-      <div class="stat-value" id="totalRaised">$0</div>
-      <div class="stat-label">Total Raised</div>
-    </div>
+<section class="stats-board">
+<div class="stat-box">
+<div class="stat-label">Total Raised</div>
+<div class="stat-value" id="totalRaised">$0</div>
+</div>
 
-    <div class="stat">
-      <div class="stat-value" id="donorCount">0</div>
-      <div class="stat-label">Total Donors</div>
-    </div>
+<div class="stat-box">
+<div class="stat-label">Total Donors</div>
+<div class="stat-value" id="totalDonors">0</div>
+</div>
 
-    <div class="stat">
-      <div class="stat-value" id="verifiedCount">0</div>
-      <div class="stat-label">Verified Identities</div>
-    </div>
-  </div>
+<div class="stat-box">
+<div class="stat-label">Verified Identities</div>
+<div class="stat-value" id="verifiedIdentities">0</div>
+</div>
+</section>
 
-  <!-- RECENT DONATIONS -->
-  <div class="recent-donors">
-    <h2>Recent Donations</h2>
-    <table id="donorsTable">
-      <thead>
-        <tr><th>Display</th><th>Amount</th><th>Timestamp</th></tr>
-      </thead>
-      <tbody>
-        <tr><td colspan="3" style="text-align:center;color:#9ca3af;">Loading...</td></tr>
-      </tbody>
-    </table>
-  </div>
+<section class="registry-list" id="registryList">
+<h2 style="text-align:center; margin-bottom:20px;">Recent Activity</h2>
+<div id="entries"></div>
+</section>
 
-  <!-- VERIFIED IDENTITIES -->
-  <div class="verified-identities">
-    <h2>Verified Identities (SoulRegistryⓈ)</h2>
-    <table id="registryTable">
-      <thead>
-        <tr><th>Display</th><th>Username</th><th>SoulMarkⓈ</th><th>Status</th></tr>
-      </thead>
-      <tbody>
-        <tr><td colspan="4" style="text-align:center;color:#9ca3af;">Loading...</td></tr>
-      </tbody>
-    </table>
-  </div>
+<footer>
+© 2025 Jamaica We Rise × iAscendAi • Authored Intelligence
 
-  <div class="footer">
-    <p>© 2025 Project Inside Out Jamaica × iAscendAi • Authored Intelligence</p>
-    <a href="iascendai-dashboard.html">← Back to Dashboard</a>
-  </div>
+<br />
+<a href="index.html">← Back to Donation Page</a>
+</footer>
 
-  <script type="module">
-    import { CONFIG } from "./config.js";
-    const BACKEND_URL = CONFIG.BACKEND_URL;
+<script type="module">
+import { CONFIG } from "./config.js";
+const BACKEND_URL = CONFIG.BACKEND_URL;
 
-    // Logout
-    document.getElementById("logoutBtn").onclick = () => {
-      localStorage.clear();
-      window.location.href = "index.html";
-    };
+document.getElementById("logoutBtn").onclick = () => {
+localStorage.clear();
+window.location.href = "index.html";
+};
 
-    async function fetchRegistry() {
-      const res = await fetch(`${BACKEND_URL}/registry`, { cache: "no-store" });
-      return res.json();
-    }
+async function loadImpact() {
+try {
+const res = await fetch(`${BACKEND_URL}/registry`, { cache: "no-store" });
+const data = await res.json();
 
-    // -------------------------
-    // TOTALS
-    // -------------------------
-    async function loadStats() {
-      const data = await fetchRegistry();
-      const donations = data.filter(e => e.type === "donation");
-      const identities = data.filter(e => e.type === "identity");
+  let totalRaised = 0;
+  let donorEmails = new Set();
+  let identities = 0;
 
-      const raised = donations.reduce((sum, d) => sum + (d.amount || 0), 0);
-      document.getElementById("totalRaised").textContent =
-        `$${raised.toLocaleString(undefined, { minimumFractionDigits: 2 })}`;
+  const donations = data.filter(r => r.type === "donation");
+  const identityRecords = data.filter(r => r.type === "identity");
 
-      document.getElementById("donorCount").textContent = donations.length;
-      document.getElementById("verifiedCount").textContent = identities.length;
-    }
+  donations.forEach(d => {
+    totalRaised += d.amount || 0;
+    donorEmails.add(d.email);
+  });
 
-    // -------------------------
-    // RECENT DONATIONS (with visibility rules)
-    // -------------------------
-    async function loadDonors() {
-      const data = await fetchRegistry();
-      const identities = data.filter(e => e.type === "identity");
-      const donations = data.filter(e => e.type === "donation");
+  identities = identityRecords.length;
 
-      const tbody = document.querySelector("#donorsTable tbody");
+  document.getElementById("totalRaised").textContent =
+    `$${totalRaised.toLocaleString()}`;
+  document.getElementById("totalDonors").textContent =
+    donorEmails.size;
+  document.getElementById("verifiedIdentities").textContent =
+    identities;
 
-      const rows = donations.slice(-12).reverse().map(d => {
-        // Match donation to identity to get display rules
-        const linked = identities.find(i =>
-          (i.email && i.email === d.email) ||
-          (i.soulmark && i.soulmark === d.soulmark)
-        );
+  const entriesContainer = document.getElementById("entries");
+  entriesContainer.innerHTML = "";
 
-        let displayName = "Anonymous";
-        let shownAmount = `$${(d.amount || 0).toFixed(2)}`;
+  const recent = [...donations]
+    .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+    .slice(0, 25);
 
-        if (linked) {
-          // Apply identity-mode rules
-          if (linked.displayIdentity === "real") {
-            displayName = linked.name || "—";
-          } else if (linked.displayIdentity === "anonymous") {
-            displayName = "Anonymous";
-          } else {
-            displayName = `${linked.username}@iascendai`;
-          }
+  recent.forEach(e => {
+    const displayName = e.name || e.email || "Anonymous";
 
-          if (linked.showDonationAmount === false) {
-            shownAmount = "Hidden";
-          }
-        }
+    entriesContainer.innerHTML += `
+      <div class="entry">
+        <h3>${displayName}</h3>
+        <p><strong>Amount:</strong> $${e.amount}</p>
+        <p><strong>Email:</strong> ${e.email}</p>
+        <p><strong>SoulMarkⓈ:</strong> ${e.soulmark}</p>
+        <p><strong>Timestamp:</strong> ${new Date(e.timestamp).toLocaleString()}</p>
+      </div>
+    `;
+  });
 
-        return `
-          <tr>
-            <td>${displayName}</td>
-            <td>${shownAmount}</td>
-            <td>${d.timestamp ? new Date(d.timestamp).toLocaleString() : "—"}</td>
-          </tr>
-        `;
-      });
+} catch (err) {
+  console.error("Load error:", err);
+  document.getElementById("entries").innerHTML =
+    "<p style='color:#f66;text-align:center;'>Unable to load activity.</p>";
+}
 
-      tbody.innerHTML =
-        rows.length > 0
-          ? rows.join("")
-          : `<tr><td colspan="3" style="text-align:center;color:#9ca3af;">No donations recorded yet.</td></tr>`;
-    }
+}
 
-    // -------------------------
-    // VERIFIED IDENTITIES TABLE
-    // -------------------------
-    async function loadRegistryTable() {
-      const data = await fetchRegistry();
-      const identities = data.filter(e => e.type === "identity");
-
-      const tbody = document.querySelector("#registryTable tbody");
-
-      const rows = identities.slice(-20).reverse().map(i => {
-        let display = i.displayIdentity === "real"
-          ? i.name
-          : i.displayIdentity === "anonymous"
-          ? "Anonymous"
-          : `${i.username}@iascendai`;
-
-        return `
-          <tr>
-            <td>${display}</td>
-            <td>${i.username ? `${i.username}@iascendai` : "—"}</td>
-            <td>${i.soulmark || "—"}</td>
-            <td>✔ Verified</td>
-          </tr>
-        `;
-      });
-
-      tbody.innerHTML =
-        rows.length > 0
-          ? rows.join("")
-          : `<tr><td colspan="4" style="text-align:center;color:#9ca3af;">No identities registered yet.</td></tr>`;
-    }
-
-    // Init
-    loadStats();
-    loadDonors();
-    loadRegistryTable();
-
-    // Auto-refresh every 20 seconds
-    setInterval(() => {
-      loadStats();
-      loadDonors();
-      loadRegistryTable();
-    }, 20000);
-  </script>
+loadImpact();
+</script>
 
 </body>
 </html>
