@@ -25,6 +25,20 @@
       text-align:center;
     }
 
+    .logout-btn {
+      position: absolute;
+      top: 18px;
+      right: 18px;
+      padding: 6px 14px;
+      font-size: 0.8rem;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.18);
+      background: rgba(255,255,255,0.08);
+      color: #fff;
+      cursor: pointer;
+      backdrop-filter: blur(5px);
+    }
+
     .page-title { font-size:1.1em; color:#f4a349; opacity:0.9; margin-bottom:10px; }
 
     h1 {
@@ -53,6 +67,7 @@
       background:rgba(255,255,255,0.05);
       border:2px solid rgba(255,255,255,0.1);
       color:#fff;
+      font-size:1em;
     }
 
     button {
@@ -67,7 +82,7 @@
       cursor:pointer;
     }
 
-    #result { margin-top:20px; min-height:1.4em; white-space:pre-line; }
+    #result { margin-top:20px; min-height:1.4em; white-space:pre-line; font-size:1em; }
     #result.verified { color:#10b981; }
     #result.invalid { color:#ef4444; }
 
@@ -88,6 +103,9 @@
 </head>
 
 <body>
+
+  <!-- LOGOUT BUTTON -->
+  <button class="logout-btn" id="logoutBtn">Logout</button>
 
   <div class="page-title">iAscendAi — Verify Digital Identities</div>
   <h1>SoulMarkⓈ Verification</h1>
@@ -115,6 +133,26 @@
     const footerNav = document.getElementById("footerNav");
     const dashboardLink = document.getElementById("dashboardLink");
 
+    // ---------------------------------------------------
+    // 1. AUTO-LOGIN: If user already has a username stored
+    // ---------------------------------------------------
+    const existingUsername = localStorage.getItem("username");
+    if (existingUsername) {
+      window.location.href =
+        `iascendai-dashboard.html?username=${encodeURIComponent(existingUsername)}`;
+    }
+
+    // ---------------------------------------------------
+    // 2. LOGOUT HANDLER
+    // ---------------------------------------------------
+    document.getElementById("logoutBtn").onclick = () => {
+      localStorage.clear();
+      window.location.href = "index.html";
+    };
+
+    // ---------------------------------------------------
+    // 3. VERIFY BUTTON
+    // ---------------------------------------------------
     document.getElementById("verifyBtn").addEventListener("click", verifySoulmark);
 
     async function verifySoulmark() {
@@ -132,21 +170,27 @@
         const registry = await res.json();
         const normalized = input.toLowerCase();
 
-        // 1. Look for IDENTITY first
+        // 1. PRIORITY: Identity record
         const identity = registry.find(
-          r => r.type === "identity" &&
-               (r.soulmark || "").toLowerCase() === normalized
+          r =>
+            r.type === "identity" &&
+            (r.soulmark || "").toLowerCase() === normalized
         );
 
-        // 2. If no identity found → find donation
+        // 2. Donation-only record
         const donation = registry.find(
-          r => r.type === "donation" &&
-               (r.soulmark || "").toLowerCase() === normalized
+          r =>
+            r.type === "donation" &&
+            (r.soulmark || "").toLowerCase() === normalized
         );
 
-        // 3. Only identity is authoritative for username
+        // ------------------------------
+        // CASE A — Identity Exists
+        // ------------------------------
         if (identity) {
-          const uname = identity.username ? `${identity.username}@iascendai` : "—";
+          const uname = identity.username
+            ? `${identity.username}@iascendai`
+            : "—";
 
           resultEl.className = "verified";
           resultEl.textContent =
@@ -154,22 +198,24 @@
 
 Username: ${uname}
 SoulMarkⓈ: ${identity.soulmark}
-Role: supporter
-Status: Verified`;
+Status: Identity Found`;
 
           dashboardLink.href =
             `iascendai-dashboard.html?username=${encodeURIComponent(identity.username)}`;
+
           footerNav.style.display = "flex";
           return;
         }
 
-        // 4. Donation found → No identity yet
+        // ------------------------------
+        // CASE B — Donation Only
+        // ------------------------------
         if (donation) {
           resultEl.className = "verified";
           resultEl.textContent =
 `Verified ✓
 
-This SoulMarkⓈ is valid but has no identity registered yet.
+This SoulMarkⓈ is valid but no identity has been created yet.
 
 SoulMarkⓈ: ${donation.soulmark}
 
@@ -180,7 +226,9 @@ Please create your username to activate your dashboard.`;
           return;
         }
 
-        // 5. No match
+        // ------------------------------
+        // CASE C — No Match
+        // ------------------------------
         resultEl.className = "invalid";
         resultEl.textContent = "❌ No matching SoulMarkⓈ found.";
         footerNav.style.display = "none";
