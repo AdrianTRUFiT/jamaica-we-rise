@@ -1,291 +1,250 @@
+<!-- public/iascendai-verify.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Create Your Identity | iAscendAi</title>
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0" />
+<title>SoulMarkⓈ Verification | iAscendAi</title>
 
+<!-- Load CONFIG -->
 <script type="module">
 import { CONFIG } from "./config.js";
 window.CONFIG = CONFIG;
 </script>
 
 <style>
-* { margin: 0; padding: 0; box-sizing: border-box; }
-
-:root {
-  --orange: #f4a349;
-  --orange-soft: #ffb76b;
-  --blue: #b8edee;
-  --bg-dark: #020617;
-  --glass-bg: rgba(15,23,42,0.96);
-  --border: rgba(148,163,184,0.45);
-  --text: #e5e7eb;
-  --text-soft: #9ca3af;
-  --error: #f97373;
-  --success: #4ade80;
-  --info: #38bdf8;
-}
-
 body {
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  background: radial-gradient(circle at top, #1f2937 0%, #020617 50%, black 100%);
-  min-height: 100vh;
-  display: flex;
-  justify-content: center;
-  padding: 24px;
-  color: var(--text);
+font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',Roboto,sans-serif;
+background:#041423;
+color:#fff;
+display:flex;
+flex-direction:column;
+justify-content:center;
+align-items:center;
+min-height:100vh;
+margin:0;
+padding:20px;
+text-align:center;
 }
 
-.container {
-  background: var(--glass-bg);
-  border: 1px solid var(--border);
-  border-radius: 24px;
-  padding: 28px 24px;
-  max-width: 640px;
-  width: 100%;
-  box-shadow: 0 30px 80px rgba(0,0,0,0.8);
-}
-
-.header { text-align: center; margin-bottom: 18px; }
-.logo {
-  font-size: 1.6rem;
-  font-weight: 800;
-  background: linear-gradient(120deg, var(--orange), var(--blue));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  margin-bottom: 6px;
-}
-
-h1 { font-size: 1.4rem; margin-bottom: 10px; font-weight: 750; }
-
-.pill {
-  font-size: 0.75rem;
+.logout-btn {
+  position: absolute;
+  top: 18px;
+  right: 18px;
   padding: 6px 14px;
+  font-size: 0.8rem;
   border-radius: 999px;
-  background: rgba(34,197,94,0.12);
-  border: 1px solid rgba(34,197,94,0.5);
-  color: #b6f3c9;
-  display: inline-block;
-  margin-bottom: 12px;
-}
-
-.highlight {
-  background: rgba(15,23,42,0.92);
-  padding: 14px;
-  border-radius: 14px;
-  border: 1px solid rgba(148,163,184,0.45);
-  font-size: 0.85rem;
-  margin-bottom: 16px;
-}
-
-label { display: block; margin-bottom: 6px; font-size: 0.9rem; }
-input {
-  width: 100%; padding: 11px;
-  border-radius: 10px;
-  border: 1px solid rgba(148,163,184,0.65);
-  background: rgba(15,23,42,0.96);
-  color: var(--text);
-  margin-bottom: 16px;
-  font-size: 0.95rem;
-}
-
-.username-group { position: relative; }
-.username-suffix {
-  position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
-  color: var(--text-soft); font-weight: 600; font-size: 0.85rem;
-}
-
-.availability { font-size: 0.78rem; margin-top: -10px; margin-bottom: 8px; }
-.availability.checking { color: var(--text-soft); }
-.availability.ok { color: var(--success); }
-.availability.bad { color: var(--error); }
-
-.radio-group { margin-bottom: 14px; }
-.radio-group label { font-weight: 500; display: flex; gap: 6px; align-items: center; }
-
-.submit {
-  width: 100%; padding: 14px;
-  border-radius: 999px;
-  border: none;
-  background: linear-gradient(135deg, var(--orange), var(--orange-soft));
-  color: #04101f;
-  font-weight: 750;
-  font-size: 1rem;
+  border: 1px solid rgba(255,255,255,0.18);
+  background: rgba(255,255,255,0.08);
+  color: #fff;
   cursor: pointer;
-  margin-top: 12px;
-  box-shadow: 0 20px 44px rgba(0,0,0,0.85);
+  backdrop-filter: blur(5px);
 }
 
-.footer { text-align: center; margin-top: 16px; font-size: 0.8rem; color: var(--text-soft); }
-.footer a { color: var(--orange-soft); text-decoration: none; }
+.page-title {
+  font-size:1.1em;
+  color:#f4a349;
+  opacity:0.9;
+  margin-bottom:10px;
+}
+
+h1 {
+  background:linear-gradient(135deg,#fed103,#059c3a);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  font-size:2.4em;
+  margin-bottom:20px;
+}
+
+.verify-box {
+  background:rgba(255,255,255,0.05);
+  border:1px solid rgba(255,255,255,0.1);
+  border-radius:16px;
+  padding:30px 40px;
+  width:90%;
+  max-width:480px;
+  box-shadow:0 0 25px rgba(5,156,58,0.2);
+}
+
+input {
+  width:100%;
+  padding:14px;
+  margin-top:10px;
+  border-radius:10px;
+  background:rgba(255,255,255,0.05);
+  border:2px solid rgba(255,255,255,0.1);
+  color:#fff;
+  font-size:1em;
+}
+
+button {
+  width:100%;
+  margin-top:25px;
+  padding:15px;
+  border:none;
+  border-radius:10px;
+  background:linear-gradient(135deg,#059c3a,#047d2f);
+  color:#fff;
+  font-weight:700;
+  cursor:pointer;
+}
+
+#result {
+  margin-top:20px;
+  min-height:1.4em;
+  white-space:pre-line;
+  font-size:1em;
+}
+
+#result.verified {
+  color:#10b981;
+}
+
+#result.invalid {
+  color:#ef4444;
+}
+
+.footer-links {
+  margin-top:25px;
+  display:none;
+  gap:20px;
+  justify-content:center;
+  flex-wrap:wrap;
+}
+
+.footer-links a {
+  color:#f4a349;
+  font-size:0.9em;
+  text-decoration:none;
+}
 
 </style>
 </head>
-
 <body>
-<div class="container">
 
-<div class="header">
-<div class="logo">iAscendAi</div>
-<div class="tagline">Claim your verified identity to unlock the dashboard.</div>
+<!-- LOGOUT -->
+<button class="logout-btn" id="logoutBtn">Logout</button>
+
+<div class="page-title">iAscendAi — Verify Digital Identities</div>
+<h1>SoulMarkⓈ Verification</h1>
+
+<div class="verify-box">
+<p>Enter a SoulMarkⓈ signature to validate an identity.</p>
+
+<input type="text"
+       id="soulmarkInput"
+       placeholder="Enter SoulMarkⓈ signature..." />
+
+<button id="verifyBtn">Verify SoulMarkⓈ</button>
+
+<div id="result"></div>
+
 </div>
 
-<h1>Create Your Identity</h1>
-<div class="pill">🎁 SupporterⓈ • Jamaica We Rise</div>
-
-<p class="highlight">
-<strong>One entry. One identity.</strong><br>
-Every future update, dashboard view, or contribution will be anchored to this username.
-Choose carefully – each username can only be claimed once.
-</p>
-
-<form id="regForm">
-
-<label for="name">Full Name *</label>
-<input id="name" type="text" placeholder="Adrian McKenzie" required />
-
-<label for="email">Email Address *</label>
-<input id="email" type="email" required />
-<div class="small-note" style="font-size:0.8rem;color:var(--text-soft);margin-top:-10px;margin-bottom:14px;">
-  This email is linked to your SoulMarkⓈ and dashboard access.
-</div>
-
-<label for="username">Choose Your Username *</label>
-<div class="username-group">
-  <input id="username" type="text" autocomplete="off" />
-  <span class="username-suffix">@iascendai</span>
-</div>
-<div id="usernameStatus" class="availability"></div>
-
-<div class="radio-group">
-  <label><input type="radio" name="identityMode" value="username" checked /> Username@iascendai</label>
-  <label><input type="radio" name="identityMode" value="real" /> Real Name</label>
-  <label><input type="radio" name="identityMode" value="anonymous" /> Anonymous</label>
-</div>
-
-<label style="font-size:0.85rem;">
-  <input type="checkbox" id="showDonation" checked /> Show Donation Amount
-</label>
-
-<button type="submit" class="submit" id="submitBtn">
-  Create My Identity & Open Dashboard
-</button>
-
-</form>
-
-<div class="footer">
-Already have a username?
-<a href="iascendai-verify.html">Verify or look up your identity</a> •
-<a href="index.html">Back to Donate</a>
-</div>
+<div class="footer-links" id="footerNav">
+<a href="iascendai-register.html">Create Identity</a>
+<a href="soulregistry.html">SoulRegistryⓈ</a>
+<a id="dashboardLink" href="#">Dashboard</a>
 </div>
 
 <script type="module">
 import { CONFIG } from "./config.js";
+
 const BACKEND_URL = CONFIG.BACKEND_URL;
+const resultEl = document.getElementById("result");
+const footerNav = document.getElementById("footerNav");
+const dashboardLink = document.getElementById("dashboardLink");
 
-const nameInput      = document.getElementById("name");
-const emailInput     = document.getElementById("email");
-const usernameInput  = document.getElementById("username");
-const statusEl       = document.getElementById("usernameStatus");
-const submitBtn      = document.getElementById("submitBtn");
-const showDonationCb = document.getElementById("showDonation");
-
-let usernameAvailable = false;
-let soulmark = "";
-let amount = "";
-
-// 🔄 hydrate
-(function hydrate() {
-const p = new URLSearchParams(window.location.search);
-const donorEmail = (p.get("email") || localStorage.getItem("donor_email") || "").toLowerCase().trim();
-const donorSoul  = p.get("soulmark") || localStorage.getItem("donor_soulmark") || "";
-const donorAmt   = p.get("amount")   || localStorage.getItem("donor_amount") || "";
-
-if (donorEmail) emailInput.value = donorEmail;
-if (donorSoul)  soulmark = donorSoul;
-if (donorAmt)   amount   = donorAmt;
-
-const savedName = localStorage.getItem("name");
-if (savedName) nameInput.value = savedName;
-
-})();
-
-// 🔍 username check
-usernameInput.addEventListener("input", () => {
-const u = usernameInput.value.toLowerCase().trim().replace(/[^a-z0-9._-]/g, "");
-usernameInput.value = u;
-if (u.length < 3) { statusEl.textContent = ""; return; }
-
-statusEl.textContent = "Checking availability…";
-statusEl.className = "availability checking";
-
-clearTimeout(window._ucheck);
-window._ucheck = setTimeout(async () => {
-  const res = await fetch(`${BACKEND_URL}/check-username/${encodeURIComponent(u)}`);
-  const data = await res.json();
-  if (data.available) {
-    statusEl.textContent = "✓ Available";
-    statusEl.className = "availability ok";
-    usernameAvailable = true;
-  } else {
-    statusEl.textContent = "✗ Taken";
-    statusEl.className = "availability bad";
-    usernameAvailable = false;
-  }
-}, 350);
-
-});
-
-// 📝 submit
-document.getElementById("regForm").onsubmit = async (e) => {
-e.preventDefault();
-
-const name  = nameInput.value.trim();
-const email = emailInput.value.trim().toLowerCase();
-const u     = usernameInput.value.trim().toLowerCase();
-
-if (!usernameAvailable) return alert("Please choose an available username.");
-
-submitBtn.disabled = true;
-submitBtn.textContent = "Creating Identity…";
-
-const payload = {
-  role: "supporter",
-  name,
-  email,
-  username: u,
-  soulmark,
-  donationAmount: Number(amount),
-  displayIdentity: document.querySelector("input[name='identityMode']:checked").value,
-  showDonationAmount: showDonationCb.checked
+// LOGOUT
+document.getElementById("logoutBtn").onclick = () => {
+  localStorage.clear();
+  window.location.href = "index.html";
 };
 
-try {
-  const res = await fetch(`${BACKEND_URL}/register`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload)
-  });
-  const data = await res.json();
+// VERIFY
+document.getElementById("verifyBtn").addEventListener("click", verifySoulmark);
 
-  if (!res.ok || data.error) throw new Error(data.error);
+async function verifySoulmark() {
+  const input = document.getElementById("soulmarkInput").value.trim();
+  resultEl.className = "";
+  resultEl.textContent = "Verifying…";
 
-  localStorage.setItem("username", u);
-  localStorage.setItem("email", email);
-  localStorage.setItem("name", name);
-  localStorage.setItem("soulmark", soulmark);
+  if (!input) {
+    resultEl.textContent = "Please enter your SoulMarkⓈ.";
+    return;
+  }
 
-  window.location.href = `iascendai-dashboard.html?username=${encodeURIComponent(u)}`;
-} catch (err) {
-  alert(err.message || "Registration failed.");
-  submitBtn.disabled = false;
-  submitBtn.textContent = "Create My Identity & Open Dashboard";
+  try {
+    const res = await fetch(`${BACKEND_URL}/registry`, { cache: "no-store" });
+    const registry = await res.json();
+    const normalized = input.toLowerCase();
+
+    // Identity match
+    const identity = registry.find(
+      r =>
+        r.type === "identity" &&
+        (r.soulmark || "").toLowerCase() === normalized
+    );
+
+    // Donation only match
+    const donation = registry.find(
+      r =>
+        r.type === "donation" &&
+        (r.soulmark || "").toLowerCase() === normalized
+    );
+
+    // ---------------------------
+    // Case A: Full identity found
+    // ---------------------------
+    if (identity) {
+      const uname = identity.username
+        ? `${identity.username}@iascendai`
+        : "—";
+
+      resultEl.className = "verified";
+      resultEl.textContent =
+
+`✅ Verified SoulMarkⓈ Username: ${uname} SoulMarkⓈ: ${identity.soulmark} Status: Identity Verified`;
+
+      dashboardLink.href =
+        `iascendai-dashboard.html?username=${encodeURIComponent(identity.username)}`;
+
+      footerNav.style.display = "flex";
+      return;
+    }
+
+    // ---------------------------
+    // Case B: Donation-only record
+    // ---------------------------
+    if (donation) {
+      resultEl.className = "verified";
+      resultEl.textContent =
+
+`Verified ✓
+This SoulMarkⓈ is valid but has no identity registered yet.
+SoulMarkⓈ: ${donation.soulmark}
+
+Please create your username to activate your dashboard.`;
+
+      footerNav.style.display = "flex";
+      dashboardLink.style.display = "none";
+      return;
+    }
+
+    // ---------------------------
+    // Case C: No match
+    // ---------------------------
+    resultEl.className = "invalid";
+    resultEl.textContent = "❌ No matching SoulMarkⓈ found.";
+    footerNav.style.display = "none";
+
+  } catch (err) {
+    resultEl.className = "invalid";
+    resultEl.textContent = "⚠️ Error reaching verification service.";
+  }
 }
 
-};
 </script>
-
 </body>
 </html>
