@@ -1,201 +1,291 @@
-<!-- public/soulregistry.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport"
-        content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Create Your Identity | iAscendAi</title>
 
-  <title>SoulRegistryⓈ Directory | Jamaica We Rise × iAscendAi</title>
+<script type="module">
+import { CONFIG } from "./config.js";
+window.CONFIG = CONFIG;
+</script>
 
-  <!-- Load CONFIG -->
-  <script type="module">
-    import { CONFIG } from "./config.js";
-    window.CONFIG = CONFIG;
-  </script>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
 
-  <style>
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif;
-      background: linear-gradient(145deg, #03131f 0%, #041423 50%, #020c15 100%);
-      color: #fff;
-      min-height: 100vh;
-      margin: 0;
-      padding: 40px 20px;
-      position: relative;
-    }
+:root {
+  --orange: #f4a349;
+  --orange-soft: #ffb76b;
+  --blue: #b8edee;
+  --bg-dark: #020617;
+  --glass-bg: rgba(15,23,42,0.96);
+  --border: rgba(148,163,184,0.45);
+  --text: #e5e7eb;
+  --text-soft: #9ca3af;
+  --error: #f97373;
+  --success: #4ade80;
+  --info: #38bdf8;
+}
 
-    /* Logout Button */
-    .logout-btn {
-      position: absolute;
-      top: 18px;
-      right: 18px;
-      padding: 6px 14px;
-      border-radius: 999px;
-      border: 1px solid rgba(255,255,255,0.18);
-      background: rgba(255,255,255,0.08);
-      color: #fff;
-      cursor: pointer;
-      font-size: 0.8rem;
-      backdrop-filter: blur(5px);
-    }
+body {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: radial-gradient(circle at top, #1f2937 0%, #020617 50%, black 100%);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  padding: 24px;
+  color: var(--text);
+}
 
-    h1 {
-      text-align:center;
-      font-size:2.8em;
-      background:linear-gradient(135deg,#fed103,#059c3a);
-      -webkit-background-clip:text;
-      -webkit-text-fill-color:transparent;
-      margin-bottom:10px;
-    }
+.container {
+  background: var(--glass-bg);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  padding: 28px 24px;
+  max-width: 640px;
+  width: 100%;
+  box-shadow: 0 30px 80px rgba(0,0,0,0.8);
+}
 
-    p {
-      text-align:center;
-      color:rgba(255,255,255,0.8);
-      margin-bottom:40px;
-    }
+.header { text-align: center; margin-bottom: 18px; }
+.logo {
+  font-size: 1.6rem;
+  font-weight: 800;
+  background: linear-gradient(120deg, var(--orange), var(--blue));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 6px;
+}
 
-    .registry {
-      display:grid;
-      grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
-      gap:20px;
-      max-width:1200px;
-      margin:0 auto;
-    }
+h1 { font-size: 1.4rem; margin-bottom: 10px; font-weight: 750; }
 
-    .entry {
-      background:rgba(255,255,255,0.06);
-      border:1px solid rgba(255,255,255,0.15);
-      border-radius:16px;
-      padding:22px 26px;
-      box-shadow:0 0 25px rgba(5,156,58,0.15);
-      transition:transform .3s ease, box-shadow .3s ease;
-    }
+.pill {
+  font-size: 0.75rem;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: rgba(34,197,94,0.12);
+  border: 1px solid rgba(34,197,94,0.5);
+  color: #b6f3c9;
+  display: inline-block;
+  margin-bottom: 12px;
+}
 
-    .entry:hover {
-      transform:translateY(-3px);
-      box-shadow:0 0 35px rgba(254,209,3,0.3);
-    }
+.highlight {
+  background: rgba(15,23,42,0.92);
+  padding: 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(148,163,184,0.45);
+  font-size: 0.85rem;
+  margin-bottom: 16px;
+}
 
-    .entry h2 {
-      margin:0 0 10px;
-      font-size:1.35em;
-      color:#fed103;
-    }
+label { display: block; margin-bottom: 6px; font-size: 0.9rem; }
+input {
+  width: 100%; padding: 11px;
+  border-radius: 10px;
+  border: 1px solid rgba(148,163,184,0.65);
+  background: rgba(15,23,42,0.96);
+  color: var(--text);
+  margin-bottom: 16px;
+  font-size: 0.95rem;
+}
 
-    .entry p {
-      margin:5px 0;
-      font-size:0.95em;
-      color:rgba(255,255,255,0.9);
-    }
+.username-group { position: relative; }
+.username-suffix {
+  position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+  color: var(--text-soft); font-weight: 600; font-size: 0.85rem;
+}
 
-    .verified {
-      color:#05c85b;
-      font-weight:600;
-      margin-top:8px;
-      font-size:0.9em;
-    }
+.availability { font-size: 0.78rem; margin-top: -10px; margin-bottom: 8px; }
+.availability.checking { color: var(--text-soft); }
+.availability.ok { color: var(--success); }
+.availability.bad { color: var(--error); }
 
-    #loading {
-      text-align:center;
-      color:rgba(255,255,255,0.7);
-      font-size:1.1em;
-      margin-top:40px;
-    }
+.radio-group { margin-bottom: 14px; }
+.radio-group label { font-weight: 500; display: flex; gap: 6px; align-items: center; }
 
-    .footer {
-      text-align:center;
-      margin-top:60px;
-      font-size:0.9em;
-      color:rgba(255,255,255,0.6);
-    }
+.submit {
+  width: 100%; padding: 14px;
+  border-radius: 999px;
+  border: none;
+  background: linear-gradient(135deg, var(--orange), var(--orange-soft));
+  color: #04101f;
+  font-weight: 750;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-top: 12px;
+  box-shadow: 0 20px 44px rgba(0,0,0,0.85);
+}
 
-    .footer a {
-      color:#fed103;
-      text-decoration:none;
-      margin-top:10px;
-      display:inline-block;
-    }
-  </style>
+.footer { text-align: center; margin-top: 16px; font-size: 0.8rem; color: var(--text-soft); }
+.footer a { color: var(--orange-soft); text-decoration: none; }
+
+</style>
 </head>
 
 <body>
+<div class="container">
 
-  <button class="logout-btn" id="logoutBtn">Logout</button>
+<div class="header">
+<div class="logo">iAscendAi</div>
+<div class="tagline">Claim your verified identity to unlock the dashboard.</div>
+</div>
 
-  <h1>SoulRegistryⓈ Directory</h1>
-  <p>Explore verified SoulMarkⓈ identities across the iAscendAi ecosystem.</p>
+<h1>Create Your Identity</h1>
+<div class="pill">🎁 SupporterⓈ • Jamaica We Rise</div>
 
-  <div id="loading">Loading verified identities...</div>
+<p class="highlight">
+<strong>One entry. One identity.</strong><br>
+Every future update, dashboard view, or contribution will be anchored to this username.
+Choose carefully – each username can only be claimed once.
+</p>
 
-  <div id="registry" class="registry" style="display:none;"></div>
+<form id="regForm">
 
-  <div class="footer">
-    <p>© 2025 iAscendAi • SoulRegistryⓈ Public Ledger</p>
-    <a href="iascendai-dashboard.html">← Back to Dashboard</a>
-  </div>
+<label for="name">Full Name *</label>
+<input id="name" type="text" placeholder="Adrian McKenzie" required />
 
-  <script type="module">
-    import { CONFIG } from "./config.js";
-    const BACKEND_URL = CONFIG.BACKEND_URL;
+<label for="email">Email Address *</label>
+<input id="email" type="email" required />
+<div class="small-note" style="font-size:0.8rem;color:var(--text-soft);margin-top:-10px;margin-bottom:14px;">
+  This email is linked to your SoulMarkⓈ and dashboard access.
+</div>
 
-    document.getElementById("logoutBtn").onclick = () => {
-      localStorage.clear();
-      window.location.href = "index.html";
-    };
+<label for="username">Choose Your Username *</label>
+<div class="username-group">
+  <input id="username" type="text" autocomplete="off" />
+  <span class="username-suffix">@iascendai</span>
+</div>
+<div id="usernameStatus" class="availability"></div>
 
-    async function loadRegistry() {
-      const registryContainer = document.getElementById("registry");
-      const loading = document.getElementById("loading");
+<div class="radio-group">
+  <label><input type="radio" name="identityMode" value="username" checked /> Username@iascendai</label>
+  <label><input type="radio" name="identityMode" value="real" /> Real Name</label>
+  <label><input type="radio" name="identityMode" value="anonymous" /> Anonymous</label>
+</div>
 
-      try {
-        const response = await fetch(`${BACKEND_URL}/registry`, { cache: "no-store" });
-        const data = await response.json();
+<label style="font-size:0.85rem;">
+  <input type="checkbox" id="showDonation" checked /> Show Donation Amount
+</label>
 
-        const identities = data.filter(r => r.type === "identity");
+<button type="submit" class="submit" id="submitBtn">
+  Create My Identity & Open Dashboard
+</button>
 
-        if (identities.length === 0) {
-          loading.textContent = "No verified identities yet.";
-          return;
-        }
+</form>
 
-        identities.sort((a, b) => {
-          const ta = new Date(a.createdAt || 0).getTime();
-          const tb = new Date(b.createdAt || 0).getTime();
-          return tb - ta;
-        });
+<div class="footer">
+Already have a username?
+<a href="iascendai-verify.html">Verify or look up your identity</a> •
+<a href="index.html">Back to Donate</a>
+</div>
+</div>
 
-        loading.style.display = "none";
-        registryContainer.style.display = "grid";
+<script type="module">
+import { CONFIG } from "./config.js";
+const BACKEND_URL = CONFIG.BACKEND_URL;
 
-        registryContainer.innerHTML = identities.map(entry => {
-          const display =
-            entry.displayIdentity === "real"
-              ? entry.name || "—"
-              : entry.displayIdentity === "anonymous"
-              ? "Anonymous"
-              : `${entry.username}@iascendai`;
+const nameInput      = document.getElementById("name");
+const emailInput     = document.getElementById("email");
+const usernameInput  = document.getElementById("username");
+const statusEl       = document.getElementById("usernameStatus");
+const submitBtn      = document.getElementById("submitBtn");
+const showDonationCb = document.getElementById("showDonation");
 
-          return `
-            <div class="entry">
-              <h2>${display}</h2>
-              <p><strong>Username:</strong> ${
-                entry.username ? `${entry.username}@iascendai` : "—"
-              }</p>
-              <p><strong>SoulMarkⓈ:</strong> ${entry.soulmark || "—"}</p>
-              <p class="verified">✔ Verified Identity</p>
-            </div>
-          `;
-        }).join("");
+let usernameAvailable = false;
+let soulmark = "";
+let amount = "";
 
-      } catch (error) {
-        console.error("Registry load error:", error);
-        loading.textContent = "⚠️ Could not load the SoulRegistryⓈ.";
-      }
-    }
+// 🔄 hydrate
+(function hydrate() {
+const p = new URLSearchParams(window.location.search);
+const donorEmail = (p.get("email") || localStorage.getItem("donor_email") || "").toLowerCase().trim();
+const donorSoul  = p.get("soulmark") || localStorage.getItem("donor_soulmark") || "";
+const donorAmt   = p.get("amount")   || localStorage.getItem("donor_amount") || "";
 
-    loadRegistry();
-  </script>
+if (donorEmail) emailInput.value = donorEmail;
+if (donorSoul)  soulmark = donorSoul;
+if (donorAmt)   amount   = donorAmt;
+
+const savedName = localStorage.getItem("name");
+if (savedName) nameInput.value = savedName;
+
+})();
+
+// 🔍 username check
+usernameInput.addEventListener("input", () => {
+const u = usernameInput.value.toLowerCase().trim().replace(/[^a-z0-9._-]/g, "");
+usernameInput.value = u;
+if (u.length < 3) { statusEl.textContent = ""; return; }
+
+statusEl.textContent = "Checking availability…";
+statusEl.className = "availability checking";
+
+clearTimeout(window._ucheck);
+window._ucheck = setTimeout(async () => {
+  const res = await fetch(`${BACKEND_URL}/check-username/${encodeURIComponent(u)}`);
+  const data = await res.json();
+  if (data.available) {
+    statusEl.textContent = "✓ Available";
+    statusEl.className = "availability ok";
+    usernameAvailable = true;
+  } else {
+    statusEl.textContent = "✗ Taken";
+    statusEl.className = "availability bad";
+    usernameAvailable = false;
+  }
+}, 350);
+
+});
+
+// 📝 submit
+document.getElementById("regForm").onsubmit = async (e) => {
+e.preventDefault();
+
+const name  = nameInput.value.trim();
+const email = emailInput.value.trim().toLowerCase();
+const u     = usernameInput.value.trim().toLowerCase();
+
+if (!usernameAvailable) return alert("Please choose an available username.");
+
+submitBtn.disabled = true;
+submitBtn.textContent = "Creating Identity…";
+
+const payload = {
+  role: "supporter",
+  name,
+  email,
+  username: u,
+  soulmark,
+  donationAmount: Number(amount),
+  displayIdentity: document.querySelector("input[name='identityMode']:checked").value,
+  showDonationAmount: showDonationCb.checked
+};
+
+try {
+  const res = await fetch(`${BACKEND_URL}/register`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload)
+  });
+  const data = await res.json();
+
+  if (!res.ok || data.error) throw new Error(data.error);
+
+  localStorage.setItem("username", u);
+  localStorage.setItem("email", email);
+  localStorage.setItem("name", name);
+  localStorage.setItem("soulmark", soulmark);
+
+  window.location.href = `iascendai-dashboard.html?username=${encodeURIComponent(u)}`;
+} catch (err) {
+  alert(err.message || "Registration failed.");
+  submitBtn.disabled = false;
+  submitBtn.textContent = "Create My Identity & Open Dashboard";
+}
+
+};
+</script>
 
 </body>
 </html>
