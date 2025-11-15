@@ -133,26 +133,18 @@
     const footerNav = document.getElementById("footerNav");
     const dashboardLink = document.getElementById("dashboardLink");
 
-    // ---------------------------------------------------
-    // 1. AUTO-LOGIN: If user already has a username stored
-    // ---------------------------------------------------
-    const existingUsername = localStorage.getItem("username");
-    if (existingUsername) {
-      window.location.href =
-        `iascendai-dashboard.html?username=${encodeURIComponent(existingUsername)}`;
-    }
+    // -------------------------------------------
+    // FIX: ***Remove auto-redirect completely***
+    // Verification must ALWAYS be accessible.
+    // -------------------------------------------
 
-    // ---------------------------------------------------
-    // 2. LOGOUT HANDLER
-    // ---------------------------------------------------
+    // LOGOUT HANDLER
     document.getElementById("logoutBtn").onclick = () => {
       localStorage.clear();
       window.location.href = "index.html";
     };
 
-    // ---------------------------------------------------
-    // 3. VERIFY BUTTON
-    // ---------------------------------------------------
+    // VERIFY BUTTON
     document.getElementById("verifyBtn").addEventListener("click", verifySoulmark);
 
     async function verifySoulmark() {
@@ -170,23 +162,21 @@
         const registry = await res.json();
         const normalized = input.toLowerCase();
 
-        // 1. PRIORITY: Identity record
+        // Look for identity record
         const identity = registry.find(
-          r =>
-            r.type === "identity" &&
-            (r.soulmark || "").toLowerCase() === normalized
+          r => r.type === "identity" &&
+               (r.soulmark || "").toLowerCase() === normalized
         );
 
-        // 2. Donation-only record
+        // Look for donation-only record
         const donation = registry.find(
-          r =>
-            r.type === "donation" &&
-            (r.soulmark || "").toLowerCase() === normalized
+          r => r.type === "donation" &&
+               (r.soulmark || "").toLowerCase() === normalized
         );
 
-        // ------------------------------
-        // CASE A — Identity Exists
-        // ------------------------------
+        // -------------------------
+        // CASE A — Identity Found
+        // -------------------------
         if (identity) {
           const uname = identity.username
             ? `${identity.username}@iascendai`
@@ -198,7 +188,7 @@
 
 Username: ${uname}
 SoulMarkⓈ: ${identity.soulmark}
-Status: Identity Found`;
+Status: Identity Verified`;
 
           dashboardLink.href =
             `iascendai-dashboard.html?username=${encodeURIComponent(identity.username)}`;
@@ -207,15 +197,15 @@ Status: Identity Found`;
           return;
         }
 
-        // ------------------------------
-        // CASE B — Donation Only
-        // ------------------------------
+        // -------------------------
+        // CASE B — Donation Found
+        // -------------------------
         if (donation) {
           resultEl.className = "verified";
           resultEl.textContent =
 `Verified ✓
 
-This SoulMarkⓈ is valid but no identity has been created yet.
+This SoulMarkⓈ is valid but has no identity registered yet.
 
 SoulMarkⓈ: ${donation.soulmark}
 
@@ -226,9 +216,9 @@ Please create your username to activate your dashboard.`;
           return;
         }
 
-        // ------------------------------
-        // CASE C — No Match
-        // ------------------------------
+        // -------------------------
+        // CASE C — Not Found
+        // -------------------------
         resultEl.className = "invalid";
         resultEl.textContent = "❌ No matching SoulMarkⓈ found.";
         footerNav.style.display = "none";
