@@ -143,10 +143,10 @@
   </div>
 
   <!-- NAV -->
-  <div class="footer-links">
+  <div class="footer-links" id="footerNav">
     <a href="iascendai-register.html">Create Identity</a>
     <a href="soulregistry.html">SoulRegistryⓈ</a>
-    <a href="iascendai-dashboard.html">Dashboard</a>
+    <a id="dashboardLink" href="iascendai-dashboard.html">Dashboard</a>
   </div>
 
   <script type="module">
@@ -154,10 +154,16 @@
     const BACKEND_URL = CONFIG.BACKEND_URL;
 
     const resultEl = document.getElementById("result");
+    const footerNav = document.getElementById("footerNav");
+    const dashboardLink = document.getElementById("dashboardLink");
 
-    document.getElementById("verifyBtn").addEventListener("click", async () => {
+    document.getElementById("verifyBtn").addEventListener("click", verifySoulmark);
+
+    async function verifySoulmark() {
       const input = document.getElementById("soulmarkInput").value.trim();
       resultEl.className = "";
+      footerNav.style.display = "flex"; // default visible nav
+      dashboardLink.style.display = "inline";
 
       if (!input) {
         resultEl.textContent = "Please enter a SoulMarkⓈ.";
@@ -168,36 +174,88 @@
 
       try {
         const res = await fetch(`${BACKEND_URL}/registry`, { cache: "no-store" });
-        const data = await res.json();
+        const registry = await res.json();
+        const normalized = input.toLowerCase();
 
-        // Filter ONLY identity entries
-        const identities = data.filter(e => e.type === "identity");
-
-        const match = identities.find(
-          r => (r.soulmark || "").toLowerCase() === input.toLowerCase()
+        // 1️⃣ Identity takes precedence
+        const identity = registry.find(
+          r => r.type === "identity" &&
+               (r.soulmark || "").toLowerCase() === normalized
         );
 
-        if (match) {
+        // 2️⃣ If no identity yet, look for donation
+        const donation = registry.find(
+          r => r.type === "donation" &&
+               (r.soulmark || "").toLowerCase() === normalized
+        );
+
+        // If identity exists → authoritative record
+        if (identity) {
+          // Apply display rules
+          let display;
+          if (identity.displayIdentity === "real") {
+            display = identity.name || "—";
+          } else if (identity.displayIdentity === "anonymous") {
+            display = "Anonymous";
+          } else {
+            display = identity.username
+              ? `${identity.username}@iascendai`
+              : "—";
+          }
+
+          const usernameLine = identity.username
+            ? `${identity.username}@iascendai`
+            : "—";
+
           resultEl.className = "verified";
           resultEl.textContent =
 `✅ Verified SoulMarkⓈ
 
-Name: ${match.name}
-Username: ${match.username}@iascendai
-Email: ${match.email || "—"}
-Role: ${match.role || "Supporter"}
+Display: ${display}
+Username: ${usernameLine}
+SoulMarkⓈ: ${identity.soulmark || "—"}
+Role: ${identity.role || "supporter"}
 Status: Verified`;
-        } else {
-          resultEl.className = "invalid";
-          resultEl.textContent = "❌ No matching SoulMarkⓈ found.";
+
+          // Wire dashboard to this username if present
+          if (identity.username) {
+            const qs = new URLSearchParams({ username: identity.username });
+            dashboardLink.href = `iascendai-dashboard.html?${qs.toString()}`;
+          } else {
+            dashboardLink.style.display = "none";
+          }
+
+          return;
         }
 
+        // Donation exists, but no identity registered yet
+        if (donation) {
+          resultEl.className = "verified";
+          resultEl.textContent =
+`Verified ✓
+
+This SoulMarkⓈ is valid, but no identity has been registered yet.
+
+SoulMarkⓈ: ${donation.soulmark || "—"}
+
+Please create your username to activate your dashboard.`;
+
+          // No dashboard yet; only Register & Registry make sense
+          dashboardLink.style.display = "none";
+          return;
+        }
+
+        // No match at all
+        resultEl.className = "invalid";
+        resultEl.textContent = "❌ No matching SoulMarkⓈ found.";
+        dashboardLink.style.display = "none";
+
       } catch (error) {
+        console.error("Verification error:", error);
         resultEl.className = "invalid";
         resultEl.textContent = "⚠️ Verification service unavailable.";
-        console.error(error);
       }
-    });
+    }
   </script>
 
 </body>
