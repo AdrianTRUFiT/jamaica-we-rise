@@ -47,8 +47,25 @@
     .subtitle {
       text-align: center;
       color: #9ca3af;
-      margin-bottom: 28px;
+      margin-bottom: 18px;
       font-size: 1rem;
+    }
+
+    .identity-banner {
+      margin-bottom: 18px;
+      font-size: 0.9rem;
+      padding: 10px 12px;
+      border-radius: 999px;
+      background: rgba(15,23,42,0.95);
+      border: 1px solid rgba(34,197,94,0.5);
+      color: #bbf7d0;
+      display: none;
+      text-align: center;
+    }
+
+    .identity-banner span.handle {
+      font-weight: 700;
+      color: #a5f3fc;
     }
 
     label {
@@ -67,6 +84,12 @@
       color: #e5f2ff;
       font-size: 1rem;
       margin-bottom: 20px;
+    }
+
+    input[readonly] {
+      opacity: 0.9;
+      cursor: not-allowed;
+      background: rgba(15,23,42,0.85);
     }
 
     .amount-grid {
@@ -129,9 +152,15 @@
     <h1>Jamaica We Rise Relief Fund</h1>
 
     <p class="subtitle">
-      Every donation supports families affected by Hurricane Melissa.  
+      Every donation supports families affected by Hurricane Melissa.<br>
       Your contribution is authenticated using SoulMarkⓈ verification.
     </p>
+
+    <!-- Auto-detected identity banner -->
+    <div id="identityBanner" class="identity-banner">
+      Donating as <span class="handle" id="identityHandle"></span>.
+      Your identity is already verified.
+    </div>
 
     <label>Full Name *</label>
     <input id="fullName" placeholder="Adrian McKenzie" />
@@ -165,38 +194,70 @@
     import { CONFIG } from "./config.js";
     const BACKEND_URL = CONFIG.BACKEND_URL;
 
+    const fullNameInput   = document.getElementById("fullName");
+    const emailInput      = document.getElementById("email");
+    const customAmountInp = document.getElementById("customAmount");
+    const identityBanner  = document.getElementById("identityBanner");
+    const identityHandle  = document.getElementById("identityHandle");
+
     let selectedAmount = null;
 
-    // Amount button selection
+    // 🔐 1) Hydrate from existing identity if present
+    (function hydrateFromIdentity() {
+      const storedUsername = (localStorage.getItem("username") || "").trim();
+      const storedName     = (localStorage.getItem("name") || "").trim();
+      const storedEmail    = (localStorage.getItem("email") || "").trim();
+
+      // If we have a known identity, prefill + lock
+      if (storedUsername && storedEmail) {
+        const handle = `${storedUsername}@iascendai`;
+
+        fullNameInput.value  = storedName || "";
+        emailInput.value     = storedEmail;
+
+        fullNameInput.readOnly = !!storedName;  // if we know their name, lock it
+        emailInput.readOnly    = true;          // email is the stable login anchor
+
+        identityHandle.textContent = handle;
+        identityBanner.style.display = "block";
+      }
+    })();
+
+    // 2) Amount button selection
     document.querySelectorAll(".amount-btn").forEach(btn => {
       btn.addEventListener("click", () => {
         document.querySelectorAll(".amount-btn").forEach(b => b.classList.remove("active"));
         btn.classList.add("active");
 
         if (btn.dataset.value === "custom") {
-          document.getElementById("customAmount").style.display = "block";
+          customAmountInp.style.display = "block";
           selectedAmount = null;
         } else {
-          document.getElementById("customAmount").style.display = "none";
+          customAmountInp.style.display = "none";
           selectedAmount = parseFloat(btn.dataset.value);
         }
       });
     });
 
-    // Donate button click → Stripe session
+    // 3) Donate button → Stripe session
     document.getElementById("donateBtn").onclick = async () => {
-      const name = document.getElementById("fullName").value.trim();
-      const email = document.getElementById("email").value.trim();
+      const name  = fullNameInput.value.trim();
+      const email = emailInput.value.trim();
 
       let amount = selectedAmount;
       if (!amount) {
-        amount = parseFloat(document.getElementById("customAmount").value);
+        const rawCustom = customAmountInp.value.trim();
+        if (rawCustom) amount = parseFloat(rawCustom);
       }
 
       if (!name || !email || !amount || amount <= 0) {
         alert("Please complete all fields, including amount.");
         return;
       }
+
+      // Persist latest name/email so future pages remain seamless
+      localStorage.setItem("name", name);
+      localStorage.setItem("email", email);
 
       try {
         const res = await fetch(`${BACKEND_URL}/create-checkout-session`, {
