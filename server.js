@@ -31,20 +31,20 @@ const REGISTRY_PATH = process.env.REGISTRY_PATH || "./data/registry.json";
 const LOG_DIR = process.env.LOG_DIR || "./logs";
 
 // -------------------------------------------------
-// CORS (FIXED)
+// CORS
 // -------------------------------------------------
 const allowedOrigins = [
   "http://localhost:3000",
   "http://127.0.0.1:3000",
   "https://jamaica-we-rise.vercel.app",
-  "https://jamaica-we-rise.onrender.com"
+  "https://jamaica-we-rise.onrender.com",
 ];
 
 app.use(
   cors({
     origin: allowedOrigins,
     methods: ["GET", "POST", "OPTIONS"],
-    credentials: true
+    credentials: true,
   })
 );
 
@@ -68,25 +68,15 @@ function logEvent(type, message) {
   fs.appendFileSync(path.join(LOG_DIR, `${type}.log`), line);
 }
 
-// Small helpers to safely load/save registry
+// Helper to load / save registry
 function loadRegistry() {
-  try {
-    if (!fs.existsSync(REGISTRY_PATH)) return [];
-    const raw = fs.readFileSync(REGISTRY_PATH, "utf8");
-    if (!raw.trim()) return [];
-    return JSON.parse(raw);
-  } catch (err) {
-    logEvent("error", `loadRegistry: ${err.message}`);
-    return [];
-  }
+  return fs.existsSync(REGISTRY_PATH)
+    ? JSON.parse(fs.readFileSync(REGISTRY_PATH, "utf8"))
+    : [];
 }
 
-function saveRegistry(data) {
-  try {
-    fs.writeFileSync(REGISTRY_PATH, JSON.stringify(data, null, 2));
-  } catch (err) {
-    logEvent("error", `saveRegistry: ${err.message}`);
-  }
+function saveRegistry(registry) {
+  fs.writeFileSync(REGISTRY_PATH, JSON.stringify(registry, null, 2));
 }
 
 // -------------------------------------------------
@@ -174,9 +164,6 @@ app.get("/verify-donation/:sessionId", async (req, res) => {
       soulmark,
       timestamp: new Date().toISOString(),
       stripeSessionId: sessionId,
-      // default visibility (can be updated later by /register)
-      displayIdentity: "real",
-      showDonationAmount: true
     };
 
     const registry = loadRegistry();
@@ -199,7 +186,7 @@ app.get("/verify-donation/:sessionId", async (req, res) => {
 });
 
 // -------------------------------------------------
-// Username Availability
+// Username Availability — one SoulNameⓈ per human
 // -------------------------------------------------
 app.get("/check-username/:username", (req, res) => {
   const username = req.params.username.toLowerCase();
@@ -237,28 +224,23 @@ app.post("/register", (req, res) => {
       return res.status(400).json({ error: "Missing required fields" });
     }
 
-    const lowerUsername = username.toLowerCase();
-    const identityMode = displayIdentity || "username";
-    const showAmountFlag =
-      typeof showDonationAmount === "boolean" ? showDonationAmount : true;
-
-    // 1️⃣ Load registry
     const registry = loadRegistry();
 
-    // 2️⃣ Compute the public name for donations based on identity mode
-    let donationPublicName;
-    if (identityMode === "anonymous") {
-      donationPublicName = "Anonymous";
-    } else if (identityMode === "real") {
-      donationPublicName = name;
-    } else {
-      // default → username handle
-      donationPublicName = `${lowerUsername}@iascendai`;
+    const existingIdentity = registry.find(
+      (r) => r.type === "identity" && r.username === username.toLowerCase()
+    );
+    if (existingIdentity) {
+      return res
+        .status(409)
+        .json({ error: "This username is already registered." });
     }
 
-    // 3️⃣ Build identity record (full, internal truth)
-    const identityRecord = {
+    const lowerUsername = username.toLowerCase();
+    const soulName = `${lowerUsername}@iascendai`;
+
+    const record = {
       type: "identity",
+      soulName,
       username: lowerUsername,
       name,
       email,
@@ -267,68 +249,128 @@ app.post("/register", (req, res) => {
         soulmark ||
         "SM-" + Buffer.from(email).toString("base64").slice(0, 12),
       donationAmount: donationAmount || null,
-      displayIdentity: identityMode,      // "username" | "real" | "anonymous"
-      showDonationAmount: showAmountFlag, // true | false
+      displayIdentity: displayIdentity || "username",
+      showDonationAmount:
+        typeof showDonationAmount === "boolean" ? showDonationAmount : true,
+      authDevices: [],
       createdAt: new Date().toISOString(),
     };
 
-    // 4️⃣ Update the matching donation record for public display
-    //    Match first by soulmark, then by email as a fallback
-    const identitySoulmark = identityRecord.soulmark;
-
-    let donationIndex = registry.findIndex(
-      (r) => r.type === "donation" && r.soulmark === identitySoulmark
-    );
-
-    if (donationIndex === -1) {
-      // fallback: latest donation by email
-      donationIndex = [...registry]
-        .map((r, idx) => ({ r, idx }))
-        .filter(({ r }) => r.type === "donation" && r.email === email)
-        .sort((a, b) => {
-          const ta = new Date(a.r.timestamp || 0).getTime();
-          const tb = new Date(b.r.timestamp || 0).getTime();
-          return tb - ta;
-        })[0]?.idx ?? -1;
-    }
-
-    if (donationIndex !== -1) {
-      const donation = registry[donationIndex];
-
-      // Apply public-facing identity rules
-      donation.name = donationPublicName;
-      donation.displayIdentity = identityMode;
-      donation.showDonationAmount = showAmountFlag;
-
-      // If anonymous, do not expose email publicly
-      if (identityMode === "anonymous") {
-        donation.email = "—";
-      }
-
-      // Keep the raw amount as-is for now, but add a publicAmount field
-      // so the frontend can choose how to render it later.
-      if (!showAmountFlag) {
-        donation.publicAmount = null; // hide on public tracker when supported
-      } else {
-        donation.publicAmount = donation.amount;
-      }
-
-      registry[donationIndex] = donation;
-      logEvent(
-        "event",
-        `Updated donation visibility for ${donation.email} → mode=${identityMode}, showAmount=${showAmountFlag}`
-      );
-    }
-
-    // 5️⃣ Append identity record
-    registry.push(identityRecord);
+    registry.push(record);
     saveRegistry(registry);
 
     logEvent("event", `Registered identity @${lowerUsername}`);
-    res.json({ ok: true, user: identityRecord });
+    res.json({ ok: true, user: record });
   } catch (err) {
     logEvent("error", `register: ${err.message}`);
     res.status(500).json({ error: err.message });
+  }
+});
+
+// -------------------------------------------------
+// Device Auth — Register Device for SoulNameⓈ
+// -------------------------------------------------
+app.post("/auth/register-device", (req, res) => {
+  try {
+    const { username, deviceId, deviceLabel } = req.body;
+
+    if (!username || !deviceId) {
+      return res
+        .status(400)
+        .json({ error: "Missing username or deviceId" });
+    }
+
+    const registry = loadRegistry();
+    const lowerUsername = username.toLowerCase();
+
+    const identity = registry.find(
+      (r) => r.type === "identity" && r.username === lowerUsername
+    );
+
+    if (!identity) {
+      return res.status(404).json({ error: "Identity not found" });
+    }
+
+    if (!Array.isArray(identity.authDevices)) {
+      identity.authDevices = [];
+    }
+
+    const existingDevice = identity.authDevices.find(
+      (d) => d.deviceId === deviceId
+    );
+
+    if (!existingDevice) {
+      identity.authDevices.push({
+        deviceId,
+        deviceLabel: deviceLabel || "Unknown Device",
+        createdAt: new Date().toISOString(),
+      });
+      saveRegistry(registry);
+      logEvent(
+        "event",
+        `Registered device for @${lowerUsername} (${deviceLabel || "device"})`
+      );
+    }
+
+    res.json({
+      ok: true,
+      soulName: identity.soulName,
+      username: identity.username,
+      authDevices: identity.authDevices,
+    });
+  } catch (err) {
+    logEvent("error", `auth-register-device: ${err.message}`);
+    res.status(500).json({ error: "Failed to register device" });
+  }
+});
+
+// -------------------------------------------------
+// Device Auth — Login with Device
+// -------------------------------------------------
+app.post("/auth/login-device", (req, res) => {
+  try {
+    const { deviceId } = req.body;
+
+    if (!deviceId) {
+      return res.status(400).json({ error: "Missing deviceId" });
+    }
+
+    const registry = loadRegistry();
+
+    const identity = registry.find(
+      (r) =>
+        r.type === "identity" &&
+        Array.isArray(r.authDevices) &&
+        r.authDevices.some((d) => d.deviceId === deviceId)
+    );
+
+    if (!identity) {
+      return res.status(404).json({ error: "No identity linked to this device" });
+    }
+
+    const sessionToken =
+      "sess_" +
+      Buffer.from(
+        `${identity.username}:${Date.now().toString()}:${Math.random()
+          .toString(36)
+          .slice(2)}`
+      ).toString("base64");
+
+    logEvent(
+      "event",
+      `Device login for @${identity.username} via deviceId=${deviceId}`
+    );
+
+    res.json({
+      ok: true,
+      token: sessionToken,
+      soulName: identity.soulName,
+      username: identity.username,
+      role: identity.role || "supporter",
+    });
+  } catch (err) {
+    logEvent("error", `auth-login-device: ${err.message}`);
+    res.status(500).json({ error: "Failed to login with device" });
   }
 });
 
