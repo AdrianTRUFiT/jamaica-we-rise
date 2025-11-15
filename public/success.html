@@ -125,24 +125,20 @@
     import { CONFIG } from "./config.js";
     const BACKEND_URL = CONFIG.BACKEND_URL;
 
+    // 🧹 Always clear old login data so user goes to registration
+    localStorage.removeItem("username");
+
     const params = new URLSearchParams(window.location.search);
     let sessionId = params.get("session_id");
 
-    // Fix Stripe naming inconsistencies
+    // Catch alternate Stripe naming formats
     if (!sessionId) sessionId = params.get("sessionId");
     if (!sessionId) sessionId = params.get("checkout_session_id");
 
     const amountBox = document.getElementById("amountBox");
-    const emailBox = document.getElementById("emailBox");
-    const soulBox = document.getElementById("soulBox");
-    const errorBox = document.getElementById("errorBox");
-
-    // If user is already logged in → skip registration entirely
-    const existingUsername = localStorage.getItem("username");
-    if (existingUsername) {
-      window.location.href =
-        `iascendai-dashboard.html?username=${encodeURIComponent(existingUsername)}`;
-    }
+    const emailBox  = document.getElementById("emailBox");
+    const soulBox   = document.getElementById("soulBox");
+    const errorBox  = document.getElementById("errorBox");
 
     if (sessionId) {
       loadVerification();
@@ -157,20 +153,15 @@
         });
 
         const data = await res.json();
+        if (!res.ok || !data || !data.email) throw new Error();
 
-        if (!res.ok || !data || !data.email) {
-          throw new Error("No valid donation data returned");
-        }
-
-        // Extract verified donation
         const { amount, email, soulmark } = data;
 
-        // Display in UI
         amountBox.textContent = `$${Number(amount).toFixed(2)}`;
-        emailBox.textContent = email;
-        soulBox.textContent = soulmark;
+        emailBox.textContent  = email;
+        soulBox.textContent   = soulmark;
 
-        // Save for registration page
+        // Save for the registration page
         localStorage.setItem("donor_email", email);
         localStorage.setItem("donor_soulmark", soulmark);
         localStorage.setItem("donation_amount", amount);
