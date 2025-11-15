@@ -3,9 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Access Your Identity | iAscendAi</title>
+  <title>Log In | iAscendAi Identity</title>
 
-  <!-- Config Loader -->
   <script type="module">
     import { CONFIG } from "./config.js";
     window.CONFIG = CONFIG;
@@ -15,114 +14,128 @@
     * { margin:0; padding:0; box-sizing:border-box; }
 
     body {
-      font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',Roboto,sans-serif;
-      background:#020617;
-      color:#e5e7eb;
-      min-height:100vh;
-      display:flex;
-      justify-content:center;
-      align-items:center;
-      padding:22px;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      min-height: 100vh;
+      background: radial-gradient(circle at top, #111827, #020617 45%, #000);
+      color: #e5e7eb;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 24px;
     }
 
     .box {
-      width:100%;
-      max-width:420px;
-      background:rgba(15,23,42,0.95);
-      border:1px solid rgba(148,163,184,0.3);
-      border-radius:22px;
-      padding:32px 28px;
-      box-shadow:0 0 32px rgba(0,0,0,0.65);
-      text-align:center;
+      width: 100%;
+      max-width: 420px;
+      background: rgba(15,23,42,0.96);
+      padding: 28px 26px 24px;
+      border-radius: 20px;
+      border: 1px solid rgba(148,163,184,0.45);
+      box-shadow: 0 22px 60px rgba(0,0,0,0.7);
+      text-align: center;
     }
 
     h1 {
-      background:linear-gradient(135deg,#b8edee,#fed103);
-      -webkit-background-clip:text;
-      -webkit-text-fill-color:transparent;
-      font-size:1.9rem;
-      margin-bottom:12px;
-      font-weight:800;
+      font-size: 1.7rem;
+      font-weight: 800;
+      background: linear-gradient(120deg, #b8edee, #fed103);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 6px;
     }
 
-    .tag {
-      font-size:0.9rem;
+    .subtitle {
       color:#9ca3af;
-      margin-bottom:22px;
+      font-size:.9rem;
+      margin-bottom:20px;
+    }
+
+    label {
+      display:block;
+      font-size:0.9rem;
+      font-weight:600;
+      margin-bottom:6px;
+      text-align:left;
     }
 
     input {
       width:100%;
-      padding:14px;
+      padding:12px 14px;
       border-radius:10px;
-      border:1px solid rgba(148,163,184,0.4);
-      background:rgba(255,255,255,0.05);
+      border:1px solid rgba(148,163,184,0.6);
+      background:rgba(15,23,42,0.9);
       color:#e5e7eb;
       font-size:1rem;
+      margin-bottom:12px;
     }
 
-    input::placeholder {
-      color:#9ca3af;
+    input:focus {
+      outline:none;
+      border-color:#f4a349;
+      box-shadow:0 0 0 1px rgba(244,163,73,0.7);
     }
 
-    button {
+    .btn {
       width:100%;
-      margin-top:18px;
       padding:14px;
-      border-radius:999px;
-      border:none;
       font-size:1rem;
-      font-weight:700;
+      font-weight:750;
+      border:none;
+      border-radius:999px;
       cursor:pointer;
       background:linear-gradient(135deg,#f4a349,#fed103);
-      color:#041019;
-      box-shadow:0 14px 36px rgba(0,0,0,0.55);
+      color:#041423;
+      margin-top:10px;
+      box-shadow:0 18px 40px rgba(0,0,0,0.75);
+      transition:0.18s;
+    }
+
+    .btn:hover {
+      transform:translateY(-2px);
+      box-shadow:0 24px 54px rgba(0,0,0,0.85);
     }
 
     .error {
+      margin-top:10px;
       color:#f87171;
       min-height:18px;
-      font-size:0.9rem;
-      margin-top:10px;
+      font-size:.9rem;
     }
 
-    .footer {
-      margin-top:22px;
-      font-size:0.86rem;
+    .footer-links {
+      margin-top:18px;
+      font-size:0.82rem;
       color:#9ca3af;
     }
 
-    .footer a {
+    .footer-links a {
       color:#f4a349;
       text-decoration:none;
       font-weight:600;
     }
 
-    .footer a:hover {
+    .footer-links a:hover {
       text-decoration:underline;
     }
   </style>
 </head>
 
 <body>
-
   <div class="box">
-    <h1>Access Your Identity</h1>
-    <p class="tag">Enter your email OR username to open your dashboard.</p>
+    <h1>iAscendAi Login</h1>
+    <p class="subtitle">Enter your username or email to continue.</p>
 
-    <input
-      id="identifierInput"
-      type="text"
-      placeholder="you@example.com or username"
-    />
+    <label for="identifier">Username or Email</label>
+    <input id="identifier" type="text" placeholder="yourname@iascendai or email" />
 
-    <button id="loginBtn">Open My Dashboard</button>
+    <button id="loginBtn" class="btn">Continue</button>
 
-    <div id="errorBox" class="error"></div>
+    <div id="error" class="error"></div>
 
-    <div class="footer">
-      Don’t have a username yet?  
-      <a href="iascendai-register.html">Create Identity</a>
+    <div class="footer-links">
+      <a href="iascendai-register.html">Create Your Identity</a> •
+      <a href="iascendai-verify.html">Verify SoulMarkⓈ</a> •
+      <a href="index.html">Donate Again</a>
     </div>
   </div>
 
@@ -130,68 +143,47 @@
     import { CONFIG } from "./config.js";
     const BACKEND_URL = CONFIG.BACKEND_URL;
 
-    const input = document.getElementById("identifierInput");
     const btn = document.getElementById("loginBtn");
-    const errorBox = document.getElementById("errorBox");
+    const errorEl = document.getElementById("error");
 
-    btn.addEventListener("click", login);
+    btn.onclick = async () => {
+      const identifier = document.getElementById("identifier").value.trim();
+      errorEl.textContent = "";
 
-    async function login() {
-      const raw = input.value.trim();
-      errorBox.textContent = "";
-
-      if (!raw) {
-        errorBox.textContent = "Please enter an email or username.";
+      if (!identifier) {
+        errorEl.textContent = "Enter your username or email.";
         return;
       }
 
-      // Normalize
-      const identifier = raw.toLowerCase();
-
       try {
-        const res = await fetch(`${BACKEND_URL}/registry`, { cache:"no-store" });
-        const registry = await res.json();
-
-        if (!Array.isArray(registry)) {
-          errorBox.textContent = "Registry unavailable. Try again shortly.";
-          return;
-        }
-
-        // Match identity record by username OR email
-        const match = registry.find(r =>
-          r.type === "identity" &&
-          (
-            (r.username && r.username.toLowerCase() === identifier) ||
-            (r.email && r.email.toLowerCase() === identifier)
-          )
-        );
-
-        if (!match) {
-          errorBox.textContent = "Identity not found. Please create one.";
-          return;
-        }
-
-        // Store locally for session persistence
-        localStorage.setItem("username", match.username || "");
-        localStorage.setItem("email", match.email || "");
-        localStorage.setItem("soulmark", match.soulmark || "");
-        localStorage.setItem("displayIdentity", match.displayIdentity || "username");
-        localStorage.setItem("showDonationAmount", match.showDonationAmount ? "1" : "0");
-
-        // Redirect to dashboard
-        const qs = new URLSearchParams({
-          username: match.username,
-          soulmark: match.soulmark || ""
+        const res = await fetch(`${BACKEND_URL}/lookup-identity`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ identifier })
         });
 
-        window.location.href = `iascendai-dashboard.html?${qs.toString()}`;
+        const data = await res.json();
+
+        if (!res.ok) {
+          errorEl.textContent = data.error || "Identity not found.";
+          return;
+        }
+
+        const user = data.user;
+
+        localStorage.setItem("username", user.username);
+        localStorage.setItem("email", user.email);
+        localStorage.setItem("soulmark", user.soulmark);
+        localStorage.setItem("displayIdentity", user.displayIdentity);
+        localStorage.setItem("showDonationAmount", user.showDonationAmount ? "1" : "0");
+
+        window.location.href =
+          `iascendai-dashboard.html?username=${encodeURIComponent(user.username)}`;
 
       } catch (err) {
-        console.error(err);
-        errorBox.textContent = "Error connecting. Please try again.";
+        errorEl.textContent = "Could not reach identity service.";
       }
-    }
+    };
   </script>
-
 </body>
 </html>
