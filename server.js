@@ -30,9 +30,7 @@ const FRONTEND_URL =
 const REGISTRY_PATH = process.env.REGISTRY_PATH || "./data/registry.json";
 const LOG_DIR = process.env.LOG_DIR || "./logs";
 
-// -------------------------------------------------
 // CORS
-// -------------------------------------------------
 const allowedOrigins = [
   "http://localhost:3000",
   "http://127.0.0.1:3000",
@@ -51,43 +49,20 @@ app.use(
 app.use(express.json());
 app.use(bodyParser.json());
 
-// Static for local dev only
+// Static local dev
 app.use(express.static("public"));
 
-// -------------------------------------------------
-// Ensure folders exist
-// -------------------------------------------------
+// Ensure directories
 if (!fs.existsSync("./data")) fs.mkdirSync("./data", { recursive: true });
 if (!fs.existsSync(LOG_DIR)) fs.mkdirSync(LOG_DIR, { recursive: true });
 
-// -------------------------------------------------
 // Logger
-// -------------------------------------------------
 function logEvent(type, message) {
   const line = `[${new Date().toISOString()}] [${type}] ${message}\n`;
   fs.appendFileSync(path.join(LOG_DIR, `${type}.log`), line);
 }
 
-// Small helper to safely read registry
-function readRegistry() {
-  if (!fs.existsSync(REGISTRY_PATH)) return [];
-  try {
-    const raw = fs.readFileSync(REGISTRY_PATH, "utf8");
-    if (!raw.trim()) return [];
-    return JSON.parse(raw);
-  } catch (e) {
-    logEvent("error", `readRegistry: ${e.message}`);
-    return [];
-  }
-}
-
-function writeRegistry(registry) {
-  fs.writeFileSync(REGISTRY_PATH, JSON.stringify(registry, null, 2));
-}
-
-// -------------------------------------------------
-// Health Check
-// -------------------------------------------------
+// Health
 app.get("/health", (req, res) => {
   res.json({
     status: "ok",
@@ -97,9 +72,7 @@ app.get("/health", (req, res) => {
   });
 });
 
-// -------------------------------------------------
-// Create Stripe Checkout Session
-// -------------------------------------------------
+// Create Stripe Checkout session
 app.post("/create-checkout-session", async (req, res) => {
   try {
     const { name, email, amount, soulmark } = req.body;
@@ -137,24 +110,16 @@ app.post("/create-checkout-session", async (req, res) => {
   }
 });
 
-// -------------------------------------------------
-// Verify Donation (canonical)
-// -------------------------------------------------
+// Verify Donation
 app.get("/verify-donation/:sessionId", async (req, res) => {
   const { sessionId } = req.params;
-
-  if (!sessionId) {
-    return res.status(400).json({ error: "Missing sessionId" });
-  }
 
   try {
     const session = await stripe.checkout.sessions.retrieve(sessionId, {
       expand: ["customer_details"],
     });
 
-    if (!session) {
-      return res.status(404).json({ error: "Session not found" });
-    }
+    if (!session) return res.status(404).json({ error: "Session not found" });
 
     const success = session.payment_status === "paid";
 
@@ -172,93 +137,45 @@ app.get("/verify-donation/:sessionId", async (req, res) => {
       stripeSessionId: sessionId,
     };
 
-    const registry = readRegistry();
+    const registry = fs.existsSync(REGISTRY_PATH)
+      ? JSON.parse(fs.readFileSync(REGISTRY_PATH, "utf8"))
+      : [];
+
     registry.push(donationRecord);
-    writeRegistry(registry);
+    fs.writeFileSync(REGISTRY_PATH, JSON.stringify(registry, null, 2));
 
     logEvent(
       "event",
       `Verified donation ${donationRecord.email} → ${donationRecord.amount} / ${soulmark}`
     );
 
-    res.json({
-      verified: success,
-      ...donationRecord,
-    });
+    res.json({ verified: success, ...donationRecord });
   } catch (err) {
     logEvent("error", `verify-donation: ${err.message}`);
     res.status(500).json({ error: "Failed to verify donation" });
   }
 });
 
-// -------------------------------------------------
-// Username Availability (one SoulNameⓈ per human/email)
-// -------------------------------------------------
+// Username availability
 app.get("/check-username/:username", (req, res) => {
-  const username = (req.params.username || "").toLowerCase();
+  const username = req.params.username.toLowerCase();
 
   try {
-    const registry = readRegistry();
+    const registry = fs.existsSync(REGISTRY_PATH)
+      ? JSON.parse(fs.readFileSync(REGISTRY_PATH, "utf8"))
+      : [];
 
     const exists = registry.some(
-      (r) => r.type === "identity" && (r.username || "").toLowerCase() === username
+      (r) => r.type === "identity" && r.username === username
     );
 
     res.json({ available: !exists });
-  } catch (err) {
-    logEvent("error", `check-username: ${err.message}`);
+  } catch {
     res.json({ available: true });
   }
 });
 
-// -------------------------------------------------
-// Login / Identity Lookup (by email or username)
-// -------------------------------------------------
-app.get("/lookup-identity", (req, res) => {
-  const email = (req.query.email || "").toString().trim().toLowerCase();
-  const username = (req.query.username || "").toString().trim().toLowerCase();
-
-  if (!email && !username) {
-    return res
-      .status(400)
-      .json({ error: "Missing email or username for lookup" });
-  }
-
-  try {
-    const registry = readRegistry();
-
-    const identity = registry.find((r) => {
-      if (r.type !== "identity") return false;
-      const u = (r.username || "").toLowerCase();
-      const e = (r.email || "").toLowerCase();
-      return (username && u === username) || (email && e === email);
-    });
-
-    if (!identity) {
-      return res.json({ found: false });
-    }
-
-    // Do not expose email if not necessary in future; safe for now.
-    return res.json({
-      found: true,
-      user: {
-        username: identity.username,
-        name: identity.name,
-        email: identity.email,
-        soulmark: identity.soulmark,
-        role: identity.role,
-        createdAt: identity.createdAt,
-      },
-    });
-  } catch (err) {
-    logEvent("error", `lookup-identity: ${err.message}`);
-    res.status(500).json({ error: "Lookup failed" });
-  }
-});
-
-// -------------------------------------------------
-// Register Identity (ONE identity per email)
-// -------------------------------------------------
+// Register Identity
 app.post("/register", (req, res) => {
   try {
     const {
@@ -276,48 +193,19 @@ app.post("/register", (req, res) => {
       return res.status(400).json({ error: "Missing required fields" });
     }
 
-    const normalizedEmail = email.toLowerCase();
-    const normalizedUsername = username.toLowerCase();
-
-    const registry = readRegistry();
-
-    // Enforce: one identity per email (one SoulNameⓈ per human for now)
-    const existingByEmail = registry.find(
-      (r) =>
-        r.type === "identity" &&
-        (r.email || "").toLowerCase() === normalizedEmail
-    );
-
-    if (existingByEmail && existingByEmail.username !== normalizedUsername) {
-      return res.status(400).json({
-        error:
-          "An identity is already registered with this email. Please use your existing username or a different email.",
-      });
-    }
-
-    // Also prevent duplicate username outright
-    const existingByUsername = registry.find(
-      (r) =>
-        r.type === "identity" &&
-        (r.username || "").toLowerCase() === normalizedUsername
-    );
-
-    if (existingByUsername && existingByUsername.email !== normalizedEmail) {
-      return res.status(400).json({
-        error:
-          "This username is already taken by another identity. Please choose a different username.",
-      });
-    }
+    const registry = fs.existsSync(REGISTRY_PATH)
+      ? JSON.parse(fs.readFileSync(REGISTRY_PATH, "utf8"))
+      : [];
 
     const record = {
       type: "identity",
-      username: normalizedUsername,
+      username: username.toLowerCase(),
       name,
-      email: normalizedEmail,
+      email,
       role,
       soulmark:
         soulmark ||
-        "SM-" + Buffer.from(normalizedEmail).toString("base64").slice(0, 12),
+        "SM-" + Buffer.from(email).toString("base64").slice(0, 12),
       donationAmount: donationAmount || null,
       displayIdentity: displayIdentity || "username",
       showDonationAmount:
@@ -325,17 +213,10 @@ app.post("/register", (req, res) => {
       createdAt: new Date().toISOString(),
     };
 
-    if (existingByEmail) {
-      // Update existing record in-place if same email/username combo
-      const idx = registry.indexOf(existingByEmail);
-      registry[idx] = record;
-    } else {
-      registry.push(record);
-    }
+    registry.push(record);
+    fs.writeFileSync(REGISTRY_PATH, JSON.stringify(registry, null, 2));
 
-    writeRegistry(registry);
-
-    logEvent("event", `Registered identity @${normalizedUsername}`);
+    logEvent("event", `Registered identity @${username}`);
     res.json({ ok: true, user: record });
   } catch (err) {
     logEvent("error", `register: ${err.message}`);
@@ -343,22 +224,53 @@ app.post("/register", (req, res) => {
   }
 });
 
-// -------------------------------------------------
-// Registry
-// -------------------------------------------------
+// NEW ENDPOINT — Lookup Identity (email OR username)
+app.post("/lookup-identity", (req, res) => {
+  try {
+    const { identifier } = req.body;
+
+    if (!identifier) {
+      return res.status(400).json({ error: "Missing identifier" });
+    }
+
+    const normalized = identifier.toLowerCase();
+
+    const registry = fs.existsSync(REGISTRY_PATH)
+      ? JSON.parse(fs.readFileSync(REGISTRY_PATH, "utf8"))
+      : [];
+
+    const match = registry.find(
+      (r) =>
+        r.type === "identity" &&
+        ((r.username && r.username.toLowerCase() === normalized) ||
+          (r.email && r.email.toLowerCase() === normalized))
+    );
+
+    if (!match) {
+      return res.status(404).json({ error: "Identity not found" });
+    }
+
+    res.json({ ok: true, user: match });
+  } catch (err) {
+    logEvent("error", `lookup-identity: ${err.message}`);
+    res.status(500).json({ error: "Failed to lookup identity" });
+  }
+});
+
+// Registry dump
 app.get("/registry", (req, res) => {
   try {
-    const data = readRegistry();
+    const data = fs.existsSync(REGISTRY_PATH)
+      ? JSON.parse(fs.readFileSync(REGISTRY_PATH, "utf8"))
+      : [];
+
     res.json(data);
-  } catch (err) {
-    logEvent("error", `registry: ${err.message}`);
+  } catch {
     res.status(500).json({ error: "Failed to read registry" });
   }
 });
 
-// -------------------------------------------------
-// Start Server
-// -------------------------------------------------
+// Start server
 app.listen(PORT, () => {
   console.log(
     `🚀 Jamaica We Rise API running in ${MODE.toUpperCase()} MODE on port ${PORT}`
