@@ -68,14 +68,20 @@ function logEvent(type, message) {
   fs.appendFileSync(path.join(LOG_DIR, `${type}.log`), line);
 }
 
-// Helper to load / save registry
-function loadRegistry() {
-  return fs.existsSync(REGISTRY_PATH)
-    ? JSON.parse(fs.readFileSync(REGISTRY_PATH, "utf8"))
-    : [];
+// Small helper to safely read registry
+function readRegistry() {
+  if (!fs.existsSync(REGISTRY_PATH)) return [];
+  try {
+    const raw = fs.readFileSync(REGISTRY_PATH, "utf8");
+    if (!raw.trim()) return [];
+    return JSON.parse(raw);
+  } catch (e) {
+    logEvent("error", `readRegistry: ${e.message}`);
+    return [];
+  }
 }
 
-function saveRegistry(registry) {
+function writeRegistry(registry) {
   fs.writeFileSync(REGISTRY_PATH, JSON.stringify(registry, null, 2));
 }
 
@@ -166,9 +172,9 @@ app.get("/verify-donation/:sessionId", async (req, res) => {
       stripeSessionId: sessionId,
     };
 
-    const registry = loadRegistry();
+    const registry = readRegistry();
     registry.push(donationRecord);
-    saveRegistry(registry);
+    writeRegistry(registry);
 
     logEvent(
       "event",
@@ -186,26 +192,72 @@ app.get("/verify-donation/:sessionId", async (req, res) => {
 });
 
 // -------------------------------------------------
-// Username Availability — one SoulNameⓈ per human
+// Username Availability (one SoulNameⓈ per human/email)
 // -------------------------------------------------
 app.get("/check-username/:username", (req, res) => {
-  const username = req.params.username.toLowerCase();
+  const username = (req.params.username || "").toLowerCase();
 
   try {
-    const registry = loadRegistry();
+    const registry = readRegistry();
 
     const exists = registry.some(
-      (r) => r.type === "identity" && r.username === username
+      (r) => r.type === "identity" && (r.username || "").toLowerCase() === username
     );
 
     res.json({ available: !exists });
-  } catch {
+  } catch (err) {
+    logEvent("error", `check-username: ${err.message}`);
     res.json({ available: true });
   }
 });
 
 // -------------------------------------------------
-// Register Identity
+// Login / Identity Lookup (by email or username)
+// -------------------------------------------------
+app.get("/lookup-identity", (req, res) => {
+  const email = (req.query.email || "").toString().trim().toLowerCase();
+  const username = (req.query.username || "").toString().trim().toLowerCase();
+
+  if (!email && !username) {
+    return res
+      .status(400)
+      .json({ error: "Missing email or username for lookup" });
+  }
+
+  try {
+    const registry = readRegistry();
+
+    const identity = registry.find((r) => {
+      if (r.type !== "identity") return false;
+      const u = (r.username || "").toLowerCase();
+      const e = (r.email || "").toLowerCase();
+      return (username && u === username) || (email && e === email);
+    });
+
+    if (!identity) {
+      return res.json({ found: false });
+    }
+
+    // Do not expose email if not necessary in future; safe for now.
+    return res.json({
+      found: true,
+      user: {
+        username: identity.username,
+        name: identity.name,
+        email: identity.email,
+        soulmark: identity.soulmark,
+        role: identity.role,
+        createdAt: identity.createdAt,
+      },
+    });
+  } catch (err) {
+    logEvent("error", `lookup-identity: ${err.message}`);
+    res.status(500).json({ error: "Lookup failed" });
+  }
+});
+
+// -------------------------------------------------
+// Register Identity (ONE identity per email)
 // -------------------------------------------------
 app.post("/register", (req, res) => {
   try {
@@ -224,42 +276,66 @@ app.post("/register", (req, res) => {
       return res.status(400).json({ error: "Missing required fields" });
     }
 
-    const registry = loadRegistry();
+    const normalizedEmail = email.toLowerCase();
+    const normalizedUsername = username.toLowerCase();
 
-    const existingIdentity = registry.find(
-      (r) => r.type === "identity" && r.username === username.toLowerCase()
+    const registry = readRegistry();
+
+    // Enforce: one identity per email (one SoulNameⓈ per human for now)
+    const existingByEmail = registry.find(
+      (r) =>
+        r.type === "identity" &&
+        (r.email || "").toLowerCase() === normalizedEmail
     );
-    if (existingIdentity) {
-      return res
-        .status(409)
-        .json({ error: "This username is already registered." });
+
+    if (existingByEmail && existingByEmail.username !== normalizedUsername) {
+      return res.status(400).json({
+        error:
+          "An identity is already registered with this email. Please use your existing username or a different email.",
+      });
     }
 
-    const lowerUsername = username.toLowerCase();
-    const soulName = `${lowerUsername}@iascendai`;
+    // Also prevent duplicate username outright
+    const existingByUsername = registry.find(
+      (r) =>
+        r.type === "identity" &&
+        (r.username || "").toLowerCase() === normalizedUsername
+    );
+
+    if (existingByUsername && existingByUsername.email !== normalizedEmail) {
+      return res.status(400).json({
+        error:
+          "This username is already taken by another identity. Please choose a different username.",
+      });
+    }
 
     const record = {
       type: "identity",
-      soulName,
-      username: lowerUsername,
+      username: normalizedUsername,
       name,
-      email,
+      email: normalizedEmail,
       role,
       soulmark:
         soulmark ||
-        "SM-" + Buffer.from(email).toString("base64").slice(0, 12),
+        "SM-" + Buffer.from(normalizedEmail).toString("base64").slice(0, 12),
       donationAmount: donationAmount || null,
       displayIdentity: displayIdentity || "username",
       showDonationAmount:
         typeof showDonationAmount === "boolean" ? showDonationAmount : true,
-      authDevices: [],
       createdAt: new Date().toISOString(),
     };
 
-    registry.push(record);
-    saveRegistry(registry);
+    if (existingByEmail) {
+      // Update existing record in-place if same email/username combo
+      const idx = registry.indexOf(existingByEmail);
+      registry[idx] = record;
+    } else {
+      registry.push(record);
+    }
 
-    logEvent("event", `Registered identity @${lowerUsername}`);
+    writeRegistry(registry);
+
+    logEvent("event", `Registered identity @${normalizedUsername}`);
     res.json({ ok: true, user: record });
   } catch (err) {
     logEvent("error", `register: ${err.message}`);
@@ -268,120 +344,14 @@ app.post("/register", (req, res) => {
 });
 
 // -------------------------------------------------
-// Device Auth — Register Device for SoulNameⓈ
-// -------------------------------------------------
-app.post("/auth/register-device", (req, res) => {
-  try {
-    const { username, deviceId, deviceLabel } = req.body;
-
-    if (!username || !deviceId) {
-      return res
-        .status(400)
-        .json({ error: "Missing username or deviceId" });
-    }
-
-    const registry = loadRegistry();
-    const lowerUsername = username.toLowerCase();
-
-    const identity = registry.find(
-      (r) => r.type === "identity" && r.username === lowerUsername
-    );
-
-    if (!identity) {
-      return res.status(404).json({ error: "Identity not found" });
-    }
-
-    if (!Array.isArray(identity.authDevices)) {
-      identity.authDevices = [];
-    }
-
-    const existingDevice = identity.authDevices.find(
-      (d) => d.deviceId === deviceId
-    );
-
-    if (!existingDevice) {
-      identity.authDevices.push({
-        deviceId,
-        deviceLabel: deviceLabel || "Unknown Device",
-        createdAt: new Date().toISOString(),
-      });
-      saveRegistry(registry);
-      logEvent(
-        "event",
-        `Registered device for @${lowerUsername} (${deviceLabel || "device"})`
-      );
-    }
-
-    res.json({
-      ok: true,
-      soulName: identity.soulName,
-      username: identity.username,
-      authDevices: identity.authDevices,
-    });
-  } catch (err) {
-    logEvent("error", `auth-register-device: ${err.message}`);
-    res.status(500).json({ error: "Failed to register device" });
-  }
-});
-
-// -------------------------------------------------
-// Device Auth — Login with Device
-// -------------------------------------------------
-app.post("/auth/login-device", (req, res) => {
-  try {
-    const { deviceId } = req.body;
-
-    if (!deviceId) {
-      return res.status(400).json({ error: "Missing deviceId" });
-    }
-
-    const registry = loadRegistry();
-
-    const identity = registry.find(
-      (r) =>
-        r.type === "identity" &&
-        Array.isArray(r.authDevices) &&
-        r.authDevices.some((d) => d.deviceId === deviceId)
-    );
-
-    if (!identity) {
-      return res.status(404).json({ error: "No identity linked to this device" });
-    }
-
-    const sessionToken =
-      "sess_" +
-      Buffer.from(
-        `${identity.username}:${Date.now().toString()}:${Math.random()
-          .toString(36)
-          .slice(2)}`
-      ).toString("base64");
-
-    logEvent(
-      "event",
-      `Device login for @${identity.username} via deviceId=${deviceId}`
-    );
-
-    res.json({
-      ok: true,
-      token: sessionToken,
-      soulName: identity.soulName,
-      username: identity.username,
-      role: identity.role || "supporter",
-    });
-  } catch (err) {
-    logEvent("error", `auth-login-device: ${err.message}`);
-    res.status(500).json({ error: "Failed to login with device" });
-  }
-});
-
-// -------------------------------------------------
 // Registry
 // -------------------------------------------------
 app.get("/registry", (req, res) => {
   try {
-    const data = loadRegistry();
+    const data = readRegistry();
     res.json(data);
-  } catch {
+  } catch (err) {
+    logEvent("error", `registry: ${err.message}`);
     res.status(500).json({ error: "Failed to read registry" });
   }
 });
