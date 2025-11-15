@@ -146,8 +146,13 @@
     const btn = document.getElementById("loginBtn");
     const errorEl = document.getElementById("error");
 
+    function normalize(str) {
+      return str.toLowerCase().trim();
+    }
+
     btn.onclick = async () => {
-      const identifier = document.getElementById("identifier").value.trim();
+      const raw = document.getElementById("identifier").value.trim();
+      const identifier = normalize(raw);
       errorEl.textContent = "";
 
       if (!identifier) {
