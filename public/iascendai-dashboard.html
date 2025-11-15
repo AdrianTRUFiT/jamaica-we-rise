@@ -27,7 +27,7 @@
     }
 
     header {
-      margin-bottom: 18px;
+      margin-bottom: 20px;
     }
 
     .title {
@@ -53,14 +53,25 @@
       font-size: 0.85rem;
       color: #facc15;
       text-decoration: none;
-      padding: 6px 10px;
+      padding: 6px 12px;
       border-radius: 999px;
       border: 1px solid rgba(250,204,21,0.3);
       background: rgba(15,23,42,0.85);
+      cursor: pointer;
     }
 
     .nav-link:hover {
       background: rgba(250,204,21,0.08);
+    }
+
+    .logout-link {
+      color: #fb7185;
+      border-color: rgba(251,113,133,0.35);
+      background: rgba(24,10,15,0.85);
+    }
+
+    .logout-link:hover {
+      background: rgba(251,113,133,0.15);
     }
 
     .status-text {
@@ -177,6 +188,9 @@
         <a class="nav-link" href="soulregistry.html">SoulRegistryⓈ Directory</a>
         <a class="nav-link" href="iascendai-verify.html">Verify Identity</a>
         <a class="nav-link" href="index.html">Donate Again</a>
+
+        <!-- NEW LOGOUT BUTTON -->
+        <a id="logoutBtn" class="nav-link logout-link">Logout</a>
       </div>
 
       <div id="statusText" class="status-text">Loading your verified record…</div>
@@ -246,6 +260,18 @@
   <script>
     const BACKEND_URL = (window.CONFIG && window.CONFIG.BACKEND_URL) || "";
 
+    const logoutBtn = document.getElementById("logoutBtn");
+
+    logoutBtn.addEventListener("click", () => {
+      localStorage.removeItem("username");
+      localStorage.removeItem("email");
+      localStorage.removeItem("soulmark");
+      localStorage.removeItem("displayIdentity");
+      localStorage.removeItem("showDonationAmount");
+
+      window.location.href = "iascendai-verify.html?logged_out=1";
+    });
+
     const statusTextEl = document.getElementById("statusText");
     const soulValueEl = document.getElementById("soulValue");
     const nameValueEl = document.getElementById("nameValue");
@@ -259,35 +285,10 @@
     const entryCountEl = document.getElementById("entryCount");
     const activityBodyEl = document.getElementById("activityBody");
 
-    // Pull context with username as the primary anchor
     function getContext() {
-      const params = new URLSearchParams(window.location.search);
-
-      const usernameParam = (params.get("username") || "").toLowerCase();
-      const soulParam = params.get("soulmark") || "";
-
       const storedUsername = (localStorage.getItem("username") || "").toLowerCase();
-      const storedSoul = localStorage.getItem("soulmark") || "";
-      const storedEmail = localStorage.getItem("email") || "";
-
-      const displayIdentity =
-        params.get("mode") ||
-        localStorage.getItem("displayIdentity") ||
-        "username";
-
-      const showDonationFlag =
-        params.get("showDonation") ??
-        localStorage.getItem("showDonationAmount") ??
-        "1";
-
-      const showDonationAmount = showDonationFlag === "1";
-
       return {
-        username: usernameParam || storedUsername, // PRIMARY KEY
-        soulmark: soulParam || storedSoul,
-        email: storedEmail,
-        displayIdentity,
-        showDonationAmount,
+        username: storedUsername
       };
     }
 
@@ -296,7 +297,7 @@
 
       if (!ctx.username) {
         statusTextEl.textContent =
-          "We couldn’t detect a linked username. Please return to the Success page and complete registration.";
+          "No active session found. Please verify or log in again.";
         return;
       }
 
@@ -306,159 +307,51 @@
         const res = await fetch(`${BACKEND_URL}/registry`);
         const registry = await res.json();
 
-        if (!Array.isArray(registry)) {
-          throw new Error("Invalid registry format");
-        }
+        if (!Array.isArray(registry)) throw new Error("Invalid registry format");
 
-        // 🔐 Identity is matched by USERNAME ONLY
-        const identity = registry
-          .filter((r) => r.type === "identity")
-          .find((r) => {
-            const u = (r.username || "").toLowerCase();
-            return ctx.username && u === ctx.username;
-          });
+        const identity = registry.find(
+          r => r.type === "identity" && r.username === ctx.username
+        );
 
-        // Decide which keys to use when aggregating donations
-        const keyEmail = identity?.email || ctx.email || null;
-        const keySoul  = identity?.soulmark || ctx.soulmark || null;
+        const donations = registry.filter(
+          r =>
+            r.type === "donation" &&
+            (
+              (identity && r.email === identity.email) ||
+              (identity && r.soulmark === identity.soulmark)
+            )
+        );
 
-        // Donations are linked via the matched identity’s email or SoulMark
-        const donations = registry.filter((r) => {
-          if (r.type !== "donation") return false;
-          const e = r.email || "";
-          const s = r.soulmark || "";
-          return (
-            (keyEmail && e === keyEmail) ||
-            (keySoul && s === keySoul)
-          );
-        });
-
-        // -------------------------
-        // Identity card
-        // -------------------------
-        if (!identity) {
-          statusTextEl.textContent =
-            "No identity record found for this username yet. Your donation may be verified, but identity registration is still pending.";
-          statusPillEl.classList.remove("status-ok");
-          statusPillEl.classList.add("status-pending");
-          statusPillEl.textContent = "Pending";
-
-          soulValueEl.textContent = ctx.soulmark || "Assigned after verification";
-          nameValueEl.textContent = "—";
-          usernameValueEl.textContent = ctx.username
-            ? `${ctx.username}@iascendai`
-            : "—";
-          identityNoteEl.textContent =
-            "Once your identity is registered, your SoulMarkⓈ will be linked to this username.";
-        } else {
-          statusTextEl.textContent = "Identity located and linked to your SoulMarkⓈ.";
-          statusPillEl.classList.remove("status-pending");
+        if (identity) {
+          usernameValueEl.textContent = `${identity.username}@iascendai`;
+          nameValueEl.textContent = identity.name;
+          soulValueEl.textContent = identity.soulmark;
+          roleValueEl.textContent = identity.role || "supporter";
+          identityNoteEl.textContent = "";
           statusPillEl.classList.add("status-ok");
           statusPillEl.textContent = "Verified";
-
-          identity.displayIdentity =
-            identity.displayIdentity || ctx.displayIdentity;
-          identity.showDonationAmount =
-            typeof identity.showDonationAmount === "boolean"
-              ? identity.showDonationAmount
-              : ctx.showDonationAmount;
-
-          const chosenUsername = identity.username || ctx.username || "—";
-          const chosenName = identity.name || "";
-
-          if (identity.displayIdentity === "real") {
-            nameValueEl.textContent = chosenName || "—";
-            usernameValueEl.textContent = chosenUsername
-              ? `${chosenUsername}@iascendai`
-              : "—";
-            identityNoteEl.textContent =
-              "You chose to display your real name on the public tracker.";
-          } else if (identity.displayIdentity === "anonymous") {
-            nameValueEl.textContent = "Anonymous";
-            usernameValueEl.textContent = "Hidden";
-            identityNoteEl.textContent =
-              "You chose to appear as Anonymous. Your SoulMarkⓈ remains verifiable.";
-          } else {
-            nameValueEl.textContent = chosenName || "—";
-            usernameValueEl.textContent = chosenUsername
-              ? `${chosenUsername}@iascendai`
-              : "—";
-            identityNoteEl.textContent =
-              "You chose to display your username on the public tracker.";
-          }
-
-          soulValueEl.textContent =
-            identity.soulmark || ctx.soulmark || "Assigned after verification";
-          roleValueEl.textContent = identity.role || "supporterⓈ";
+          statusTextEl.textContent = "Identity located and verified.";
+        } else {
+          statusPillEl.textContent = "Pending";
         }
 
-        // -------------------------
-        // Donation aggregation
-        // -------------------------
-        if (donations.length === 0) {
+        if (donations.length > 0) {
+          const total = donations.reduce((sum, d) => sum + Number(d.amount), 0);
+          const latest = donations.sort(
+            (a, b) => new Date(b.timestamp) - new Date(a.timestamp)
+          )[0];
+
+          latestDonationEl.textContent = `$${latest.amount.toFixed(2)}`;
+          totalDonationsEl.textContent = `$${total.toFixed(2)}`;
+          entryCountEl.textContent = donations.length;
+        } else {
           latestDonationEl.textContent = "$0.00";
           totalDonationsEl.textContent = "$0.00";
-          entryCountEl.textContent = identity ? "1" : "0";
-          activityBodyEl.innerHTML =
-            '<tr><td colspan="3" class="muted">No linked donations found yet.</td></tr>';
-        } else {
-          donations.sort(
-            (a, b) => new Date(b.timestamp) - new Date(a.timestamp)
-          );
-
-          const total = donations.reduce(
-            (sum, d) => sum + (Number(d.amount) || 0),
-            0
-          );
-          const latest = donations[0];
-
-          latestDonationEl.textContent = `$${Number(latest.amount || 0).toFixed(
-            2
-          )}`;
-          totalDonationsEl.textContent = `$${total.toFixed(2)}`;
-          entryCountEl.textContent = String(
-            donations.length + (identity ? 1 : 0)
-          );
-
-          activityBodyEl.innerHTML = "";
-          const rows = [];
-
-          donations.slice(0, 6).forEach((d) => {
-            const when = d.timestamp
-              ? new Date(d.timestamp).toLocaleString()
-              : "—";
-            const amt = `$${Number(d.amount || 0).toFixed(2)}`;
-
-            rows.push(
-              `<tr>
-                 <td>Donation</td>
-                 <td>${amt}</td>
-                 <td>${when}</td>
-               </tr>`
-            );
-          });
-
-          if (identity) {
-            const when = identity.createdAt
-              ? new Date(identity.createdAt).toLocaleString()
-              : "—";
-            rows.unshift(
-              `<tr>
-                 <td>Identity</td>
-                 <td>${identity.role || "supporter"}</td>
-                 <td>${when}</td>
-               </tr>`
-            );
-          }
-
-          activityBodyEl.innerHTML = rows.join("");
+          entryCountEl.textContent = "0";
         }
       } catch (err) {
-        console.error("Dashboard load failed:", err);
         statusTextEl.textContent =
           "We couldn’t load your dashboard right now. Please refresh in a moment.";
-        activityBodyEl.innerHTML =
-          '<tr><td colspan="3" class="muted">Error loading activity.</td></tr>';
       }
     }
 
