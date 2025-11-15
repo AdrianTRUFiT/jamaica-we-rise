@@ -1,209 +1,203 @@
+<!-- public/soulregistry.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SoulRegistryⓈ Directory | Jamaica We Rise × iAscendAi</title>
+<meta charset="UTF-8" />
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0" />
 
-  <!-- Load Backend URL -->
-  <script type="module">
-    import { CONFIG } from "./config.js";
-    window.CONFIG = CONFIG;
-  </script>
+<title>SoulRegistryⓈ Directory | Jamaica We Rise × iAscendAi</title>
 
-  <style>
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif;
-      background: linear-gradient(145deg, #03131f 0%, #041423 50%, #020c15 100%);
-      color: #fff;
-      min-height: 100vh;
-      margin: 0;
-      padding: 40px 20px;
-      position: relative;
-    }
+<!-- Load CONFIG -->
+<script type="module">
+import { CONFIG } from "./config.js";
+window.CONFIG = CONFIG;
+</script>
 
-    /* Logout Button */
-    .logout-btn {
-      position: absolute;
-      top: 18px;
-      right: 18px;
-      padding: 6px 14px;
-      border-radius: 999px;
-      border: 1px solid rgba(255,255,255,0.18);
-      background: rgba(255,255,255,0.08);
-      color: #fff;
-      cursor: pointer;
-      font-size: 0.8rem;
-      backdrop-filter: blur(5px);
-    }
+<style>
+body {
+font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif;
+background: linear-gradient(145deg, #03131f 0%, #041423 50%, #020c15 100%);
+color: #fff;
+min-height: 100vh;
+margin: 0;
+padding: 40px 20px;
+position: relative;
+}
 
-    h1 {
-      text-align:center;
-      font-size:2.8em;
-      background:linear-gradient(135deg,#fed103,#059c3a);
-      -webkit-background-clip:text;
-      -webkit-text-fill-color:transparent;
-      margin-bottom:10px;
-    }
-    p {
-      text-align:center;
-      color:rgba(255,255,255,0.8);
-      margin-bottom:40px;
-    }
+/* Logout Button */
+.logout-btn {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.18);
+  background: rgba(255,255,255,0.08);
+  color: #fff;
+  cursor: pointer;
+  font-size: 0.8rem;
+  backdrop-filter: blur(5px);
+}
 
-    .registry {
-      display:grid;
-      grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
-      gap:20px;
-      max-width:1200px;
-      margin:0 auto;
-    }
+h1 {
+  text-align:center;
+  font-size:2.8em;
+  background:linear-gradient(135deg,#fed103,#059c3a);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  margin-bottom:10px;
+}
 
-    .entry {
-      background:rgba(255,255,255,0.06);
-      border:1px solid rgba(255,255,255,0.15);
-      border-radius:16px;
-      padding:22px 26px;
-      box-shadow:0 0 25px rgba(5,156,58,0.15);
-      transition:transform .3s ease, box-shadow .3s ease;
-    }
+p {
+  text-align:center;
+  color:rgba(255,255,255,0.8);
+  margin-bottom:40px;
+}
 
-    .entry:hover {
-      transform:translateY(-3px);
-      box-shadow:0 0 35px rgba(254,209,3,0.3);
-    }
+.registry {
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+  gap:20px;
+  max-width:1200px;
+  margin:0 auto;
+}
 
-    .entry h2 {
-      margin:0 0 10px;
-      font-size:1.35em;
-      color:#fed103;
-    }
+.entry {
+  background:rgba(255,255,255,0.06);
+  border:1px solid rgba(255,255,255,0.15);
+  border-radius:16px;
+  padding:22px 26px;
+  box-shadow:0 0 25px rgba(5,156,58,0.15);
+  transition:transform .3s ease, box-shadow .3s ease;
+}
 
-    .entry p {
-      margin:5px 0;
-      font-size:0.95em;
-      color:rgba(255,255,255,0.9);
-    }
+.entry:hover {
+  transform:translateY(-3px);
+  box-shadow:0 0 35px rgba(254,209,3,0.3);
+}
 
-    .verified {
-      color:#05c85b;
-      font-weight:600;
-      margin-top:8px;
-      font-size:0.9em;
-    }
+.entry h2 {
+  margin:0 0 10px;
+  font-size:1.35em;
+  color:#fed103;
+}
 
-    #loading {
-      text-align:center;
-      color:rgba(255,255,255,0.7);
-      font-size:1.1em;
-      margin-top:40px;
-    }
+.entry p {
+  margin:5px 0;
+  font-size:0.95em;
+  color:rgba(255,255,255,0.9);
+}
 
-    .footer {
-      text-align:center;
-      margin-top:60px;
-      font-size:0.9em;
-      color:rgba(255,255,255,0.6);
-    }
+.verified {
+  color:#05c85b;
+  font-weight:600;
+  margin-top:8px;
+  font-size:0.9em;
+}
 
-    .footer a {
-      color:#fed103;
-      text-decoration:none;
-      margin-top:10px;
-      display:inline-block;
-    }
-  </style>
+#loading {
+  text-align:center;
+  color:rgba(255,255,255,0.7);
+  font-size:1.1em;
+  margin-top:40px;
+}
+
+.footer {
+  text-align:center;
+  margin-top:60px;
+  font-size:0.9em;
+  color:rgba(255,255,255,0.6);
+}
+
+.footer a {
+  color:#fed103;
+  text-decoration:none;
+  margin-top:10px;
+  display:inline-block;
+}
+
+</style>
 </head>
 
 <body>
 
-  <button class="logout-btn" id="logoutBtn">Logout</button>
+<button class="logout-btn" id="logoutBtn">Logout</button>
 
-  <h1>SoulRegistryⓈ Directory</h1>
-  <p>Explore verified SoulMarkⓈ identities across the iAscendAi ecosystem.</p>
+<h1>SoulRegistryⓈ Directory</h1>
+<p>Explore verified SoulMarkⓈ identities across the iAscendAi ecosystem.</p>
 
-  <div id="loading">Loading verified identities...</div>
-  <div id="registry" class="registry" style="display:none;"></div>
+<div id="loading">Loading verified identities...</div>
 
-  <div class="footer">
-    <p>© 2025 iAscendAi • SoulRegistryⓈ Public Ledger</p>
-    <a href="iascendai-dashboard.html">← Back to Dashboard</a>
-  </div>
+<div id="registry" class="registry" style="display:none;"></div>
 
-  <script type="module">
-    import { CONFIG } from "./config.js";
-    const BACKEND_URL = CONFIG.BACKEND_URL;
+<div class="footer">
+<p>© 2025 iAscendAi • SoulRegistryⓈ Public Ledger</p>
+<a href="iascendai-dashboard.html">← Back to Dashboard</a>
+</div>
 
-    // --------------------------
-    // LOGOUT
-    // --------------------------
-    document.getElementById("logoutBtn").onclick = () => {
-      localStorage.clear();
-      window.location.href = "index.html";
-    };
+<script type="module">
+import { CONFIG } from "./config.js";
+const BACKEND_URL = CONFIG.BACKEND_URL;
 
-    // --------------------------
-    // LOAD REGISTRY
-    // --------------------------
-    async function loadRegistry() {
-      const registryContainer = document.getElementById("registry");
-      const loading = document.getElementById("loading");
+document.getElementById("logoutBtn").onclick = () => {
+  localStorage.clear();
+  window.location.href = "index.html";
+};
 
-      try {
-        const response = await fetch(`${BACKEND_URL}/registry`, { cache: "no-store" });
-        const data = await response.json();
+async function loadRegistry() {
+  const registryContainer = document.getElementById("registry");
+  const loading = document.getElementById("loading");
 
-        // Only identity records
-        const identities = data.filter(e => e.type === "identity");
+  try {
+    const response = await fetch(`${BACKEND_URL}/registry`, { cache: "no-store" });
+    const data = await response.json();
 
-        if (identities.length === 0) {
-          loading.textContent = "No verified identities yet.";
-          return;
-        }
+    const identities = data.filter(r => r.type === "identity");
 
-        // Newest → oldest
-        identities.sort((a, b) => {
-          const ta = new Date(a.createdAt || 0).getTime();
-          const tb = new Date(b.createdAt || 0).getTime();
-          return tb - ta;
-        });
-
-        loading.style.display = "none";
-        registryContainer.style.display = "grid";
-
-        registryContainer.innerHTML = identities
-          .map(entry => {
-            const display =
-              entry.displayIdentity === "real"
-                ? entry.name || "—"
-                : entry.displayIdentity === "anonymous"
-                ? "Anonymous"
-                : `${entry.username}@iascendai`;
-
-            return `
-            <div class="entry">
-              <h2>${display}</h2>
-
-              <p><strong>Username:</strong> ${
-                entry.username ? `${entry.username}@iascendai` : "—"
-              }</p>
-
-              <p><strong>SoulMarkⓈ:</strong> ${entry.soulmark || "—"}</p>
-
-              <p class="verified">✔ Verified Identity</p>
-            </div>
-          `;
-          })
-          .join("");
-
-      } catch (error) {
-        console.error("Registry load error:", error);
-        loading.textContent = "⚠️ Could not load the SoulRegistryⓈ.";
-      }
+    if (identities.length === 0) {
+      loading.textContent = "No verified identities yet.";
+      return;
     }
 
-    loadRegistry();
-  </script>
+    identities.sort((a, b) => {
+      const ta = new Date(a.createdAt || 0).getTime();
+      const tb = new Date(b.createdAt || 0).getTime();
+      return tb - ta;
+    });
+
+    loading.style.display = "none";
+    registryContainer.style.display = "grid";
+
+    registryContainer.innerHTML = identities.map(entry => {
+      const display =
+        entry.displayIdentity === "real"
+          ? entry.name || "—"
+          : entry.displayIdentity === "anonymous"
+          ? "Anonymous"
+          : `${entry.username}@iascendai`;
+
+      return `
+        <div class="entry">
+          <h2>${display}</h2>
+          <p><strong>Username:</strong> ${
+            entry.username ? `${entry.username}@iascendai` : "—"
+          }</p>
+          <p><strong>SoulMarkⓈ:</strong> ${entry.soulmark || "—"}</p>
+          <p class="verified">✔ Verified Identity</p>
+        </div>
+      `;
+    }).join("");
+
+  } catch (error) {
+    console.error("Registry load error:", error);
+    loading.textContent = "⚠️ Could not load the SoulRegistryⓈ.";
+  }
+}
+
+loadRegistry();
+
+</script>
 
 </body>
 </html>

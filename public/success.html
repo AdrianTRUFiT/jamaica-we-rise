@@ -1,178 +1,181 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Donation Successful | iAscendAi × Jamaica We Rise</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Donation Successful | iAscendAi × Jamaica We Rise</title>
 
-  <script type="module">
-    import { CONFIG } from "./config.js";
-    window.CONFIG = CONFIG;
-  </script>
+<script type="module">
+import { CONFIG } from "./config.js";
+window.CONFIG = CONFIG;
+</script>
 
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
 
-    body {
-      font-family: Inter, sans-serif;
-      background: radial-gradient(circle at top, #0f172a, #020617 40%, #000814);
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 24px;
-      color: #e5f2ff;
-    }
+body {
+  font-family: Inter, sans-serif;
+  background: radial-gradient(circle at top, #0f172a, #020617 40%, #000814);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 24px;
+  color: #e5f2ff;
+}
 
-    .card {
-      width: 100%;
-      max-width: 600px;
-      background: rgba(11,25,45,0.9);
-      border-radius: 24px;
-      padding: 32px;
-      border: 1px solid rgba(148,163,184,0.35);
-    }
+.card {
+  width: 100%;
+  max-width: 600px;
+  background: rgba(11,25,45,0.9);
+  border-radius: 24px;
+  padding: 32px;
+  border: 1px solid rgba(148,163,184,0.35);
+}
 
-    h1 {
-      text-align: center;
-      font-size: 1.8rem;
-      font-weight: 800;
-      background: linear-gradient(120deg, #b8edee, #fed103);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      margin-bottom: 12px;
-    }
+h1 {
+  text-align: center;
+  font-size: 1.8rem;
+  font-weight: 800;
+  background: linear-gradient(120deg, #b8edee, #fed103);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 12px;
+}
 
-    .subtitle {
-      text-align: center;
-      color: #9ca3af;
-      margin-bottom: 28px;
-      font-size: 0.95rem;
-    }
+.subtitle {
+  text-align: center;
+  color: #9ca3af;
+  margin-bottom: 28px;
+  font-size: 0.95rem;
+}
 
-    .label {
-      font-size: 0.75rem;
-      text-transform: uppercase;
-      letter-spacing: 0.14em;
-      color: #9ca3af;
-      margin-bottom: 6px;
-    }
+.label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: #9ca3af;
+  margin-bottom: 6px;
+}
 
-    .value-box {
-      padding: 12px;
-      border-radius: 12px;
-      background: rgba(15,23,42,0.95);
-      border: 1px solid rgba(148,163,184,0.35);
-      margin-bottom: 16px;
-      font-size: 1rem;
-      font-weight: 600;
-      color: #e5f2ff;
-      word-break: break-all;
-    }
+.value-box {
+  padding: 12px;
+  border-radius: 12px;
+  background: rgba(15,23,42,0.95);
+  border: 1px solid rgba(148,163,184,0.35);
+  margin-bottom: 16px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #e5f2ff;
+  word-break: break-all;
+}
 
-    #errorBox {
-      margin-top: 12px;
-      color: #ff6b6b;
-      display: none;
-      font-size: 0.9rem;
-      text-align: center;
-    }
+#errorBox {
+  margin-top: 12px;
+  color: #ff6b6b;
+  display: none;
+  font-size: 0.9rem;
+  text-align: center;
+}
 
-    button {
-      width: 100%;
-      margin-top: 24px;
-      padding: 16px;
-      border-radius: 999px;
-      background: linear-gradient(135deg, #f4a349, #fed103);
-      border: none;
-      font-weight: 800;
-      color: #041423;
-      cursor: pointer;
-      font-size: 1rem;
-      box-shadow: 0 20px 45px rgba(0,0,0,0.55);
-    }
-  </style>
+button {
+  width: 100%;
+  margin-top: 24px;
+  padding: 16px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #f4a349, #fed103);
+  border: none;
+  font-weight: 800;
+  color: #041423;
+  cursor: pointer;
+  font-size: 1rem;
+  box-shadow: 0 20px 45px rgba(0,0,0,0.55);
+}
+
+</style>
 </head>
 
 <body>
-  <div class="card">
-    <h1>Donation Successful</h1>
+<div class="card">
+<h1>Donation Successful</h1>
 
-    <p class="subtitle">
-      Thank you for supporting Jamaica We Rise.<br>
-      Verifying your donation and linking your identity…
-    </p>
+<p class="subtitle">
+  Thank you for supporting Jamaica We Rise.<br>
+  Verifying your donation and linking your identity…
+</p>
 
-    <div>
-      <div class="label">Amount</div>
-      <div id="amountBox" class="value-box">$—</div>
+<div>
+  <div class="label">Amount</div>
+  <div id="amountBox" class="value-box">$—</div>
 
-      <div class="label">Email</div>
-      <div id="emailBox" class="value-box">Loading…</div>
+  <div class="label">Email</div>
+  <div id="emailBox" class="value-box">Loading…</div>
 
-      <div class="label">SoulMarkⓈ Hash</div>
-      <div id="soulBox" class="value-box" style="font-size:0.85rem">Loading…</div>
-    </div>
+  <div class="label">SoulMarkⓈ Hash</div>
+  <div id="soulBox" class="value-box" style="font-size:0.85rem">Loading…</div>
+</div>
 
-    <div id="errorBox">⚠️ We could not verify your donation. Please refresh the page.</div>
+<div id="errorBox">⚠️ We could not verify your donation. Please refresh the page.</div>
 
-    <button id="continueBtn">Continue to Create Your Identity</button>
-  </div>
+<button id="continueBtn">Continue to Create Your Identity</button>
 
-  <script type="module">
-    import { CONFIG } from "./config.js";
-    const BACKEND_URL = CONFIG.BACKEND_URL;
+</div>
 
-    const params = new URLSearchParams(window.location.search);
-    let sessionId =
-      params.get("session_id") ||
-      params.get("sessionId") ||
-      params.get("checkout_session_id");
+<script type="module">
+import { CONFIG } from "./config.js";
+const BACKEND_URL = CONFIG.BACKEND_URL;
 
-    const amountBox = document.getElementById("amountBox");
-    const emailBox  = document.getElementById("emailBox");
-    const soulBox   = document.getElementById("soulBox");
-    const errorBox  = document.getElementById("errorBox");
+const params = new URLSearchParams(window.location.search);
+let sessionId =
+  params.get("session_id") ||
+  params.get("sessionId") ||
+  params.get("checkout_session_id");
 
-    if (sessionId) {
-      loadVerification();
-    } else {
-      errorBox.style.display = "block";
-    }
+const amountBox = document.getElementById("amountBox");
+const emailBox  = document.getElementById("emailBox");
+const soulBox   = document.getElementById("soulBox");
+const errorBox  = document.getElementById("errorBox");
 
-    async function loadVerification() {
-      try {
-        const res = await fetch(`${BACKEND_URL}/verify-donation/${sessionId}`, {
-          cache: "no-store"
-        });
-        const data = await res.json();
+if (sessionId) {
+  loadVerification();
+} else {
+  errorBox.style.display = "block";
+}
 
-        if (!res.ok || !data?.email) throw new Error("Invalid");
+async function loadVerification() {
+  try {
+    const res = await fetch(`${BACKEND_URL}/verify-donation/${sessionId}`, {
+      cache: "no-store"
+    });
+    const data = await res.json();
 
-        const { amount, email, soulmark } = data;
+    if (!res.ok || !data?.email) throw new Error("Invalid");
 
-        amountBox.textContent = `$${Number(amount).toFixed(2)}`;
-        emailBox.textContent  = email;
-        soulBox.textContent   = soulmark;
+    const { amount, email, soulmark } = data;
 
-        localStorage.setItem("donor_email", email.trim().toLowerCase());
-        localStorage.setItem("donor_amount", amount);
-        localStorage.setItem("donor_soulmark", soulmark);
+    amountBox.textContent = `$${Number(amount).toFixed(2)}`;
+    emailBox.textContent  = email;
+    soulBox.textContent   = soulmark;
 
-      } catch (err) {
-        console.error(err);
-        errorBox.style.display = "block";
-      }
-    }
+    localStorage.setItem("donor_email", email.trim().toLowerCase());
+    localStorage.setItem("donor_amount", amount);
+    localStorage.setItem("donor_soulmark", soulmark);
 
-    document.getElementById("continueBtn").onclick = () => {
-      const email  = encodeURIComponent(localStorage.getItem("donor_email") || "");
-      const soul   = encodeURIComponent(localStorage.getItem("donor_soulmark") || "");
-      const amount = encodeURIComponent(localStorage.getItem("donor_amount") || "");
+  } catch (err) {
+    console.error(err);
+    errorBox.style.display = "block";
+  }
+}
 
-      window.location.href =
-        `iascendai-register.html?email=${email}&soulmark=${soul}&amount=${amount}`;
-    };
-  </script>
+document.getElementById("continueBtn").onclick = () => {
+  const email  = encodeURIComponent(localStorage.getItem("donor_email") || "");
+  const soul   = encodeURIComponent(localStorage.getItem("donor_soulmark") || "");
+  const amount = encodeURIComponent(localStorage.getItem("donor_amount") || "");
+
+  window.location.href =
+    `iascendai-register.html?email=${email}&soulmark=${soul}&amount=${amount}`;
+};
+
+</script>
 </body>
 </html>

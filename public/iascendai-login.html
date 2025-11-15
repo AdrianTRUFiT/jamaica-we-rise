@@ -1,194 +1,197 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Log In | iAscendAi Identity</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Log In | iAscendAi Identity</title>
 
-  <script type="module">
-    import { CONFIG } from "./config.js";
-    window.CONFIG = CONFIG;
-  </script>
+<script type="module">
+import { CONFIG } from "./config.js";
+window.CONFIG = CONFIG;
+</script>
 
-  <style>
-    * { margin:0; padding:0; box-sizing:border-box; }
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
 
-    body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      min-height: 100vh;
-      background: radial-gradient(circle at top, #111827, #020617 45%, #000);
-      color: #e5e7eb;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 24px;
-    }
+body {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  min-height: 100vh;
+  background: radial-gradient(circle at top, #111827, #020617 45%, #000);
+  color: #e5e7eb;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 24px;
+}
 
-    .box {
-      width: 100%;
-      max-width: 420px;
-      background: rgba(15,23,42,0.96);
-      padding: 28px 26px 24px;
-      border-radius: 20px;
-      border: 1px solid rgba(148,163,184,0.45);
-      box-shadow: 0 22px 60px rgba(0,0,0,0.7);
-      text-align: center;
-    }
+.box {
+  width: 100%;
+  max-width: 420px;
+  background: rgba(15,23,42,0.96);
+  padding: 28px 26px 24px;
+  border-radius: 20px;
+  border: 1px solid rgba(148,163,184,0.45);
+  box-shadow: 0 22px 60px rgba(0,0,0,0.7);
+  text-align: center;
+}
 
-    h1 {
-      font-size: 1.7rem;
-      font-weight: 800;
-      background: linear-gradient(120deg, #b8edee, #fed103);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      margin-bottom: 6px;
-    }
+h1 {
+  font-size: 1.7rem;
+  font-weight: 800;
+  background: linear-gradient(120deg, #b8edee, #fed103);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 6px;
+}
 
-    .subtitle {
-      color:#9ca3af;
-      font-size:.9rem;
-      margin-bottom:20px;
-    }
+.subtitle {
+  color:#9ca3af;
+  font-size:.9rem;
+  margin-bottom:20px;
+}
 
-    label {
-      display:block;
-      font-size:0.9rem;
-      font-weight:600;
-      margin-bottom:6px;
-      text-align:left;
-    }
+label {
+  display:block;
+  font-size:0.9rem;
+  font-weight:600;
+  margin-bottom:6px;
+  text-align:left;
+}
 
-    input {
-      width:100%;
-      padding:12px 14px;
-      border-radius:10px;
-      border:1px solid rgba(148,163,184,0.6);
-      background:rgba(15,23,42,0.9);
-      color:#e5e7eb;
-      font-size:1rem;
-      margin-bottom:12px;
-    }
+input {
+  width:100%;
+  padding:12px 14px;
+  border-radius:10px;
+  border:1px solid rgba(148,163,184,0.6);
+  background:rgba(15,23,42,0.9);
+  color:#e5e7eb;
+  font-size:1rem;
+  margin-bottom:12px;
+}
 
-    input:focus {
-      outline:none;
-      border-color:#f4a349;
-      box-shadow:0 0 0 1px rgba(244,163,73,0.7);
-    }
+input:focus {
+  outline:none;
+  border-color:#f4a349;
+  box-shadow:0 0 0 1px rgba(244,163,73,0.7);
+}
 
-    .btn {
-      width:100%;
-      padding:14px;
-      font-size:1rem;
-      font-weight:750;
-      border:none;
-      border-radius:999px;
-      cursor:pointer;
-      background:linear-gradient(135deg,#f4a349,#fed103);
-      color:#041423;
-      margin-top:10px;
-      box-shadow:0 18px 40px rgba(0,0,0,0.75);
-      transition:0.18s;
-    }
+.btn {
+  width:100%;
+  padding:14px;
+  font-size:1rem;
+  font-weight:750;
+  border:none;
+  border-radius:999px;
+  cursor:pointer;
+  background:linear-gradient(135deg,#f4a349,#fed103);
+  color:#041423;
+  margin-top:10px;
+  box-shadow:0 18px 40px rgba(0,0,0,0.75);
+  transition:0.18s;
+}
 
-    .btn:hover {
-      transform:translateY(-2px);
-      box-shadow:0 24px 54px rgba(0,0,0,0.85);
-    }
+.btn:hover {
+  transform:translateY(-2px);
+  box-shadow:0 24px 54px rgba(0,0,0,0.85);
+}
 
-    .error {
-      margin-top:10px;
-      color:#f87171;
-      min-height:18px;
-      font-size:.9rem;
-    }
+.error {
+  margin-top:10px;
+  color:#f87171;
+  min-height:18px;
+  font-size:.9rem;
+}
 
-    .footer-links {
-      margin-top:18px;
-      font-size:0.82rem;
-      color:#9ca3af;
-    }
+.footer-links {
+  margin-top:18px;
+  font-size:0.82rem;
+  color:#9ca3af;
+}
 
-    .footer-links a {
-      color:#f4a349;
-      text-decoration:none;
-      font-weight:600;
-    }
+.footer-links a {
+  color:#f4a349;
+  text-decoration:none;
+  font-weight:600;
+}
 
-    .footer-links a:hover {
-      text-decoration:underline;
-    }
-  </style>
+.footer-links a:hover {
+  text-decoration:underline;
+}
+
+</style>
 </head>
 
 <body>
-  <div class="box">
-    <h1>iAscendAi Login</h1>
-    <p class="subtitle">Enter your username or email to continue.</p>
+<div class="box">
+<h1>iAscendAi Login</h1>
+<p class="subtitle">Enter your username or email to continue.</p>
 
-    <label for="identifier">Username or Email</label>
-    <input id="identifier" type="text" placeholder="yourname@iascendai or email" />
+<label for="identifier">Username or Email</label>
+<input id="identifier" type="text" placeholder="yourname@iascendai or email" />
 
-    <button id="loginBtn" class="btn">Continue</button>
+<button id="loginBtn" class="btn">Continue</button>
 
-    <div id="error" class="error"></div>
+<div id="error" class="error"></div>
 
-    <div class="footer-links">
-      <a href="iascendai-register.html">Create Your Identity</a> •
-      <a href="iascendai-verify.html">Verify SoulMarkⓈ</a> •
-      <a href="index.html">Donate Again</a>
-    </div>
-  </div>
+<div class="footer-links">
+  <a href="iascendai-register.html">Create Your Identity</a> •
+  <a href="iascendai-verify.html">Verify SoulMarkⓈ</a> •
+  <a href="index.html">Donate Again</a>
+</div>
 
-  <script type="module">
-    import { CONFIG } from "./config.js";
-    const BACKEND_URL = CONFIG.BACKEND_URL;
+</div>
 
-    const btn = document.getElementById("loginBtn");
-    const errorEl = document.getElementById("error");
+<script type="module">
+import { CONFIG } from "./config.js";
+const BACKEND_URL = CONFIG.BACKEND_URL;
 
-    function normalize(str) {
-      return str.toLowerCase().trim();
+const btn = document.getElementById("loginBtn");
+const errorEl = document.getElementById("error");
+
+function normalize(str) {
+  return str.toLowerCase().trim();
+}
+
+btn.onclick = async () => {
+  const raw = document.getElementById("identifier").value.trim();
+  const identifier = normalize(raw);
+  errorEl.textContent = "";
+
+  if (!identifier) {
+    errorEl.textContent = "Enter your username or email.";
+    return;
+  }
+
+  try {
+    const res = await fetch(`${BACKEND_URL}/lookup-identity`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ identifier })
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      errorEl.textContent = data.error || "Identity not found.";
+      return;
     }
 
-    btn.onclick = async () => {
-      const raw = document.getElementById("identifier").value.trim();
-      const identifier = normalize(raw);
-      errorEl.textContent = "";
+    const user = data.user;
 
-      if (!identifier) {
-        errorEl.textContent = "Enter your username or email.";
-        return;
-      }
+    localStorage.setItem("username", user.username);
+    localStorage.setItem("email", user.email);
+    localStorage.setItem("soulmark", user.soulmark);
+    localStorage.setItem("displayIdentity", user.displayIdentity);
+    localStorage.setItem("showDonationAmount", user.showDonationAmount ? "1" : "0");
 
-      try {
-        const res = await fetch(`${BACKEND_URL}/lookup-identity`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ identifier })
-        });
+    window.location.href =
+      `iascendai-dashboard.html?username=${encodeURIComponent(user.username)}`;
 
-        const data = await res.json();
+  } catch (err) {
+    errorEl.textContent = "Could not reach identity service.";
+  }
+};
 
-        if (!res.ok) {
-          errorEl.textContent = data.error || "Identity not found.";
-          return;
-        }
-
-        const user = data.user;
-
-        localStorage.setItem("username", user.username);
-        localStorage.setItem("email", user.email);
-        localStorage.setItem("soulmark", user.soulmark);
-        localStorage.setItem("displayIdentity", user.displayIdentity);
-        localStorage.setItem("showDonationAmount", user.showDonationAmount ? "1" : "0");
-
-        window.location.href =
-          `iascendai-dashboard.html?username=${encodeURIComponent(user.username)}`;
-
-      } catch (err) {
-        errorEl.textContent = "Could not reach identity service.";
-      }
-    };
-  </script>
+</script>
 </body>
 </html>

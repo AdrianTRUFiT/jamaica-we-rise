@@ -1,10 +1,15 @@
+<!-- public/iascendai-dashboard.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  />
   <title>Your Dashboard | Jamaica We Rise × iAscendAi</title>
 
+  <!-- Load CONFIG for BACKEND_URL -->
   <script type="module">
     import { CONFIG } from "./config.js";
     window.CONFIG = CONFIG;
@@ -12,17 +17,24 @@
 
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
+
     body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        Roboto, sans-serif;
       min-height: 100vh;
-      background: radial-gradient(circle at top, #111827 0%, #020617 50%, #000);
+      background: radial-gradient(circle at top, #111827 0%, #020617 45%, #000000 100%);
       color: #e5e7eb;
-      padding: 26px 18px 40px;
+      padding: 24px 16px 32px;
     }
 
-    .shell { max-width: 900px; margin: 0 auto; }
+    .shell {
+      max-width: 900px;
+      margin: 0 auto;
+    }
 
-    header { margin-bottom: 22px; }
+    header {
+      margin-bottom: 20px;
+    }
 
     .title {
       font-size: 1.7rem;
@@ -31,78 +43,81 @@
     }
 
     .subtitle {
+      font-size: 0.9rem;
       color: #9ca3af;
-      font-size: 0.92rem;
       margin-top: 4px;
     }
 
     .nav-row {
       display: flex;
       gap: 12px;
-      margin-top: 18px;
+      margin-top: 16px;
       flex-wrap: wrap;
     }
 
     .nav-link {
+      font-size: 0.85rem;
+      color: #facc15;
+      text-decoration: none;
       padding: 6px 12px;
       border-radius: 999px;
-      border: 1px solid rgba(250,204,21,0.3);
-      background: rgba(15,23,42,0.85);
-      text-decoration: none;
-      font-size: 0.87rem;
-      color: #facc15;
+      border: 1px solid rgba(250, 204, 21, 0.3);
+      background: rgba(15, 23, 42, 0.85);
+      cursor: pointer;
     }
 
     .nav-link:hover {
-      background: rgba(250,204,21,0.12);
+      background: rgba(250, 204, 21, 0.08);
     }
 
     .logout-link {
       color: #fb7185;
-      border-color: rgba(251,113,133,0.35);
-      background: rgba(24,10,15,0.85);
+      border-color: rgba(251, 113, 133, 0.35);
+      background: rgba(24, 10, 15, 0.85);
     }
 
     .logout-link:hover {
-      background: rgba(251,113,133,0.18);
+      background: rgba(251, 113, 133, 0.15);
     }
 
     .status-text {
-      margin-top: 14px;
-      font-size: 0.95rem;
+      margin-top: 10px;
+      font-size: 0.9rem;
       color: #9ca3af;
     }
 
     .card-grid {
-      margin-top: 20px;
       display: grid;
       grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
       gap: 16px;
+      margin-top: 20px;
     }
 
     @media (max-width: 768px) {
-      .card-grid { grid-template-columns: 1fr; }
+      .card-grid {
+        grid-template-columns: minmax(0, 1fr);
+      }
     }
 
     .card {
-      background: rgba(15,23,42,0.96);
-      padding: 16px 16px 14px;
+      background: rgba(15, 23, 42, 0.96);
       border-radius: 18px;
-      border: 1px solid rgba(148,163,184,0.4);
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      padding: 16px 16px 14px;
     }
 
     .card h2 {
-      margin-bottom: 8px;
       font-size: 1.1rem;
       font-weight: 700;
+      margin-bottom: 10px;
     }
 
     .label {
       font-size: 0.75rem;
       text-transform: uppercase;
+      letter-spacing: 0.14em;
       color: #9ca3af;
       margin-bottom: 4px;
-      letter-spacing: 0.14em;
     }
 
     .value {
@@ -113,43 +128,25 @@
     }
 
     .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
       padding: 5px 11px;
       border-radius: 999px;
       font-size: 0.78rem;
-      display: inline-block;
-      margin-bottom: 10px;
+      margin-bottom: 8px;
     }
 
     .status-ok {
-      background: rgba(22,163,74,0.18);
-      border: 1px solid rgba(34,197,94,0.7);
+      background: rgba(22, 163, 74, 0.14);
+      border: 1px solid rgba(34, 197, 94, 0.7);
       color: #bbf7d0;
     }
 
     .status-pending {
-      background: rgba(234,179,8,0.18);
-      border: 1px solid rgba(250,204,21,0.7);
+      background: rgba(234, 179, 8, 0.14);
+      border: 1px solid rgba(250, 204, 21, 0.7);
       color: #facc15;
-    }
-
-    table {
-      width: 100%;
-      margin-top: 10px;
-      font-size: 0.82rem;
-      border-collapse: collapse;
-    }
-
-    th, td {
-      padding: 6px 4px;
-      border-bottom: 1px solid rgba(55,65,81,0.85);
-      text-align: left;
-    }
-
-    th {
-      color: #9ca3af;
-      text-transform: uppercase;
-      font-size: 0.75rem;
-      letter-spacing: 0.12em;
     }
 
     .muted {
@@ -157,71 +154,291 @@
       font-size: 0.84rem;
     }
 
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+      font-size: 0.82rem;
+    }
+
+    th,
+    td {
+      text-align: left;
+      padding: 6px 4px;
+      border-bottom: 1px solid rgba(55, 65, 81, 0.8);
+    }
+
+    th {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: #9ca3af;
+    }
+
     footer {
-      text-align: center;
-      margin-top: 26px;
+      margin-top: 22px;
       font-size: 0.78rem;
       color: #6b7280;
+      text-align: center;
     }
   </style>
-
 </head>
 <body>
+  <div class="shell">
+    <header>
+      <div class="title">Your Dashboard</div>
+      <div class="subtitle">SoulMarkⓈ Identity · Verified Contribution</div>
 
-<div class="shell">
+      <div class="nav-row">
+        <a class="nav-link" href="impact-dashboard.html">Impact Dashboard</a>
+        <a class="nav-link" href="soulregistry.html">SoulRegistryⓈ Directory</a>
+        <a class="nav-link" href="iascendai-verify.html">Verify Identity</a>
+        <a class="nav-link" href="index.html">Donate Again</a>
+        <a id="logoutBtn" class="nav-link logout-link">Logout</a>
+      </div>
 
-  <header>
-    <div class="title">Your Dashboard</div>
-    <div class="subtitle">SoulMarkⓈ Identity • Verified Contribution</div>
+      <div id="statusText" class="status-text">
+        Loading your verified record…
+      </div>
+    </header>
 
-    <div class="nav-row">
-      <a class="nav-link" href="impact-dashboard.html">Impact Dashboard</a>
-      <a class="nav-link" href="soulregistry.html">SoulRegistryⓈ Directory</a>
-      <a class="nav-link" href="iascendai-verify.html">Verify Identity</a>
-      <a class="nav-link" href="index.html">Donate Again</a>
-      <a id="logoutBtn" class="nav-link logout-link">Logout</a>
-    </div>
+    <section class="card-grid">
+      <article class="card" id="identityCard">
+        <h2>Your SoulMarkⓈ Identity</h2>
+        <div
+          id="identityStatusPill"
+          class="status-pill status-pending"
+        >
+          Pending
+        </div>
 
-    <div id="statusText" class="status-text">Loading your verified record…</div>
-  </header>
+        <div class="label">SoulMarkⓈ Hash</div>
+        <div id="soulValue" class="value">Loading…</div>
 
-  <!------------------------------>
-  <!--   IDENTITY CARD         -->
-  <!------------------------------>
-  <section class="card-grid">
-    <article class="card">
-      <h2>Your SoulMarkⓈ Identity</h2>
-      <div id="identityPill" class="status-pill status-pending">Pending</div>
+        <div class="label">Name</div>
+        <div id="nameValue" class="value">—</div>
 
-      <div class="label">SoulMarkⓈ Hash</div>
-      <div id="soulValue" class="value">Loading…</div>
+        <div class="label">Username</div>
+        <div id="usernameValue" class="value">—</div>
 
-      <div class="label">Name</div>
-      <div id="nameValue" class="value">—</div>
+        <div class="label">Identity Type</div>
+        <div id="roleValue" class="value">supporterⓈ</div>
 
-      <div class="label">Username</div>
-      <div id="usernameValue" class="value">—</div>
+        <div class="muted" id="identityNote"></div>
+      </article>
 
-      <div class="label">Identity Type</div>
-      <div id="roleValue" class="value">supporterⓈ</div>
+      <article class="card">
+        <h2>Your Support Snapshot</h2>
 
-      <div class="muted" id="identityNote"></div>
-    </article>
+        <div class="label">Latest Donation</div>
+        <div id="latestDonation" class="value">$0.00</div>
 
-    <!------------------------------>
-    <!--   SUPPORT SNAPSHOT       -->
-    <!------------------------------>
-    <article class="card">
-      <h2>Your Support Snapshot</h2>
+        <div class="label">Total Contributions</div>
+        <div id="totalDonations" class="value">$0.00</div>
 
-      <div class="label">Latest Donation</div>
-      <div id="latestDonation" class="value">$0.00</div>
+        <div class="label">Entries Linked to You</div>
+        <div id="entryCount" class="value">0</div>
 
-      <div class="label">Total Contributions</div>
-      <div id="totalDonations" class="value">$0.00</div>
+        <p class="muted">
+          These totals are based on verified registry records linked to your
+          username, email, or SoulMarkⓈ hash.
+        </p>
+      </article>
+    </section>
 
-      <div class="label">Entries Linked to You</div>
-      <div id="entryCount" class="value">0</div>
+    <section class="card" style="margin-top: 18px;">
+      <h2>Recent Activity</h2>
+      <table id="activityTable">
+        <thead>
+          <tr>
+            <th>Type</th>
+            <th>Amount / Role</th>
+            <th>When</th>
+          </tr>
+        </thead>
+        <tbody id="activityBody">
+          <tr>
+            <td colspan="3" class="muted">Loading…</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
 
-      <p class="muted">
-        Totals are based on registry entries linked to your verified identity
+    <footer>
+      © 2025 Project Inside Out Jamaica × iAscendAi · Authored Intelligence
+    </footer>
+  </div>
+
+  <script>
+    const BACKEND_URL =
+      (window.CONFIG && window.CONFIG.BACKEND_URL) || "";
+
+    const logoutBtn = document.getElementById("logoutBtn");
+    const statusTextEl = document.getElementById("statusText");
+    const soulValueEl = document.getElementById("soulValue");
+    const nameValueEl = document.getElementById("nameValue");
+    const usernameValueEl = document.getElementById("usernameValue");
+    const roleValueEl = document.getElementById("roleValue");
+    const identityNoteEl = document.getElementById("identityNote");
+    const statusPillEl = document.getElementById("identityStatusPill");
+
+    const latestDonationEl = document.getElementById("latestDonation");
+    const totalDonationsEl = document.getElementById("totalDonations");
+    const entryCountEl = document.getElementById("entryCount");
+    const activityBodyEl = document.getElementById("activityBody");
+
+    logoutBtn.addEventListener("click", () => {
+      localStorage.removeItem("username");
+      localStorage.removeItem("email");
+      localStorage.removeItem("soulmark");
+      localStorage.removeItem("displayIdentity");
+      localStorage.removeItem("showDonationAmount");
+      window.location.href = "iascendai-verify.html?logged_out=1";
+    });
+
+    function getContext() {
+      const params = new URLSearchParams(window.location.search);
+      const qsUsername = (params.get("username") || "").toLowerCase().trim();
+      const storedUsername = (localStorage.getItem("username") || "")
+        .toLowerCase()
+        .trim();
+
+      const username = qsUsername || storedUsername;
+
+      return { username };
+    }
+
+    async function loadDashboard() {
+      const ctx = getContext();
+
+      if (!ctx.username) {
+        statusTextEl.textContent =
+          "No active session found. Please verify or log in again.";
+        return;
+      }
+
+      statusTextEl.textContent = "Loading your verified record…";
+
+      try {
+        const res = await fetch(`${BACKEND_URL}/registry`, {
+          cache: "no-store",
+        });
+        const registry = await res.json();
+
+        if (!Array.isArray(registry)) {
+          throw new Error("Invalid registry format");
+        }
+
+        // Find identity by username
+        const identity = registry.find(
+          (r) =>
+            r.type === "identity" &&
+            typeof r.username === "string" &&
+            r.username.toLowerCase().trim() === ctx.username
+        );
+
+        if (!identity) {
+          statusPillEl.classList.remove("status-ok");
+          statusPillEl.classList.add("status-pending");
+          statusPillEl.textContent = "Pending";
+          soulValueEl.textContent = "—";
+          nameValueEl.textContent = "—";
+          usernameValueEl.textContent = `${ctx.username}@iascendai`;
+          roleValueEl.textContent = "supporterⓈ";
+          identityNoteEl.textContent =
+            "We couldn’t locate a verified identity for this username. Please complete registration or contact support.";
+          latestDonationEl.textContent = "$0.00";
+          totalDonationsEl.textContent = "$0.00";
+          entryCountEl.textContent = "0";
+
+          activityBodyEl.innerHTML =
+            '<tr><td colspan="3" class="muted">No activity recorded yet.</td></tr>';
+          statusTextEl.textContent =
+            "No identity record found for this username.";
+          return;
+        }
+
+        // Identity found → hydrate UI
+        usernameValueEl.textContent = `${identity.username}@iascendai`;
+        nameValueEl.textContent = identity.name || "—";
+        soulValueEl.textContent = identity.soulmark || "—";
+        roleValueEl.textContent = identity.role || "supporterⓈ";
+        identityNoteEl.textContent = "";
+        statusPillEl.classList.remove("status-pending");
+        statusPillEl.classList.add("status-ok");
+        statusPillEl.textContent = "Verified";
+        statusTextEl.textContent = "Identity located and verified.";
+
+        // Donations linked to this identity (email or SoulMark match)
+        const idEmail = (identity.email || "").toLowerCase().trim();
+        const idSoul = identity.soulmark || "";
+
+        const donations = registry.filter((r) => {
+          if (r.type !== "donation") return false;
+
+          const dEmail = (r.email || "").toLowerCase().trim();
+          const dSoul = r.soulmark || "";
+
+          const emailMatch = idEmail && dEmail && dEmail === idEmail;
+          const soulMatch = idSoul && dSoul && dSoul === idSoul;
+
+          return emailMatch || soulMatch;
+        });
+
+        if (donations.length > 0) {
+          const total = donations.reduce(
+            (sum, d) => sum + Number(d.amount || 0),
+            0
+          );
+
+          // Sort newest → oldest
+          const sorted = [...donations].sort((a, b) => {
+            const ta = new Date(a.timestamp || 0).getTime();
+            const tb = new Date(b.timestamp || 0).getTime();
+            return tb - ta;
+          });
+
+          const latest = sorted[0];
+
+          latestDonationEl.textContent = `$${Number(
+            latest.amount || 0
+          ).toFixed(2)}`;
+          totalDonationsEl.textContent = `$${total.toFixed(2)}`;
+          entryCountEl.textContent = String(donations.length);
+
+          // Recent activity table (donations only for now)
+          const rows = sorted.slice(0, 15).map((d) => {
+            const when = d.timestamp
+              ? new Date(d.timestamp).toLocaleString()
+              : "—";
+            const amt = `$${Number(d.amount || 0).toFixed(2)}`;
+            return `
+              <tr>
+                <td>Donation</td>
+                <td>${amt}</td>
+                <td>${when}</td>
+              </tr>
+            `;
+          });
+
+          activityBodyEl.innerHTML = rows.join("");
+        } else {
+          latestDonationEl.textContent = "$0.00";
+          totalDonationsEl.textContent = "$0.00";
+          entryCountEl.textContent = "0";
+          activityBodyEl.innerHTML =
+            '<tr><td colspan="3" class="muted">No donations linked to this identity yet.</td></tr>';
+        }
+      } catch (err) {
+        console.error("Dashboard load error:", err);
+        statusTextEl.textContent =
+          "We couldn’t load your dashboard right now. Please refresh in a moment.";
+        activityBodyEl.innerHTML =
+          '<tr><td colspan="3" class="muted">Error loading activity.</td></tr>';
+      }
+    }
+
+    loadDashboard();
+  </script>
+</body>
+</html>
