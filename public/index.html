@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Jamaica We Rise Relief Fund</title>
 
-  <!-- Load CONFIG -->
   <script type="module">
     import { CONFIG } from "./config.js";
     window.CONFIG = CONFIG;
@@ -147,6 +146,7 @@
 </head>
 
 <body>
+
   <div class="card">
     <h1>Jamaica We Rise Relief Fund</h1>
 
@@ -155,17 +155,16 @@
       Your contribution is authenticated using SoulMarkⓈ verification.
     </p>
 
-    <!-- Auto-detected identity banner -->
     <div id="identityBanner" class="identity-banner">
       Donating as <span class="handle" id="identityHandle"></span>.
-      Your identity is already verified.
+      Identity verified.
     </div>
 
     <label>Full Name *</label>
-    <input id="fullName" placeholder="Adrian McKenzie" />
+    <input id="fullName" placeholder="Adrian McKenzie" autocomplete="name" />
 
     <label>Email Address *</label>
-    <input id="email" type="email" placeholder="you@example.com" />
+    <input id="email" type="email" placeholder="you@example.com" autocomplete="email" />
 
     <label>Select Amount *</label>
     <div class="amount-grid">
@@ -187,112 +186,110 @@
     </div>
   </div>
 
-  <script type="module">
-    import { CONFIG } from "./config.js";
-    const BACKEND_URL = CONFIG.BACKEND_URL;
+<script type="module">
+  import { CONFIG } from "./config.js";
+  const BACKEND_URL = CONFIG.BACKEND_URL;
 
-    const fullNameInput   = document.getElementById("fullName");
-    const emailInput      = document.getElementById("email");
-    const customAmountInp = document.getElementById("customAmount");
-    const identityBanner  = document.getElementById("identityBanner");
-    const identityHandle  = document.getElementById("identityHandle");
+  const nameInput = document.getElementById("fullName");
+  const emailInput = document.getElementById("email");
+  const banner = document.getElementById("identityBanner");
+  const handle = document.getElementById("identityHandle");
+  const customAmount = document.getElementById("customAmount");
 
-    let selectedAmount = null;
-    const normalizeEmail = (e) => e.toLowerCase().trim();
+  let selectedAmount = null;
 
-    // 1) Verify stored identity with backend before trusting it
-    (async function hydrateFromIdentity() {
-      const rawStoredEmail = localStorage.getItem("email") || "";
-      const storedEmail = normalizeEmail(rawStoredEmail);
+  // ------------------------------------------------
+  // 1. SECURE IDENTITY HYDRATION (SERVER-VERIFIED)
+  // ------------------------------------------------
+  async function hydrateIdentity() {
+    const emailLS = (localStorage.getItem("email") || "").toLowerCase().trim();
+    const usernameLS = localStorage.getItem("username") || "";
+    const nameLS = localStorage.getItem("name") || "";
 
-      if (!storedEmail) return;
+    if (!emailLS) return;
 
-      try {
-        const res = await fetch(`${BACKEND_URL}/verify-identity`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email: storedEmail })
-        });
-
-        const data = await res.json();
-
-        if (data && data.valid) {
-          fullNameInput.value = data.name || "";
-          emailInput.value = storedEmail;
-
-          if (data.name) {
-            fullNameInput.readOnly = true;
-          }
-          emailInput.readOnly = true;
-
-          identityHandle.textContent = `${data.username}@iascendai`;
-          identityBanner.style.display = "block";
-        } else {
-          // Clear spoofed values if backend says "no"
-          localStorage.removeItem("email");
-          localStorage.removeItem("name");
-          localStorage.removeItem("username");
-        }
-      } catch (err) {
-        console.error("Identity verification failed:", err);
-      }
-    })();
-
-    // 2) Amount button selection
-    document.querySelectorAll(".amount-btn").forEach(btn => {
-      btn.addEventListener("click", () => {
-        document.querySelectorAll(".amount-btn").forEach(b => b.classList.remove("active"));
-        btn.classList.add("active");
-
-        if (btn.dataset.value === "custom") {
-          customAmountInp.style.display = "block";
-          selectedAmount = null;
-        } else {
-          customAmountInp.style.display = "none";
-          selectedAmount = parseFloat(btn.dataset.value);
-        }
+    try {
+      const res = await fetch(`${BACKEND_URL}/verify-identity`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: emailLS })
       });
+      const data = await res.json();
+
+      if (data.valid) {
+        banner.style.display = "block";
+        handle.textContent = `${data.username}@iascendai`;
+
+        nameInput.value = data.name;
+        emailInput.value = emailLS;
+
+        nameInput.readOnly = true;
+        emailInput.readOnly = true;
+      }
+    } catch (err) {
+      console.warn("Identity hydration failed", err);
+    }
+  }
+  hydrateIdentity();
+
+  // ------------------------------------------------
+  // 2. AMOUNT BUTTON LOGIC
+  // ------------------------------------------------
+  document.querySelectorAll(".amount-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".amount-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+
+      if (btn.dataset.value === "custom") {
+        customAmount.style.display = "block";
+        selectedAmount = null;
+      } else {
+        customAmount.style.display = "none";
+        selectedAmount = parseFloat(btn.dataset.value);
+      }
     });
+  });
 
-    // 3) Donate button → Stripe session
-    document.getElementById("donateBtn").onclick = async () => {
-      const name  = fullNameInput.value.trim();
-      const email = normalizeEmail(emailInput.value);
+  // ------------------------------------------------
+  // 3. DONATE → STRIPE SESSION
+  // ------------------------------------------------
+  document.getElementById("donateBtn").onclick = async () => {
+    const name = nameInput.value.trim();
+    const email = emailInput.value.toLowerCase().trim();
 
-      let amount = selectedAmount;
-      if (!amount) {
-        const rawCustom = customAmountInp.value.trim();
-        if (rawCustom) amount = parseFloat(rawCustom);
+    let amount = selectedAmount;
+    if (!amount) {
+      const raw = customAmount.value.trim();
+      if (raw) amount = parseFloat(raw);
+    }
+
+    if (!name || !email || !Number.isFinite(amount) || amount <= 0) {
+      alert("Please complete all fields with valid information.");
+      return;
+    }
+
+    localStorage.setItem("name", name);
+    localStorage.setItem("email", email);
+
+    try {
+      const res = await fetch(`${BACKEND_URL}/create-checkout-session`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, amount })
+      });
+
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        alert("Error creating checkout session.");
       }
+    } catch (err) {
+      console.error(err);
+      alert("Connection issue. Try again.");
+    }
+  };
+</script>
 
-      if (!name || !email || !Number.isFinite(amount) || amount <= 0) {
-        alert("Please complete all fields with a valid amount.");
-        return;
-      }
-
-      // Persist normalized identity
-      localStorage.setItem("name", name);
-      localStorage.setItem("email", email);
-
-      try {
-        const res = await fetch(`${BACKEND_URL}/create-checkout-session`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ name, email, amount })
-        });
-
-        const data = await res.json();
-
-        if (data.url) {
-          window.location.href = data.url;
-        } else {
-          alert("Error creating checkout session.");
-        }
-      } catch (err) {
-        console.error("Checkout error:", err);
-        alert("Connection issue. Please try again.");
-      }
-    };
-  </script>
 </body>
 </html>
