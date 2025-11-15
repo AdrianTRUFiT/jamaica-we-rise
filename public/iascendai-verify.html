@@ -1,10 +1,13 @@
+<!-- public/iascendai-verify.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0" />
   <title>SoulMarkⓈ Verification | iAscendAi</title>
 
+  <!-- Load CONFIG -->
   <script type="module">
     import { CONFIG } from "./config.js";
     window.CONFIG = CONFIG;
@@ -39,7 +42,12 @@
       backdrop-filter: blur(5px);
     }
 
-    .page-title { font-size:1.1em; color:#f4a349; opacity:0.9; margin-bottom:10px; }
+    .page-title {
+      font-size:1.1em;
+      color:#f4a349;
+      opacity:0.9;
+      margin-bottom:10px;
+    }
 
     h1 {
       background:linear-gradient(135deg,#fed103,#059c3a);
@@ -82,9 +90,20 @@
       cursor:pointer;
     }
 
-    #result { margin-top:20px; min-height:1.4em; white-space:pre-line; font-size:1em; }
-    #result.verified { color:#10b981; }
-    #result.invalid { color:#ef4444; }
+    #result {
+      margin-top:20px;
+      min-height:1.4em;
+      white-space:pre-line;
+      font-size:1em;
+    }
+
+    #result.verified {
+      color:#10b981;
+    }
+
+    #result.invalid {
+      color:#ef4444;
+    }
 
     .footer-links {
       margin-top:25px;
@@ -101,10 +120,9 @@
     }
   </style>
 </head>
-
 <body>
 
-  <!-- LOGOUT BUTTON -->
+  <!-- LOGOUT -->
   <button class="logout-btn" id="logoutBtn">Logout</button>
 
   <div class="page-title">iAscendAi — Verify Digital Identities</div>
@@ -113,7 +131,10 @@
   <div class="verify-box">
     <p>Enter a SoulMarkⓈ signature to validate an identity.</p>
 
-    <input type="text" id="soulmarkInput" placeholder="Enter SoulMarkⓈ signature..." />
+    <input type="text"
+           id="soulmarkInput"
+           placeholder="Enter SoulMarkⓈ signature..." />
+
     <button id="verifyBtn">Verify SoulMarkⓈ</button>
 
     <div id="result"></div>
@@ -127,30 +148,25 @@
 
   <script type="module">
     import { CONFIG } from "./config.js";
-    const BACKEND_URL = CONFIG.BACKEND_URL;
 
+    const BACKEND_URL = CONFIG.BACKEND_URL;
     const resultEl = document.getElementById("result");
     const footerNav = document.getElementById("footerNav");
     const dashboardLink = document.getElementById("dashboardLink");
 
-    // -------------------------------------------
-    // FIX: ***Remove auto-redirect completely***
-    // Verification must ALWAYS be accessible.
-    // -------------------------------------------
-
-    // LOGOUT HANDLER
+    // LOGOUT
     document.getElementById("logoutBtn").onclick = () => {
       localStorage.clear();
       window.location.href = "index.html";
     };
 
-    // VERIFY BUTTON
+    // VERIFY
     document.getElementById("verifyBtn").addEventListener("click", verifySoulmark);
 
     async function verifySoulmark() {
       const input = document.getElementById("soulmarkInput").value.trim();
       resultEl.className = "";
-      resultEl.textContent = "Verifying...";
+      resultEl.textContent = "Verifying…";
 
       if (!input) {
         resultEl.textContent = "Please enter your SoulMarkⓈ.";
@@ -158,25 +174,27 @@
       }
 
       try {
-        const res = await fetch(`${BACKEND_URL}/registry`, { cache:"no-store" });
+        const res = await fetch(`${BACKEND_URL}/registry`, { cache: "no-store" });
         const registry = await res.json();
         const normalized = input.toLowerCase();
 
-        // Look for identity record
+        // Identity match
         const identity = registry.find(
-          r => r.type === "identity" &&
-               (r.soulmark || "").toLowerCase() === normalized
+          r =>
+            r.type === "identity" &&
+            (r.soulmark || "").toLowerCase() === normalized
         );
 
-        // Look for donation-only record
+        // Donation only match
         const donation = registry.find(
-          r => r.type === "donation" &&
-               (r.soulmark || "").toLowerCase() === normalized
+          r =>
+            r.type === "donation" &&
+            (r.soulmark || "").toLowerCase() === normalized
         );
 
-        // -------------------------
-        // CASE A — Identity Found
-        // -------------------------
+        // ---------------------------
+        // Case A: Full identity found
+        // ---------------------------
         if (identity) {
           const uname = identity.username
             ? `${identity.username}@iascendai`
@@ -185,7 +203,6 @@
           resultEl.className = "verified";
           resultEl.textContent =
 `✅ Verified SoulMarkⓈ
-
 Username: ${uname}
 SoulMarkⓈ: ${identity.soulmark}
 Status: Identity Verified`;
@@ -197,16 +214,14 @@ Status: Identity Verified`;
           return;
         }
 
-        // -------------------------
-        // CASE B — Donation Found
-        // -------------------------
+        // ---------------------------
+        // Case B: Donation-only record
+        // ---------------------------
         if (donation) {
           resultEl.className = "verified";
           resultEl.textContent =
 `Verified ✓
-
 This SoulMarkⓈ is valid but has no identity registered yet.
-
 SoulMarkⓈ: ${donation.soulmark}
 
 Please create your username to activate your dashboard.`;
@@ -216,9 +231,9 @@ Please create your username to activate your dashboard.`;
           return;
         }
 
-        // -------------------------
-        // CASE C — Not Found
-        // -------------------------
+        // ---------------------------
+        // Case C: No match
+        // ---------------------------
         resultEl.className = "invalid";
         resultEl.textContent = "❌ No matching SoulMarkⓈ found.";
         footerNav.style.display = "none";
@@ -229,6 +244,5 @@ Please create your username to activate your dashboard.`;
       }
     }
   </script>
-
 </body>
 </html>
