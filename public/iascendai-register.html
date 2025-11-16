@@ -1,250 +1,89 @@
-<!-- public/iascendai-verify.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport"
-content="width=device-width, initial-scale=1.0" />
-<title>SoulMarkⓈ Verification | iAscendAi</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Create Identity | iAscendAi</title>
 
-<!-- Load CONFIG -->
-<script type="module">
-import { CONFIG } from "./config.js";
-window.CONFIG = CONFIG;
-</script>
+  <script type="module">
+    import { CONFIG } from "./config.js";
+    window.CONFIG = CONFIG;
+  </script>
 
-<style>
-body {
-font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',Roboto,sans-serif;
-background:#041423;
-color:#fff;
-display:flex;
-flex-direction:column;
-justify-content:center;
-align-items:center;
-min-height:100vh;
-margin:0;
-padding:20px;
-text-align:center;
-}
-
-.logout-btn {
-  position: absolute;
-  top: 18px;
-  right: 18px;
-  padding: 6px 14px;
-  font-size: 0.8rem;
-  border-radius: 999px;
-  border: 1px solid rgba(255,255,255,0.18);
-  background: rgba(255,255,255,0.08);
-  color: #fff;
-  cursor: pointer;
-  backdrop-filter: blur(5px);
-}
-
-.page-title {
-  font-size:1.1em;
-  color:#f4a349;
-  opacity:0.9;
-  margin-bottom:10px;
-}
-
-h1 {
-  background:linear-gradient(135deg,#fed103,#059c3a);
-  -webkit-background-clip:text;
-  -webkit-text-fill-color:transparent;
-  font-size:2.4em;
-  margin-bottom:20px;
-}
-
-.verify-box {
-  background:rgba(255,255,255,0.05);
-  border:1px solid rgba(255,255,255,0.1);
-  border-radius:16px;
-  padding:30px 40px;
-  width:90%;
-  max-width:480px;
-  box-shadow:0 0 25px rgba(5,156,58,0.2);
-}
-
-input {
-  width:100%;
-  padding:14px;
-  margin-top:10px;
-  border-radius:10px;
-  background:rgba(255,255,255,0.05);
-  border:2px solid rgba(255,255,255,0.1);
-  color:#fff;
-  font-size:1em;
-}
-
-button {
-  width:100%;
-  margin-top:25px;
-  padding:15px;
-  border:none;
-  border-radius:10px;
-  background:linear-gradient(135deg,#059c3a,#047d2f);
-  color:#fff;
-  font-weight:700;
-  cursor:pointer;
-}
-
-#result {
-  margin-top:20px;
-  min-height:1.4em;
-  white-space:pre-line;
-  font-size:1em;
-}
-
-#result.verified {
-  color:#10b981;
-}
-
-#result.invalid {
-  color:#ef4444;
-}
-
-.footer-links {
-  margin-top:25px;
-  display:none;
-  gap:20px;
-  justify-content:center;
-  flex-wrap:wrap;
-}
-
-.footer-links a {
-  color:#f4a349;
-  font-size:0.9em;
-  text-decoration:none;
-}
-
-</style>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { background:#020617; color:#e5e7eb; padding:22px; font-family:Inter, sans-serif; }
+    .container { max-width:620px; margin:auto; padding:32px; background:rgba(15,23,42,0.8); border-radius:22px; }
+    h1 { text-align:center; background:linear-gradient(120deg,#fed103,#4ade80); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+    label { font-size:0.9rem; font-weight:600; margin-top:14px; display:block; }
+    input { width:100%; padding:12px; border-radius:10px; border:1px solid rgba(148,163,184,0.45); background:rgba(15,23,42,0.95); color:white; }
+    button { width:100%; padding:16px; border:none; margin-top:22px; border-radius:999px; background:linear-gradient(135deg,#f4a349,#fed103); color:#041423; font-weight:700; cursor:pointer; }
+    .error { color:#f87171; margin-top:12px; text-align:center; }
+  </style>
 </head>
+
 <body>
+  <div class="container">
+    <h1>Create Your Identity</h1>
 
-<!-- LOGOUT -->
-<button class="logout-btn" id="logoutBtn">Logout</button>
+    <form id="regForm">
+      <label>Full Name</label>
+      <input id="name" required />
 
-<div class="page-title">iAscendAi — Verify Digital Identities</div>
-<h1>SoulMarkⓈ Verification</h1>
+      <label>Email</label>
+      <input id="email" type="email" required />
 
-<div class="verify-box">
-<p>Enter a SoulMarkⓈ signature to validate an identity.</p>
+      <label>Choose Username</label>
+      <input id="username" required />
+      
+      <div class="error" id="errorBox"></div>
 
-<input type="text"
-       id="soulmarkInput"
-       placeholder="Enter SoulMarkⓈ signature..." />
+      <button>Create Identity</button>
+    </form>
+  </div>
 
-<button id="verifyBtn">Verify SoulMarkⓈ</button>
+  <script type="module">
+    import { CONFIG } from "./config.js";
+    const BACKEND_URL = CONFIG.BACKEND_URL;
 
-<div id="result"></div>
+    document.getElementById("regForm").onsubmit = async (e) => {
+      e.preventDefault();
 
-</div>
+      const name     = document.getElementById("name").value.trim();
+      const email    = document.getElementById("email").value.trim().toLowerCase();
+      const username = document.getElementById("username").value.trim().toLowerCase();
 
-<div class="footer-links" id="footerNav">
-<a href="iascendai-register.html">Create Identity</a>
-<a href="soulregistry.html">SoulRegistryⓈ</a>
-<a id="dashboardLink" href="#">Dashboard</a>
-</div>
+      const soulmark = localStorage.getItem("donor_soulmark") || "";
 
-<script type="module">
-import { CONFIG } from "./config.js";
+      const errorBox = document.getElementById("errorBox");
+      errorBox.textContent = "";
 
-const BACKEND_URL = CONFIG.BACKEND_URL;
-const resultEl = document.getElementById("result");
-const footerNav = document.getElementById("footerNav");
-const dashboardLink = document.getElementById("dashboardLink");
+      try {
+        const res = await fetch(`${BACKEND_URL}/register`, {
+          method:"POST",
+          headers:{ "Content-Type":"application/json" },
+          body: JSON.stringify({
+            name, email, username,
+            role:"supporter",
+            soulmark,
+            donationAmount: Number(localStorage.getItem("donation_amount") || 0),
+            displayIdentity:"username",
+            showDonationAmount:true
+          })
+        });
 
-// LOGOUT
-document.getElementById("logoutBtn").onclick = () => {
-  localStorage.clear();
-  window.location.href = "index.html";
-};
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Registration failed.");
 
-// VERIFY
-document.getElementById("verifyBtn").addEventListener("click", verifySoulmark);
+        localStorage.setItem("username", data.user.username);
+        localStorage.setItem("email", data.user.email);
+        localStorage.setItem("soulmark", data.user.soulmark);
 
-async function verifySoulmark() {
-  const input = document.getElementById("soulmarkInput").value.trim();
-  resultEl.className = "";
-  resultEl.textContent = "Verifying…";
-
-  if (!input) {
-    resultEl.textContent = "Please enter your SoulMarkⓈ.";
-    return;
-  }
-
-  try {
-    const res = await fetch(`${BACKEND_URL}/registry`, { cache: "no-store" });
-    const registry = await res.json();
-    const normalized = input.toLowerCase();
-
-    // Identity match
-    const identity = registry.find(
-      r =>
-        r.type === "identity" &&
-        (r.soulmark || "").toLowerCase() === normalized
-    );
-
-    // Donation only match
-    const donation = registry.find(
-      r =>
-        r.type === "donation" &&
-        (r.soulmark || "").toLowerCase() === normalized
-    );
-
-    // ---------------------------
-    // Case A: Full identity found
-    // ---------------------------
-    if (identity) {
-      const uname = identity.username
-        ? `${identity.username}@iascendai`
-        : "—";
-
-      resultEl.className = "verified";
-      resultEl.textContent =
-
-`✅ Verified SoulMarkⓈ Username: ${uname} SoulMarkⓈ: ${identity.soulmark} Status: Identity Verified`;
-
-      dashboardLink.href =
-        `iascendai-dashboard.html?username=${encodeURIComponent(identity.username)}`;
-
-      footerNav.style.display = "flex";
-      return;
-    }
-
-    // ---------------------------
-    // Case B: Donation-only record
-    // ---------------------------
-    if (donation) {
-      resultEl.className = "verified";
-      resultEl.textContent =
-
-`Verified ✓
-This SoulMarkⓈ is valid but has no identity registered yet.
-SoulMarkⓈ: ${donation.soulmark}
-
-Please create your username to activate your dashboard.`;
-
-      footerNav.style.display = "flex";
-      dashboardLink.style.display = "none";
-      return;
-    }
-
-    // ---------------------------
-    // Case C: No match
-    // ---------------------------
-    resultEl.className = "invalid";
-    resultEl.textContent = "❌ No matching SoulMarkⓈ found.";
-    footerNav.style.display = "none";
-
-  } catch (err) {
-    resultEl.className = "invalid";
-    resultEl.textContent = "⚠️ Error reaching verification service.";
-  }
-}
-
-</script>
+        window.location.href = "iascendai-dashboard.html";
+      } catch (err) {
+        errorBox.textContent = err.message;
+      }
+    };
+  </script>
 </body>
 </html>
