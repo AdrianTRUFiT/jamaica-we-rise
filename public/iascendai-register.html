@@ -3,539 +3,146 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Create Your Identity | iAscendAi</title>
+  <title>Donation Successful | iAscendAi</title>
+
+  <script type="module">
+    import { CONFIG } from "./config.js";
+    window.CONFIG = CONFIG;
+  </script>
 
   <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
+    * { margin:0; padding:0; box-sizing:border-box; }
     body {
-      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: radial-gradient(circle at top, #0f172a, #020617 40%, #000814);
-      color: #e8f1ff;
+      font-family: Inter, sans-serif;
+      background: #020617;
+      color: #e5e7eb;
       min-height: 100vh;
-      padding: 32px 16px 40px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 24px;
     }
-
-    .shell {
-      max-width: 640px;
-      margin: 0 auto;
-    }
-
-    .logo-headline {
-      text-align: center;
-      margin-bottom: 16px;
-      font-weight: 800;
-      letter-spacing: 0.08em;
-      font-size: 0.9rem;
-      color: #9fb4ff;
-    }
-
     .card {
-      background: rgba(8, 16, 35, 0.96);
-      border-radius: 24px;
-      border: 1px solid rgba(148, 163, 184, 0.4);
-      padding: 24px 20px 26px;
-      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.75);
+      background: rgba(15,23,42,0.9);
+      padding: 32px;
+      border-radius: 22px;
+      border: 1px solid rgba(148,163,184,0.45);
+      width:100%;
+      max-width:600px;
     }
-
-    @media (min-width: 640px) {
-      .card {
-        padding: 28px 32px 30px;
-      }
-    }
-
-    .badge-row {
-      display: flex;
-      justify-content: flex-start;
-      margin-bottom: 14px;
-    }
-
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 6px 14px;
-      border-radius: 999px;
-      font-size: 0.78rem;
-      font-weight: 600;
-      background: rgba(34, 197, 94, 0.14);
-      border: 1px solid rgba(74, 222, 128, 0.5);
-      color: #bbf7d0;
-    }
-
-    .badge-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 999px;
-      background: #4ade80;
-      box-shadow: 0 0 0 4px rgba(74, 222, 128, 0.35);
-    }
-
     h1 {
-      font-size: 1.65rem;
-      margin-bottom: 4px;
-      color: #e5f2ff;
-      font-weight: 800;
+      text-align:center;
+      font-size:1.8rem;
+      background:linear-gradient(120deg,#b8edee,#fed103);
+      -webkit-background-clip:text;
+      -webkit-text-fill-color:transparent;
+      margin-bottom:16px;
     }
-
-    .intro {
-      font-size: 0.92rem;
-      color: #9fb2cf;
-      margin-bottom: 18px;
-      line-height: 1.5;
+    .label {
+      color:#9ca3af;
+      font-size:.78rem;
+      text-transform:uppercase;
+      margin-top:14px;
     }
-
-    .identity-pill {
-      margin-top: 4px;
-      margin-bottom: 18px;
-      padding: 12px 14px;
-      border-radius: 16px;
-      background: rgba(15, 23, 42, 0.9);
-      border: 1px solid rgba(148, 163, 184, 0.5);
-      font-size: 0.82rem;
-      color: #c7d7ff;
-      line-height: 1.6;
+    .value-box {
+      padding:12px;
+      border-radius:12px;
+      background:rgba(255,255,255,0.05);
+      border:1px solid rgba(148,163,184,0.35);
+      font-size:1rem;
+      margin-top:5px;
+      word-break:break-all;
     }
-
-    .identity-pill-title {
-      font-weight: 700;
-      color: #e2eeff;
-      margin-bottom: 4px;
+    button {
+      width:100%;
+      padding:16px;
+      margin-top:30px;
+      border:none;
+      border-radius:999px;
+      background:linear-gradient(135deg,#f4a349,#fed103);
+      color:#041423;
+      font-weight:700;
+      cursor:pointer;
+      font-size:1rem;
     }
-
-    .form-section-title {
-      margin-top: 8px;
-      margin-bottom: 10px;
-      font-size: 0.82rem;
-      text-transform: uppercase;
-      letter-spacing: 0.15em;
-      color: #9fb2cf;
-    }
-
-    .field {
-      margin-bottom: 16px;
-    }
-
-    label {
-      display: block;
-      font-size: 0.82rem;
-      font-weight: 600;
-      margin-bottom: 6px;
-      color: #c3dcff;
-    }
-
-    .hint {
-      font-size: 0.75rem;
-      color: #9fb2cf;
-      margin-top: 4px;
-      line-height: 1.45;
-    }
-
-    input[type="text"],
-    input[type="email"] {
-      width: 100%;
-      padding: 11px 12px;
-      border-radius: 10px;
-      border: 1px solid rgba(148, 163, 184, 0.65);
-      background: rgba(15, 23, 42, 0.92);
-      color: #e5f2ff;
-      font-size: 0.95rem;
-    }
-
-    input[readonly] {
-      opacity: 0.9;
-    }
-
-    input:focus {
-      outline: none;
-      border-color: #fbbf24;
-      box-shadow: 0 0 0 1px rgba(251, 191, 36, 0.45);
-    }
-
-    .username-row {
-      display: flex;
-      align-items: stretch;
-      gap: 6px;
-    }
-
-    .username-row input {
-      flex: 1;
-    }
-
-    .username-suffix {
-      padding: 0 14px;
-      border-radius: 10px;
-      background: rgba(15, 23, 42, 0.94);
-      border: 1px solid rgba(148, 163, 184, 0.65);
-      font-size: 0.85rem;
-      color: #9fb4ff;
-      display: inline-flex;
-      align-items: center;
-      white-space: nowrap;
-    }
-
-    .username-status {
-      margin-top: 4px;
-      min-height: 18px;
-      font-size: 0.8rem;
-    }
-
-    .username-status.ok {
-      color: #bbf7d0;
-    }
-
-    .username-status.bad {
-      color: #fecaca;
-    }
-
-    .tracker-box {
-      margin-top: 10px;
-      padding: 14px 14px 12px;
-      border-radius: 16px;
-      background: rgba(15, 23, 42, 0.96);
-      border: 1px solid rgba(148, 163, 184, 0.45);
-    }
-
-    .tracker-title {
-      font-size: 0.85rem;
-      font-weight: 600;
-      color: #e2eeff;
-      margin-bottom: 8px;
-    }
-
-    .tracker-option {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 6px;
-      font-size: 0.82rem;
-      color: #d1ddff;
-    }
-
-    .tracker-option input[type="radio"],
-    .tracker-option input[type="checkbox"] {
-      accent-color: #f59e0b;
-    }
-
-    .submit-btn {
-      width: 100%;
-      margin-top: 18px;
-      padding: 14px 18px;
-      border-radius: 999px;
-      border: none;
-      background: linear-gradient(135deg, #fbbf24, #f97316);
-      color: #051320;
-      font-size: 0.98rem;
-      font-weight: 800;
-      cursor: pointer;
-      box-shadow: 0 24px 55px rgba(0, 0, 0, 0.75);
-    }
-
-    .submit-btn:disabled {
-      opacity: 0.6;
-      cursor: default;
-      box-shadow: none;
-    }
-
-    .error-msg {
-      margin-top: 10px;
-      min-height: 18px;
-      font-size: 0.8rem;
-      color: #fecaca;
-      text-align: center;
-    }
-
-    .footer-text {
-      margin-top: 14px;
-      font-size: 0.8rem;
-      text-align: center;
-      color: #9fb2cf;
-    }
-
-    .footer-text a {
-      color: #fbbf24;
-      text-decoration: none;
-    }
-
-    .footer-text a:hover {
-      text-decoration: underline;
+    #errorBox {
+      color:#ef4444;
+      margin-top:10px;
+      text-align:center;
+      min-height:20px;
     }
   </style>
 </head>
 
 <body>
-  <div class="shell">
-    <div class="logo-headline">iAscendAi</div>
+  <div class="card">
+    <h1>Donation Successful</h1>
 
-    <div class="card">
-      <div class="badge-row">
-        <div class="badge">
-          <span class="badge-dot"></span>
-          SupporterⓈ • Jamaica We Rise
-        </div>
-      </div>
+    <p style="text-align:center;color:#9ca3af;margin-bottom:18px;">
+      Verifying your donation and linking your identity…
+    </p>
 
-      <h1>Create Your Identity</h1>
-      <p class="intro">
-        You’ve made a verified contribution. Now claim your unique
-        <strong>username@iascendai</strong> so you can view your SoulMarkⓈ,
-        track your SoulAidⓈ, and access the live SoulTrackerⓈ dashboard.
-      </p>
+    <div class="label">Amount</div>
+    <div id="amountBox" class="value-box">$—</div>
 
-      <div class="identity-pill">
-        <div class="identity-pill-title">One entry. One identity.</div>
-        Every future update, dashboard view, or contribution will be anchored
-        to this username. Choose carefully — just like social handles, each
-        username can only be claimed once.
-      </div>
+    <div class="label">Email</div>
+    <div id="emailBox" class="value-box">Loading…</div>
 
-      <div class="form-section-title">Identity details</div>
+    <div class="label">SoulMarkⓈ</div>
+    <div id="soulBox" class="value-box" style="font-size:0.9rem;">Loading…</div>
 
-      <div class="field">
-        <label for="fullName">Full Name *</label>
-        <input id="fullName" type="text" placeholder="Your name" />
-      </div>
+    <div id="errorBox"></div>
 
-      <div class="field">
-        <label for="email">Email Address *</label>
-        <input id="email" type="email" readonly />
-        <div class="hint">
-          This email is linked to your SoulMarkⓈ and dashboard access. It is
-          not shown publicly by default.
-        </div>
-      </div>
-
-      <div class="field">
-        <label for="username">Choose Your Username *</label>
-        <div class="username-row">
-          <input id="username" type="text" placeholder="yourname" />
-          <div class="username-suffix">@iascendai</div>
-        </div>
-        <div class="hint">
-          Usernames are first-come, first-served. Try variations like
-          <em>firstname_lastname</em> or <em>firstname2025</em> if your first
-          choice is taken.
-        </div>
-        <div id="usernameStatus" class="username-status"></div>
-      </div>
-
-      <div class="tracker-box">
-        <div class="tracker-title">Choose how your donation appears on the public tracker</div>
-
-        <label class="tracker-option">
-          <input type="radio" name="displayMode" value="username" checked />
-          <span>Username@iascendai (default)</span>
-        </label>
-
-        <label class="tracker-option">
-          <input type="radio" name="displayMode" value="real_name" />
-          <span>Real name</span>
-        </label>
-
-        <label class="tracker-option">
-          <input type="radio" name="displayMode" value="anonymous" />
-          <span>Anonymous</span>
-        </label>
-
-        <label class="tracker-option" style="margin-top: 4px;">
-          <input type="checkbox" id="showAmount" checked />
-          <span>Show donation amount</span>
-        </label>
-
-        <div class="hint" style="margin-top: 4px;">
-          At least one element must be visible: your name/handle or your
-          donation amount. Anonymous donors can still show only their amount.
-        </div>
-      </div>
-
-      <button id="registerBtn" class="submit-btn">
-        Create My Identity &amp; Open Dashboard
-      </button>
-
-      <div id="errorMsg" class="error-msg"></div>
-
-      <div class="footer-text">
-        Already have a username?
-        <a href="iascendai-verify.html">Verify or look up your identity</a>
-        &bull;
-        <a href="index.html">Back to Donate</a>
-      </div>
-    </div>
+    <button id="continueBtn">Continue to Create Your Identity</button>
   </div>
 
   <script type="module">
     import { CONFIG } from "./config.js";
-    const BACKEND = CONFIG.BACKEND_URL;
+    const BACKEND_URL = CONFIG.BACKEND_URL;
 
-    const fullNameInput = document.getElementById("fullName");
-    const emailInput = document.getElementById("email");
-    const usernameInput = document.getElementById("username");
-    const usernameStatus = document.getElementById("usernameStatus");
-    const registerBtn = document.getElementById("registerBtn");
-    const errorMsg = document.getElementById("errorMsg");
-    const showAmountCheckbox = document.getElementById("showAmount");
-
-    // --- Load values from query params or localStorage (backwards-compatible) ---
+    // Stripe passes ?session_id=
     const params = new URLSearchParams(window.location.search);
+    let sessionId = params.get("session_id");
 
-    const emailFromUrl = params.get("email") || "";
-    const soulmarkFromUrl = params.get("soulmark") || "";
-    const amountFromUrl = params.get("amount") || "";
+    const amountBox  = document.getElementById("amountBox");
+    const emailBox   = document.getElementById("emailBox");
+    const soulBox    = document.getElementById("soulBox");
+    const errorBox   = document.getElementById("errorBox");
 
-    const emailFromStorage =
-      emailFromUrl ||
-      localStorage.getItem("email") ||
-      localStorage.getItem("donor_email") ||
-      "";
-
-    const soulmark =
-      soulmarkFromUrl ||
-      localStorage.getItem("soulmark") ||
-      localStorage.getItem("donor_soulmark") ||
-      "";
-
-    const donationAmountRaw =
-      amountFromUrl ||
-      localStorage.getItem("donationAmount") ||
-      localStorage.getItem("donation_amount") ||
-      "";
-
-    const donationAmount = Number(donationAmountRaw || 0) || 0;
-
-    emailInput.value = emailFromStorage;
-
-    // --- Username availability check ---
-    let lastChecked = "";
-    async function checkUsername(username) {
-      username = username.trim().toLowerCase();
-      if (!username) {
-        usernameStatus.textContent = "";
-        usernameStatus.className = "username-status";
-        return false;
-      }
-      lastChecked = username;
-
+    async function loadVerification() {
       try {
-        const res = await fetch(`${BACKEND}/check-username/${encodeURIComponent(username)}`);
+        const res = await fetch(`${BACKEND_URL}/verify-donation/${sessionId}`);
         const data = await res.json();
 
-        // If user typed something new while request was in flight, ignore this response
-        if (username !== lastChecked) return false;
+        if (!res.ok || !data.email) throw new Error("Verification failed");
 
-        if (data.available) {
-          usernameStatus.textContent = "✓ Username is available";
-          usernameStatus.className = "username-status ok";
-          return true;
-        } else {
-          usernameStatus.textContent = "✖ Username is already taken";
-          usernameStatus.className = "username-status bad";
-          return false;
-        }
+        // Fill UI
+        amountBox.textContent = `$${Number(data.amount).toFixed(2)}`;
+        emailBox.textContent  = data.email;
+        soulBox.textContent   = data.soulmark;
+
+        // Store for register page
+        localStorage.setItem("email", data.email);
+        localStorage.setItem("soulmark", data.soulmark);
+        localStorage.setItem("donationAmount", data.amount);
+
       } catch (err) {
-        usernameStatus.textContent = "Could not check username. Try again.";
-        usernameStatus.className = "username-status bad";
-        return false;
+        console.error(err);
+        errorBox.textContent = "Verification failed. Please refresh.";
       }
     }
 
-    usernameInput.addEventListener("input", () => {
-      const val = usernameInput.value.trim().toLowerCase();
-      // fire-and-forget; validation will also re-check on submit
-      checkUsername(val);
-    });
+    if (sessionId) loadVerification();
+    else errorBox.textContent = "Missing session ID.";
 
-    // --- Register click handler ---
-    registerBtn.addEventListener("click", async () => {
-      errorMsg.textContent = "";
-      registerBtn.disabled = true;
+    document.getElementById("continueBtn").onclick = () => {
+      const email  = localStorage.getItem("email") || "";
+      const soul   = localStorage.getItem("soulmark") || "";
+      const amount = localStorage.getItem("donationAmount") || "";
 
-      const name = fullNameInput.value.trim();
-      const email = emailInput.value.trim();
-      const username = usernameInput.value.trim().toLowerCase();
-
-      if (!name || !email || !username) {
-        errorMsg.textContent = "Please complete all required fields.";
-        registerBtn.disabled = false;
-        return;
-      }
-
-      if (!soulmark) {
-        errorMsg.textContent = "Missing SoulMarkⓈ from your verified donation.";
-        registerBtn.disabled = false;
-        return;
-      }
-
-      const available = await checkUsername(username);
-      if (!available) {
-        errorMsg.textContent = "Please choose a different username.";
-        registerBtn.disabled = false;
-        return;
-      }
-
-      // Determine public display mode
-      const modeEl = document.querySelector('input[name="displayMode"]:checked');
-      const displayMode = modeEl ? modeEl.value : "username";
-      const showDonationAmount = !!showAmountCheckbox.checked;
-
-      let displayIdentity;
-      if (displayMode === "real_name") {
-        displayIdentity = name;
-      } else if (displayMode === "anonymous") {
-        displayIdentity = "Anonymous";
-      } else {
-        displayIdentity = `${username}@iascendai`;
-      }
-
-      const body = {
-        username,
-        name,
-        email,
-        role: "supporter",
-        soulmark,
-        donationAmount,
-        displayIdentity,
-        visibilityMode: displayMode,
-        showDonationAmount
-      };
-
-      try {
-        const res = await fetch(`${BACKEND}/register`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(body)
-        });
-
-        const data = await res.json();
-
-        if (!res.ok || !data.ok) {
-          errorMsg.textContent = data.error || "Registration failed. Please try again.";
-          registerBtn.disabled = false;
-          return;
-        }
-
-        // Persist identity locally for dashboard & verification
-        localStorage.setItem("username", username);
-        localStorage.setItem("name", name);
-        localStorage.setItem("email", email);
-        localStorage.setItem("soulmark", soulmark);
-        localStorage.setItem("donationAmount", String(donationAmount));
-        localStorage.setItem("displayIdentity", displayIdentity);
-        localStorage.setItem("visibilityMode", displayMode);
-        localStorage.setItem("showDonationAmount", showDonationAmount ? "true" : "false");
-
-        // Redirect with username param
-        window.location.href =
-          `iascendai-dashboard.html?username=${encodeURIComponent(username)}`;
-      } catch (err) {
-        console.error(err);
-        errorMsg.textContent = "Unexpected error. Please try again.";
-        registerBtn.disabled = false;
-      }
-    });
+      window.location.href =
+        `iascendai-register.html?email=${encodeURIComponent(email)}&soulmark=${encodeURIComponent(soul)}&amount=${encodeURIComponent(amount)}`;
+    };
   </script>
 </body>
 </html>
