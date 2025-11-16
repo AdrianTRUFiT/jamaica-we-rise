@@ -1,22 +1,29 @@
-📘 Jamaica We Rise × iAscendAi — API Reference
+📘 Jamaica We Rise × iAscendAi — API Reference (Final, Updated)
 
+Backend Version: Master Build — SHA3-256 SoulMark Engine
+Last Updated: November 16, 2025
 Base URL:
+
 http://localhost:10000
-(or your Render deployment URL)
+https://jamaica-we-rise-backend.onrender.com
+
 
 ⸻
 
 🧭 Overview
 
-This API powers the SoulMarkⓈ-verified donation and identity system for Jamaica We Rise × iAscendAi.
-It includes:
-	•	Stripe checkout integration
-	•	Verified donation record creation
-	•	SoulMarkⓈ generation
-	•	Username availability
-	•	Identity registration
-	•	Full public registry
-	•	Legacy compatibility for Vercel redirect quirks
+This API powers the SoulMarkⓈ-verified donation and identity engine for
+Jamaica We Rise × iAscendAi.
+
+It handles:
+	•	🔐 SoulMarkⓈ generation (SHA3-256 + email + timestamp + salt + nonce)
+	•	💳 Stripe Checkout sessions
+	•	🧾 Verified donation records (registry.json)
+	•	🧬 Identity Non-Multiplication Law
+	•	👤 Username validation
+	•	🪪 Identity creation
+	•	📖 Public SoulRegistryⓈ
+	•	🩺 Service health reporting
 
 ⸻
 
@@ -26,15 +33,15 @@ It includes:
 
 POST /create-checkout-session
 
-Creates a new Stripe Checkout session and returns the redirect URL.
+Creates a Stripe Checkout session and returns the redirect URL.
 
 Request Body
 
 Field	Type	Required	Description
-name	string	👍 Yes	Full name of donor
-email	string	👍 Yes	Donor email (used by Stripe + SoulMark record)
-amount	number	👍 Yes	Donation amount in USD
-soulmark	string	No	Optional pre-assigned SoulMarkⓈ
+name	string	✔️	Donor name
+email	string	✔️	Donor email
+amount	number	✔️	USD amount
+soulmark	string	No	Ignored — backend generates SoulMark internally
 
 Example Request
 
@@ -47,29 +54,7 @@ Example Request
 Response
 
 {
-  "id": "cs_test_123",
   "url": "https://checkout.stripe.com/pay/cs_test_123"
-}
-
-
-⸻
-
-GET /retrieve-session?session_id=XYZ
-
-🔁 Legacy compatibility endpoint used by success.html
-Returns minimal Stripe session info (email, amount, soulmark).
-
-Query Parameters
-
-Key	Description
-session_id	Stripe Checkout session ID
-
-Response
-
-{
-  "amount": 100,
-  "email": "donor@example.com",
-  "soulmark": "SM-Z3JlZW5mbGFn"
 }
 
 
@@ -77,22 +62,22 @@ Response
 
 GET /verify-donation/:sessionId
 
-🔥 Canonical verification endpoint
-Retrieves Stripe payment status and writes the donation to the SoulRegistryⓈ.
+🔥 This is the canonical donation verification endpoint.
+Retrieves the Stripe session, confirms payment, generates a SoulMarkⓈ, and writes the donation to registry.json.
 
 Path Parameters
 
-Param	Description
+Parameter	Description
 sessionId	Stripe Checkout session ID
 
 Response
 
 {
-  "verified": true,
+  "type": "donation",
   "name": "Adrian McKenzie",
   "email": "adrian@example.com",
   "amount": 50,
-  "soulmark": "SM-Y3MtdGVzdC0xMjM",
+  "soulmark": "9f28d1f8eaa9f820c14c6a...",
   "timestamp": "2025-11-13T20:00:00.000Z",
   "stripeSessionId": "cs_test_123"
 }
@@ -106,7 +91,7 @@ Response
 
 GET /check-username/:username
 
-Checks if a username is already registered.
+Checks whether a username is available.
 
 Example
 
@@ -121,17 +106,24 @@ Response
 
 POST /register
 
-Creates a verified iAscendAi identity after donation.
+Creates a FULL verified iAscendAi identity.
+
+Identity Non-Multiplication Law
+
+An email can only produce ONE identity.
+If the email already exists in the registry → registration is rejected.
 
 Request Body
 
 Field	Required	Description
-username	👍 Yes	New identity name (lowercase)
-name	👍 Yes	Full name
-email	👍 Yes	Email
-role	👍 Yes	“supporter”
-soulmark	Optional	SoulMark (auto-generated if missing)
-donationAmount	Optional	Donation amount linked to identity
+username	✔️	Lowercase identity name
+name	✔️	Full real name
+email	✔️	Email (lowercased, normalized)
+role	✔️	“supporter”
+soulmark	No	If missing, backend generates a fresh SoulMarkⓈ
+donationAmount	No	Amount tied to the identity
+displayIdentity	No	“real”, “anonymous”, “username”
+showDonationAmount	No	true/false
 
 Example Request
 
@@ -139,8 +131,7 @@ Example Request
   "username": "adrian",
   "name": "Adrian McKenzie",
   "email": "adrian@example.com",
-  "role": "supporter",
-  "soulmark": "SM-Y3MtdGVzdA"
+  "role": "supporter"
 }
 
 Response
@@ -153,9 +144,30 @@ Response
     "name": "Adrian McKenzie",
     "email": "adrian@example.com",
     "role": "supporter",
-    "soulmark": "SM-Y3MtdGVzdA",
+    "soulmark": "9f28d1f8eaa9f820c14c...",
+    "donationAmount": null,
+    "displayIdentity": "username",
+    "showDonationAmount": true,
     "createdAt": "2025-11-13T20:03:00.000Z"
   }
+}
+
+
+⸻
+
+POST /lookup-identity
+
+Lookup by email OR username.
+
+Request
+
+{ "identifier": "adrian@example.com" }
+
+Response
+
+{
+  "ok": true,
+  "user": { ... }
 }
 
 
@@ -167,9 +179,9 @@ Response
 
 GET /registry
 
-Returns all donation and identity entries.
+Returns all donation + identity records from registry.json.
 
-Response Example
+Example Response
 
 [
   {
@@ -177,8 +189,8 @@ Response Example
     "name": "John Doe",
     "email": "john@example.com",
     "amount": 50,
-    "soulmark": "SM-abcdefghijkl",
-    "timestamp": "2025-11-13T19:05:00.000Z"
+    "soulmark": "e3819e8f3d...",
+    "timestamp": "2025-11-13T20:00:00.000Z"
   },
   {
     "type": "identity",
@@ -186,45 +198,50 @@ Response Example
     "name": "John Doe",
     "email": "john@example.com",
     "role": "supporter",
-    "soulmark": "SM-abcdefghijkl",
-    "createdAt": "2025-11-13T19:06:00.000Z"
+    "soulmark": "e3819e8f3d...",
+    "createdAt": "2025-11-13T20:02:00.000Z"
   }
 ]
 
 
 ⸻
 
-🩺 Health & Utility Endpoints
+🩺 Health & Utility
 
 ⸻
 
 GET /health
 
-Returns service status.
+Basic API status check.
 
 Response
 
 {
   "status": "ok",
   "mode": "production",
-  "timestamp": "2025-11-13T21:00:00Z",
+  "timestamp": "2025-11-16T00:00:00Z",
   "frontend": "https://jamaica-we-rise.vercel.app"
 }
 
 
 ⸻
 
-🧪 QA Probe (Optional Local Testing)
+🧪 Optional Local QA Probe
 
-If you included qa_probe.mjs, run:
-
-node qa_probe.mjs
-
-This hits:
+If you use qa_probe.mjs, it will test:
 	•	/health
 	•	/create-checkout-session
 	•	/check-username
-	•	/donations/stats (not implemented, safe to remove)
+	•	/registry
+
+Anything referencing non-existent endpoints should now be removed.
 
 ⸻
 
+✅ API Reference Updated & Synced to Master Build
+
+If you want, I can now rewrite:
+	•	SYSTEM_OVERVIEW.md
+	•	DEPLOYMENT_NOTES.md
+	•	Navigation Manifest
+	•	README.md
