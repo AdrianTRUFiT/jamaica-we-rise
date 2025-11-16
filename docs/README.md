@@ -1,38 +1,56 @@
-# 🌍 Jamaica We Rise × iAscendAi  
-### Authored-Intelligence Frontend & Verification Ecosystem
+🌍 Jamaica We Rise × iAscendAi
 
-This repository hosts the **public frontend** and **static route layer** for the *Jamaica We Rise* initiative — a verified identity and donation infrastructure built on the iAscendAi framework.
+Authored-Intelligence Frontend & Verification Ecosystem
 
----
+Updated: November 16, 2025
 
-## 🧭 Navigation & Flow  
-All routes, backend endpoints, and verification logic are documented in:  
-[`/docs/Navigation_Manifest_JamaicaWeRise.yaml`](./Navigation_Manifest_JamaicaWeRise.yaml)
+This repository contains the public frontend, identity flow, and verification layer for the Jamaica We Rise initiative — a SoulMarkⓈ-anchored donation and identity infrastructure built on the iAscendAi authored-intelligence framework.
 
-| Stage | File | Description |
-|-------|------|-------------|
-| 💚 1. Donate | [`index.html`](../public/index.html) | Launch verified Stripe donation session |
-| 🌟 2. Verify Payment | [`success.html`](../public/success.html) | Confirm Stripe payment + generate SoulMarkⓈ |
-| 🧠 3. Register Identity | [`iascendai-register.html`](../public/iascendai-register.html) | Create username@iascendai + identity record |
-| 🏠 4. Dashboard | [`iascendai-dashboard.html`](../public/iascendai-dashboard.html) | View SoulMarkⓈ, profile, and contributions |
-| 🔗 5. Registry | [`soulregistry.html`](../public/soulregistry.html) | Browse public SoulMarkⓈ identities |
-| 🔍 6. Verify SoulMark | [`iascendai-verify.html`](../public/iascendai-verify.html) | Check authenticity of a SoulMarkⓈ |
-| 📈 7. Impact Metrics | [`impact-dashboard.html`](../public/impact-dashboard.html) | Real-time totals + transparency dashboard |
-| 🌍 8. Live Tracker | [`tracker.html`](../public/tracker.html) | Donation progress + live feed (optional) |
+It operates as the presentation layer for the backend identity engine hosted on Render.
 
----
+⸻
 
-## ⚙️ Configuration
+🧭 Navigation & User Flow
 
-Backend URL and environment mode are managed in:
+All routes, verification steps, and API mappings are documented in:
+📄 docs/Navigation_Manifest_JamaicaWeRise.yaml
 
-```js
-// config.js
+Below is the live frontend route map:
+
+Stage	File	Description
+💚 1. Donate	public/index.html	Submit donation → Stripe checkout
+🌟 2. Verify Payment	public/success.html	Retrieve session, generate SoulMarkⓈ
+🧠 3. Register Identity	public/iascendai-register.html	Create username@iascendai
+🔐 4. Login (Optional)	public/iascendai-login.html	Local access key → Dashboard
+🏠 5. Dashboard	public/iascendai-dashboard.html	View SoulMarkⓈ, profile, and history
+🔗 6. Registry	public/soulregistry.html	Public list of verified identities
+🔍 7. Check SoulMark	public/iascendai-verify.html	Validate any SoulMarkⓈ
+📈 8. Impact Metrics	public/impact-dashboard.html	Total donations, donors, activity feed
+🌍 9. Live Tracker	(Optional) public/tracker.html	Donations + live registry feed
+
+All pages use one unified backend:
+
+https://jamaica-we-rise-backend.onrender.com
+
+
+⸻
+
+⚙️ Configuration
+
+Frontend → backend mapping is controlled globally in:
+
+// public/config.js
 export const CONFIG = {
-  MODE: "production",
-  BACKEND_URL: "https://jamaica-we-rise.onrender.com"
+  BACKEND_URL: "https://jamaica-we-rise-backend.onrender.com"
 };
 
+No other file should hardcode a backend URL.
+
+This keeps:
+	•	Styling in one place
+	•	Routing consistent
+	•	Updates simple
+	•	Vercel builds clean
 
 ⸻
 
@@ -40,10 +58,17 @@ export const CONFIG = {
 
 Layer	Platform	URL
 Frontend	Vercel	https://jamaica-we-rise.vercel.app
-Backend	Render (Node + Express)	https://jamaica-we-rise.onrender.com
+Backend	Render (Node + Express)	https://jamaica-we-rise-backend.onrender.com
 
-The Vercel deployment serves the static /public directory.
-The Render deployment runs server.js and exposes all API endpoints.
+Vercel serves static assets from /public.
+
+Render runs server.js with:
+	•	SoulMark SHA3-256 engine
+	•	Stripe verification
+	•	Registry writes
+	•	CORS rules
+	•	Logging
+	•	Identity Non-Multiplication Law
 
 ⸻
 
@@ -53,8 +78,8 @@ The Render deployment runs server.js and exposes all API endpoints.
   index.html
   success.html
   iascendai-register.html
+  iascendai-login.html
   iascendai-dashboard.html
-  tracker.html
   soulregistry.html
   iascendai-verify.html
   impact-dashboard.html
@@ -62,56 +87,67 @@ The Render deployment runs server.js and exposes all API endpoints.
 
 /docs
   README.md
-  Navigation_Manifest_JamaicaWeRise.yaml
   API_REFERENCE.md
   SYSTEM_OVERVIEW.md
+  Navigation_Manifest_JamaicaWeRise.yaml
   DEPLOYMENT_NOTES.md
+
+/data
+  registry.json
 
 /logs
   access.log
-  events.log
+  event.log
   error.log
 
+Everything here reflects the current working system.
 
 ⸻
 
-✅ Testing Flow (End-to-End)
-	1.	Open index.html → submit donation.
-	2.	Stripe checkout → complete payment.
-	3.	Redirects to:
+✅ End-to-End Testing Flow
+	1.	User donates at index.html
+	2.	Redirect to Stripe checkout
+	3.	Successful payment → returns to:
 
-success.html?session_id=…
+success.html?session_id=cs_test_123
 
-
-	4.	Page calls backend:
+	4.	success.html calls:
 
 GET /verify-donation/:sessionId
 
-
-	5.	SoulMarkⓈ appears → stored in registry.
-	6.	Continue → iascendai-register.html.
-	7.	Claim username → stored in registry.
-	8.	Dashboard loads identity from registry.
-	9.	Verify via:
+	5.	Backend verifies payment + generates SoulMarkⓈ
+	6.	Donation record is written to data/registry.json
+	7.	User continues to identity registration
+	8.	POST /register stores username@iascendai identity
+	9.	Dashboard loads verified identity + totals
+	10.	Verification available via:
 	•	iascendai-verify.html
 	•	soulregistry.html
 	•	impact-dashboard.html
 
-All pages consume the same backend:
-https://jamaica-we-rise.onrender.com
+All frontend pages communicate with:
+
+https://jamaica-we-rise-backend.onrender.com
+
 
 ⸻
 
 🧠 Maintained By
 
-Adrian TRUFiT McKenzie × BizTech Wellness AI
-iAscendAi • Authored Systems Collective
+Adrian TRUFiT McKenzie
+BizTech Wellness AI × iAscendAi
+Architect of Authored Intelligence & SoulMarkⓈ Verification Systems
 
 ⸻
 
+🪄 Saved To
 
-🪄 Saved version intended for:
-`C:\SoulVault\JamaicaWeRise\docs\README.md`
-
+C:\SoulVault\JamaicaWeRise\docs\README.md
 
 ⸻
+
+If you’d like, I can now update:
+
+📄 SYSTEM_OVERVIEW.md
+or
+📄 Navigation_Manifest_JamaicaWeRise.yaml
