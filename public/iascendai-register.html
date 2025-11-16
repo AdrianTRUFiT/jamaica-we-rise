@@ -13,58 +13,83 @@
   <style>
     body {
       margin: 0;
-      background: #0a1020;
+      padding: 0;
+      background: radial-gradient(circle at top, #0f172a, #020617 40%, #000814);
       font-family: Inter, sans-serif;
       color: #e8f1ff;
+      min-height: 100vh;
+      padding: 32px 18px;
     }
     .container {
       max-width: 520px;
-      margin: 40px auto;
-      padding: 24px;
+      margin: 0 auto;
+      padding: 32px;
       background: rgba(255,255,255,0.04);
-      border-radius: 16px;
-      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 20px;
+      border: 1px solid rgba(255,255,255,0.08);
+      box-shadow: 0 22px 60px rgba(0,0,0,0.4);
     }
     h1 {
       text-align: center;
-      color: #9fe870;
-      margin-bottom: 8px;
-      font-size: 26px;
+      font-size: 28px;
+      margin-bottom: 6px;
+      background: linear-gradient(180deg, #befb84, #66ea47);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-weight: 800;
     }
-    .field {
-      margin-bottom: 18px;
+    .sub {
+      text-align: center;
+      color: #9bb5d1;
+      margin-bottom: 22px;
     }
     label {
       display: block;
+      color: #8fb6e8;
       margin-bottom: 6px;
       font-size: 14px;
-      color: #8fb6e8;
+      font-weight: 500;
     }
-    input, select {
+    .field {
+      margin-bottom: 20px;
+    }
+    input {
       width: 100%;
       padding: 12px;
-      border-radius: 8px;
+      border-radius: 10px;
       border: 1px solid rgba(255,255,255,0.12);
       background: rgba(255,255,255,0.06);
       color: #fff;
       font-size: 16px;
     }
+    input:focus {
+      outline: none;
+      border-color: #ffb300;
+      box-shadow: 0 0 0 2px rgba(255,179,0,0.4);
+    }
     button {
       width: 100%;
-      padding: 14px;
-      font-size: 18px;
-      border-radius: 10px;
+      padding: 16px;
+      border-radius: 999px;
       border: none;
-      cursor: pointer;
-      font-weight: 600;
-      background: linear-gradient(90deg, #ffb400, #ff8600);
+      background: linear-gradient(135deg, #ffb400, #ff8600);
       color: #000;
+      font-size: 18px;
+      font-weight: 700;
+      cursor: pointer;
       margin-top: 10px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.6);
     }
     .error {
-      margin-top: 8px;
       color: #ff6b6b;
+      margin-top: 8px;
       text-align: center;
+      min-height: 20px;
+    }
+    .good {
+      color: #9fe870;
+      text-align: left;
+      margin-top: 4px;
     }
   </style>
 </head>
@@ -72,6 +97,12 @@
 <body>
   <div class="container">
     <h1>Create Your Identity</h1>
+    <p class="sub">Your donation is verified. Choose your identity.</p>
+
+    <div class="field">
+      <label>Full Name</label>
+      <input id="name" placeholder="Your Name" />
+    </div>
 
     <div class="field">
       <label>Email</label>
@@ -81,85 +112,93 @@
     <div class="field">
       <label>Choose Username</label>
       <input id="username" placeholder="yourname" />
-      <div id="usernameStatus" class="error"></div>
+      <div id="usernameStatus"></div>
     </div>
 
-    <button id="registerBtn">Create My Identity</button>
+    <button id="registerBtn">Create My Identity & Open Dashboard</button>
     <div id="errorMsg" class="error"></div>
   </div>
 
-  <script>
+  <script type="module">
+    import { CONFIG } from "./config.js";
+    const BACKEND = CONFIG.BACKEND_URL;
+
+    const nameInput = document.getElementById("name");
     const emailInput = document.getElementById("email");
     const usernameInput = document.getElementById("username");
     const usernameStatus = document.getElementById("usernameStatus");
     const registerBtn = document.getElementById("registerBtn");
     const errorMsg = document.getElementById("errorMsg");
 
-    // Autofill from localStorage
     emailInput.value = localStorage.getItem("email") || "";
+    const soulmark = localStorage.getItem("soulmark") || "";
+    const donationAmount = Number(localStorage.getItem("donationAmount") || 0);
 
     async function checkUsername(username) {
       if (!username) return;
-
-      const res = await fetch(`${window.CONFIG.BACKEND_URL}/check-username/${username}`);
+      const res = await fetch(`${BACKEND}/check-username/${username}`);
       const data = await res.json();
 
       if (data.available) {
-        usernameStatus.style.color = "#9fe870";
-        usernameStatus.textContent = "✔ Username available";
+        usernameStatus.innerHTML = "<span class='good'>✔ Available</span>";
         return true;
       } else {
-        usernameStatus.style.color = "#ff6b6b";
-        usernameStatus.textContent = "✖ Username already taken";
+        usernameStatus.innerHTML = "<span class='error'>✖ Taken</span>";
         return false;
       }
     }
 
     usernameInput.addEventListener("input", () => {
-      const username = usernameInput.value.trim().toLowerCase();
-      checkUsername(username);
+      const u = usernameInput.value.trim().toLowerCase();
+      checkUsername(u);
     });
 
-    registerBtn.addEventListener("click", async () => {
-      const email = emailInput.value.trim();
+    registerBtn.onclick = async () => {
       const username = usernameInput.value.trim().toLowerCase();
-      const donation = localStorage.getItem("donation") || "";
-      const soulmark = localStorage.getItem("soulmark") || "";
+      const email = emailInput.value.trim();
+      const name = nameInput.value.trim();
 
-      if (!email || !username || !soulmark) {
-        errorMsg.textContent = "Missing required fields.";
+      if (!username || !email || !name || !soulmark) {
+        errorMsg.textContent = "All fields are required.";
         return;
       }
 
-      const available = await checkUsername(username);
-      if (!available) {
-        errorMsg.textContent = "Username is not available.";
+      const ok = await checkUsername(username);
+      if (!ok) {
+        errorMsg.textContent = "Username unavailable.";
         return;
       }
 
-      const res = await fetch(`${window.CONFIG.BACKEND_URL}/register`, {
+      const body = {
+        username,
+        name,
+        email,
+        role: "supporter",
+        soulmark,
+        donationAmount,
+        displayIdentity: username + "@iascendai",
+        showDonationAmount: true
+      };
+
+      const res = await fetch(`${BACKEND}/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email,
-          username,
-          soulmark,
-          display: username + "@iascendai",
-          donation: Number(donation),
-          status: "verified",
-        }),
+        body: JSON.stringify(body)
       });
 
       const data = await res.json();
 
-      if (res.ok) {
-        // Save identity session
-        localStorage.setItem("username", username);
-        window.location.href = "/iascendai-dashboard.html";
-      } else {
+      if (!res.ok) {
         errorMsg.textContent = data.error || "Registration failed.";
+        return;
       }
-    });
+
+      localStorage.setItem("username", username);
+      localStorage.setItem("name", name);
+      localStorage.setItem("displayIdentity", username + "@iascendai");
+
+      window.location.href = "iascendai-dashboard.html";
+    };
   </script>
 </body>
 </html>
