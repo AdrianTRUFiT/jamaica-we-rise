@@ -38,7 +38,12 @@
       -webkit-text-fill-color:transparent;
       margin-bottom:16px;
     }
-    .label { color:#9ca3af; font-size:.78rem; text-transform:uppercase; margin-top:10px; }
+    .label {
+      color:#9ca3af;
+      font-size:.78rem;
+      text-transform:uppercase;
+      margin-top:14px;
+    }
     .value-box {
       padding:12px;
       border-radius:12px;
@@ -51,15 +56,21 @@
     button {
       width:100%;
       padding:16px;
-      margin-top:26px;
+      margin-top:30px;
       border:none;
       border-radius:999px;
       background:linear-gradient(135deg,#f4a349,#fed103);
       color:#041423;
       font-weight:700;
       cursor:pointer;
+      font-size:1rem;
     }
-    #errorBox { color:#ef4444; margin-top:10px; text-align:center; }
+    #errorBox {
+      color:#ef4444;
+      margin-top:10px;
+      text-align:center;
+      min-height:20px;
+    }
   </style>
 </head>
 
@@ -89,6 +100,7 @@
     import { CONFIG } from "./config.js";
     const BACKEND_URL = CONFIG.BACKEND_URL;
 
+    // Stripe passes ?session_id=
     const params = new URLSearchParams(window.location.search);
     let sessionId = params.get("session_id");
 
@@ -102,18 +114,20 @@
         const res = await fetch(`${BACKEND_URL}/verify-donation/${sessionId}`);
         const data = await res.json();
 
-        if (!res.ok || !data.email)
-          throw new Error("Verification failed");
+        if (!res.ok || !data.email) throw new Error("Verification failed");
 
+        // Fill UI
         amountBox.textContent = `$${Number(data.amount).toFixed(2)}`;
         emailBox.textContent  = data.email;
         soulBox.textContent   = data.soulmark;
 
-        localStorage.setItem("donor_email", data.email);
-        localStorage.setItem("donor_soulmark", data.soulmark);
-        localStorage.setItem("donation_amount", data.amount);
+        // Store for register page
+        localStorage.setItem("email", data.email);
+        localStorage.setItem("soulmark", data.soulmark);
+        localStorage.setItem("donationAmount", data.amount);
 
       } catch (err) {
+        console.error(err);
         errorBox.textContent = "Verification failed. Please refresh.";
       }
     }
@@ -122,7 +136,12 @@
     else errorBox.textContent = "Missing session ID.";
 
     document.getElementById("continueBtn").onclick = () => {
-      window.location.href = "iascendai-register.html";
+      const email  = localStorage.getItem("email") || "";
+      const soul   = localStorage.getItem("soulmark") || "";
+      const amount = localStorage.getItem("donationAmount") || "";
+
+      window.location.href =
+        `iascendai-register.html?email=${encodeURIComponent(email)}&soulmark=${encodeURIComponent(soul)}&amount=${encodeURIComponent(amount)}`;
     };
   </script>
 </body>
