@@ -1,40 +1,48 @@
-Node dependencies
-
+# ————————————————————————
+# Node dependencies
+# ————————————————————————
 node_modules/
 
-Environment variables
-
+# ————————————————————————
+# Environment Variables (never push these)
+# ————————————————————————
 .env
 .env.local
 .env.production
 .env.development
 .env.test
 
-Logs
-
+# ————————————————————————
+# Logs
+# ————————————————————————
 logs/
 *.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-Data storage (local)
-
+# ————————————————————————
+# Local Data Storage (server-only, do NOT upload)
+# ————————————————————————
+data/
 data/registry.json
 data/*.json
 
-Build artifacts
-
+# ————————————————————————
+# Build Artifacts
+# ————————————————————————
 dist/
 build/
 .cache/
 .DS_Store
 
-Vercel / Render
-
+# ————————————————————————
+# Vercel / Render files
+# ————————————————————————
 .vercel/
 .render/
 
-System files
-
+# ————————————————————————
+# System files
+# ————————————————————————
 Thumbs.db
