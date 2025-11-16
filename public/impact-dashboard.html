@@ -3,13 +3,10 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<meta
-name="viewport"
-content="width=device-width, initial-scale=1.0" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
 <title>Impact Dashboard | Jamaica We Rise × iAscendAi</title>
 
-<!-- Load CONFIG -->
 <script type="module">
 import { CONFIG } from "./config.js";
 window.CONFIG = CONFIG;
@@ -17,12 +14,12 @@ window.CONFIG = CONFIG;
 
 <style>
 body {
-margin:0;
-padding:0;
-font-family:-apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, sans-serif;
-background:linear-gradient(160deg,#031623 0%,#020c15 50%,#00060a 100%);
-color:#fff;
-min-height:100vh;
+  margin:0;
+  padding:0;
+  font-family:-apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, sans-serif;
+  background:linear-gradient(160deg,#031623 0%,#020c15 50%,#00060a 100%);
+  color:#fff;
+  min-height:100vh;
 }
 
 header {
@@ -109,7 +106,7 @@ p {
   padding:20px;
   border-radius:14px;
   margin-bottom:16px;
-  transition: 0.2s;
+  transition:0.2s;
 }
 
 .entry:hover {
@@ -140,45 +137,43 @@ footer a {
   color:#fed103;
   text-decoration:none;
 }
-
 </style>
 </head>
 
 <body>
 
 <header>
-<button class="logout-btn" id="logoutBtn">Logout</button>
-<h1>Impact Dashboard</h1>
-<p>Live donations · Verified identities · SoulMarkⓈ anchored</p>
+  <button class="logout-btn" id="logoutBtn">Logout</button>
+  <h1>Impact Dashboard</h1>
+  <p>Live donations · Verified identities · SoulMarkⓈ anchored</p>
 </header>
 
 <section class="stats-board">
-<div class="stat-box">
-<div class="stat-label">Total Raised</div>
-<div class="stat-value" id="totalRaised">$0</div>
-</div>
+  <div class="stat-box">
+    <div class="stat-label">Total Raised</div>
+    <div class="stat-value" id="totalRaised">$0</div>
+  </div>
 
-<div class="stat-box">
-<div class="stat-label">Total Donors</div>
-<div class="stat-value" id="totalDonors">0</div>
-</div>
+  <div class="stat-box">
+    <div class="stat-label">Total Donors</div>
+    <div class="stat-value" id="totalDonors">0</div>
+  </div>
 
-<div class="stat-box">
-<div class="stat-label">Verified Identities</div>
-<div class="stat-value" id="verifiedIdentities">0</div>
-</div>
+  <div class="stat-box">
+    <div class="stat-label">Verified Identities</div>
+    <div class="stat-value" id="verifiedIdentities">0</div>
+  </div>
 </section>
 
 <section class="registry-list" id="registryList">
-<h2 style="text-align:center; margin-bottom:20px;">Recent Activity</h2>
-<div id="entries"></div>
+  <h2 style="text-align:center; margin-bottom:20px;">Recent Activity</h2>
+  <div id="entries"></div>
 </section>
 
 <footer>
-© 2025 Jamaica We Rise × iAscendAi • Authored Intelligence
-
-<br />
-<a href="index.html">← Back to Donation Page</a>
+  © 2025 Jamaica We Rise × iAscendAi • Authored Intelligence  
+  <br />
+  <a href="index.html">← Back to Donation Page</a>
 </footer>
 
 <script type="module">
@@ -186,63 +181,64 @@ import { CONFIG } from "./config.js";
 const BACKEND_URL = CONFIG.BACKEND_URL;
 
 document.getElementById("logoutBtn").onclick = () => {
-localStorage.clear();
-window.location.href = "index.html";
+  localStorage.clear();
+  window.location.href = "iascendai-login.html";
 };
 
 async function loadImpact() {
-try {
-const res = await fetch(`${BACKEND_URL}/registry`, { cache: "no-store" });
-const data = await res.json();
+  try {
+    const res = await fetch(`${BACKEND_URL}/registry`, { cache: "no-store" });
+    const data = await res.json();
 
-  let totalRaised = 0;
-  let donorEmails = new Set();
-  let identities = 0;
+    let totalRaised = 0;
+    const donorEmails = new Set();
+    const identityRecords = data.filter(r => r.type === "identity");
+    const donations = data.filter(r => r.type === "donation");
 
-  const donations = data.filter(r => r.type === "donation");
-  const identityRecords = data.filter(r => r.type === "identity");
+    donations.forEach(d => {
+      totalRaised += d.amount || 0;
+      if (d.email) donorEmails.add(d.email);
+    });
 
-  donations.forEach(d => {
-    totalRaised += d.amount || 0;
-    donorEmails.add(d.email);
-  });
+    document.getElementById("totalRaised").textContent =
+      `$${totalRaised.toLocaleString()}`;
+    document.getElementById("totalDonors").textContent = donorEmails.size;
+    document.getElementById("verifiedIdentities").textContent =
+      identityRecords.length;
 
-  identities = identityRecords.length;
+    const entriesContainer = document.getElementById("entries");
+    entriesContainer.innerHTML = "";
 
-  document.getElementById("totalRaised").textContent =
-    `$${totalRaised.toLocaleString()}`;
-  document.getElementById("totalDonors").textContent =
-    donorEmails.size;
-  document.getElementById("verifiedIdentities").textContent =
-    identities;
+    const recent = [...donations]
+      .sort((a, b) => new Date(b.timestamp || 0) - new Date(a.timestamp || 0))
+      .slice(0, 25);
 
-  const entriesContainer = document.getElementById("entries");
-  entriesContainer.innerHTML = "";
+    recent.forEach(e => {
+      const displayName =
+        e.displayIdentity === "anonymous"
+          ? "Anonymous"
+          : e.displayIdentity === "real"
+            ? (e.name || "Anonymous")
+            : e.username
+              ? `${e.username}@iascendai`
+              : (e.name || e.email || "Anonymous");
 
-  const recent = [...donations]
-    .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
-    .slice(0, 25);
+      entriesContainer.innerHTML += `
+        <div class="entry">
+          <h3>${displayName}</h3>
+          <p><strong>Amount:</strong> $${e.amount}</p>
+          <p><strong>Email:</strong> ${e.email || "—"}</p>
+          <p><strong>SoulMarkⓈ:</strong> ${e.soulmark}</p>
+          <p><strong>Timestamp:</strong> ${new Date(e.timestamp).toLocaleString()}</p>
+        </div>
+      `;
+    });
 
-  recent.forEach(e => {
-    const displayName = e.name || e.email || "Anonymous";
-
-    entriesContainer.innerHTML += `
-      <div class="entry">
-        <h3>${displayName}</h3>
-        <p><strong>Amount:</strong> $${e.amount}</p>
-        <p><strong>Email:</strong> ${e.email}</p>
-        <p><strong>SoulMarkⓈ:</strong> ${e.soulmark}</p>
-        <p><strong>Timestamp:</strong> ${new Date(e.timestamp).toLocaleString()}</p>
-      </div>
-    `;
-  });
-
-} catch (err) {
-  console.error("Load error:", err);
-  document.getElementById("entries").innerHTML =
-    "<p style='color:#f66;text-align:center;'>Unable to load activity.</p>";
-}
-
+  } catch (err) {
+    console.error("Load error:", err);
+    document.getElementById("entries").innerHTML =
+      "<p style='color:#f66;text-align:center;'>Unable to load activity.</p>";
+  }
 }
 
 loadImpact();
