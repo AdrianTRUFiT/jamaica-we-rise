@@ -201,98 +201,96 @@ const customAmount = document.getElementById("customAmount");
 let selectedAmount = null;
 
 // ------------------------------------------------
-// 1. SECURE IDENTITY HYDRATION (SERVER-VERIFIED)
+// 1. SECURE IDENTITY HYDRATION
 // ------------------------------------------------
 async function hydrateIdentity() {
-const emailLS = (localStorage.getItem("email") || "").toLowerCase().trim();
-const usernameLS = localStorage.getItem("username") || "";
-const nameLS = localStorage.getItem("name") || "";
+  const emailLS = (localStorage.getItem("email") || "").toLowerCase().trim();
+  const usernameLS = localStorage.getItem("username") || "";
+  const nameLS = localStorage.getItem("name") || "";
 
-if (!emailLS) return;
+  if (!emailLS) return;
 
-try {
-  const res = await fetch(`${BACKEND_URL}/verify-identity`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email: emailLS })
-  });
-  const data = await res.json();
+  try {
+    const res = await fetch(`${BACKEND_URL}/verify-identity`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: emailLS })
+    });
+    const data = await res.json();
 
-  if (data.valid) {
-    banner.style.display = "block";
-    handle.textContent = `${data.username}@iascendai`;
+    if (data.valid) {
+      banner.style.display = "block";
+      handle.textContent = `${data.username}@iascendai`;
 
-    nameInput.value = data.name;
-    emailInput.value = emailLS;
+      nameInput.value = data.name;
+      emailInput.value = emailLS;
 
-    nameInput.readOnly = true;
-    emailInput.readOnly = true;
+      nameInput.readOnly = true;
+      emailInput.readOnly = true;
+    }
+  } catch (err) {
+    console.warn("Identity hydration failed", err);
   }
-} catch (err) {
-  console.warn("Identity hydration failed", err);
 }
 
-}
 hydrateIdentity();
 
 // ------------------------------------------------
 // 2. AMOUNT BUTTON LOGIC
 // ------------------------------------------------
 document.querySelectorAll(".amount-btn").forEach(btn => {
-btn.addEventListener("click", () => {
-document.querySelectorAll(".amount-btn").forEach(b => b.classList.remove("active"));
-btn.classList.add("active");
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".amount-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
 
-  if (btn.dataset.value === "custom") {
-    customAmount.style.display = "block";
-    selectedAmount = null;
-  } else {
-    customAmount.style.display = "none";
-    selectedAmount = parseFloat(btn.dataset.value);
-  }
-});
-
+    if (btn.dataset.value === "custom") {
+      customAmount.style.display = "block";
+      selectedAmount = null;
+    } else {
+      customAmount.style.display = "none";
+      selectedAmount = parseFloat(btn.dataset.value);
+    }
+  });
 });
 
 // ------------------------------------------------
 // 3. DONATE → STRIPE SESSION
 // ------------------------------------------------
 document.getElementById("donateBtn").onclick = async () => {
-const name = nameInput.value.trim();
-const email = emailInput.value.toLowerCase().trim();
+  const name = nameInput.value.trim();
+  const email = emailInput.value.toLowerCase().trim();
 
-let amount = selectedAmount;
-if (!amount) {
-  const raw = customAmount.value.trim();
-  if (raw) amount = parseFloat(raw);
-}
-
-if (!name || !email || !Number.isFinite(amount) || amount <= 0) {
-  alert("Please complete all fields with valid information.");
-  return;
-}
-
-localStorage.setItem("name", name);
-localStorage.setItem("email", email);
-
-try {
-  const res = await fetch(`${BACKEND_URL}/create-checkout-session`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ name, email, amount })
-  });
-
-  const data = await res.json();
-  if (data.url) {
-    window.location.href = data.url;
-  } else {
-    alert("Error creating checkout session.");
+  let amount = selectedAmount;
+  if (!amount) {
+    const raw = customAmount.value.trim();
+    if (raw) amount = parseFloat(raw);
   }
-} catch (err) {
-  console.error(err);
-  alert("Connection issue. Try again.");
-}
 
+  if (!name || !email || !Number.isFinite(amount) || amount <= 0) {
+    alert("Please complete all fields with valid information.");
+    return;
+  }
+
+  localStorage.setItem("name", name);
+  localStorage.setItem("email", email);
+
+  try {
+    const res = await fetch(`${BACKEND_URL}/create-checkout-session`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, email, amount })
+    });
+
+    const data = await res.json();
+    if (data.url) {
+      window.location.href = data.url;
+    } else {
+      alert("Error creating checkout session.");
+    }
+  } catch (err) {
+    console.error(err);
+    alert("Connection issue. Try again.");
+  }
 };
 </script>
 
