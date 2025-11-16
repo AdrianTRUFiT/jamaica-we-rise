@@ -119,8 +119,8 @@ const session = await stripe.checkout.sessions.create({
     }
   ],
   mode: "payment",
-  success_url: `${FRONTEND_URL}/success.html?session_id={CHECKOUT_SESSION_ID}`,
-  cancel_url: `${FRONTEND_URL}/index.html`
+success_url: `${FRONTEND_URL}/success.html?session_id={CHECKOUT_SESSION_ID}`,
+cancel_url: `${FRONTEND_URL}/index.html`,
 });
 
 logEvent("access", `Checkout created for ${email} → $${amount}`);
