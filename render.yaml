@@ -1,41 +1,53 @@
 services:
+  # ======================================================
+  # BACKEND — Node Web Service (Express + Stripe + Registry)
+  # ======================================================
+  - type: web
+    name: jamaica-we-rise-backend
+    env: node
+    plan: starter
+    region: oregon
 
-- type: web
-name: jamaica-we-rise-backend
-env: node
-plan: starter
-region: oregon
-buildCommand: "npm install"
-startCommand: "node server.js"
-autoDeploy: true
-    
+    buildCommand: "npm install"
+    startCommand: "node server.js"
+    autoDeploy: true
+
     envVars:
-    
-    - key: NODE_VERSION
-    value: "18.20.0"
-    - key: MODE
-    value: "production"
-    - key: STRIPE_SECRET_KEY
-    sync: false
-    - key: FRONTEND_URL
-    value: "[https://jamaica-we-rise.vercel.app](https://jamaica-we-rise.vercel.app/)"
-    - key: REGISTRY_PATH
-    value: "./data/registry.json"
-    - key: LOG_DIR
-    value: "./logs"
-    - key: SOULMARK_SALT
-    sync: false
-    
+      - key: NODE_VERSION
+        value: "18.20.0"
+
+      - key: MODE
+        value: "production"
+
+      - key: STRIPE_SECRET_KEY
+        sync: false
+
+      - key: FRONTEND_URL
+        value: "https://jamaica-we-rise.vercel.app"
+
+      - key: REGISTRY_PATH
+        value: "/data/registry.json"
+
+      - key: LOG_DIR
+        value: "/data/logs"
+
+      - key: SOULMARK_SALT
+        sync: false
+
     disk:
-    name: registry-disk
-    mountPath: /data
-    sizeGB: 1
-    
-- type: static
-name: jamaica-we-rise-frontend
-buildCommand: ""
-staticPublishPath: "public"
-autoDeploy: true
-env:
-    - key: BACKEND_URL
-    value: "[https://jamaica-we-rise-backend.onrender.com](https://jamaica-we-rise-backend.onrender.com/)"
+      name: registry-disk
+      mountPath: /data
+      sizeGB: 1
+
+  # ======================================================
+  # FRONTEND — Static Hosting (Vercel equivalent on Render)
+  # ======================================================
+  - type: static
+    name: jamaica-we-rise-frontend
+    buildCommand: ""
+    staticPublishPath: "public"
+    autoDeploy: true
+
+    envVars:
+      - key: BACKEND_URL
+        value: "https://jamaica-we-rise-backend.onrender.com"
