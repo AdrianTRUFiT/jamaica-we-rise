@@ -4,11 +4,10 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport"
-content="width=device-width, initial-scale=1.0" />
+      content="width=device-width, initial-scale=1.0" />
 
 <title>SoulRegistryⓈ Directory | Jamaica We Rise × iAscendAi</title>
 
-<!-- Load CONFIG -->
 <script type="module">
 import { CONFIG } from "./config.js";
 window.CONFIG = CONFIG;
@@ -16,16 +15,15 @@ window.CONFIG = CONFIG;
 
 <style>
 body {
-font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif;
-background: linear-gradient(145deg, #03131f 0%, #041423 50%, #020c15 100%);
-color: #fff;
-min-height: 100vh;
-margin: 0;
-padding: 40px 20px;
-position: relative;
+  font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif;
+  background: linear-gradient(145deg, #03131f 0%, #041423 50%, #020c15 100%);
+  color: #fff;
+  min-height: 100vh;
+  margin: 0;
+  padding: 40px 20px;
+  position: relative;
 }
 
-/* Logout Button */
 .logout-btn {
   position: absolute;
   top: 18px;
@@ -42,11 +40,11 @@ position: relative;
 
 h1 {
   text-align:center;
-  font-size:2.8em;
+  font-size:2.6em;
   background:linear-gradient(135deg,#fed103,#059c3a);
   -webkit-background-clip:text;
   -webkit-text-fill-color:transparent;
-  margin-bottom:10px;
+  margin-bottom:14px;
 }
 
 p {
@@ -116,7 +114,6 @@ p {
   margin-top:10px;
   display:inline-block;
 }
-
 </style>
 </head>
 
@@ -132,8 +129,8 @@ p {
 <div id="registry" class="registry" style="display:none;"></div>
 
 <div class="footer">
-<p>© 2025 iAscendAi • SoulRegistryⓈ Public Ledger</p>
-<a href="iascendai-dashboard.html">← Back to Dashboard</a>
+  <p>© 2025 iAscendAi • SoulRegistryⓈ Public Ledger</p>
+  <a href="iascendai-dashboard.html">← Back to Dashboard</a>
 </div>
 
 <script type="module">
@@ -142,7 +139,7 @@ const BACKEND_URL = CONFIG.BACKEND_URL;
 
 document.getElementById("logoutBtn").onclick = () => {
   localStorage.clear();
-  window.location.href = "index.html";
+  window.location.href = "iascendai-login.html";
 };
 
 async function loadRegistry() {
@@ -161,8 +158,8 @@ async function loadRegistry() {
     }
 
     identities.sort((a, b) => {
-      const ta = new Date(a.createdAt || 0).getTime();
-      const tb = new Date(b.createdAt || 0).getTime();
+      const ta = new Date(a.createdAt || a.timestamp || 0).getTime();
+      const tb = new Date(b.createdAt || b.timestamp || 0).getTime();
       return tb - ta;
     });
 
@@ -170,20 +167,25 @@ async function loadRegistry() {
     registryContainer.style.display = "grid";
 
     registryContainer.innerHTML = identities.map(entry => {
-      const display =
+      const displayName =
         entry.displayIdentity === "real"
-          ? entry.name || "—"
+          ? (entry.name || "—")
           : entry.displayIdentity === "anonymous"
           ? "Anonymous"
-          : `${entry.username}@iascendai`;
+          : entry.username
+            ? `${entry.username}@iascendai`
+            : "—";
 
       return `
         <div class="entry">
-          <h2>${display}</h2>
+          <h2>${displayName}</h2>
+
           <p><strong>Username:</strong> ${
             entry.username ? `${entry.username}@iascendai` : "—"
           }</p>
+
           <p><strong>SoulMarkⓈ:</strong> ${entry.soulmark || "—"}</p>
+
           <p class="verified">✔ Verified Identity</p>
         </div>
       `;
@@ -196,7 +198,6 @@ async function loadRegistry() {
 }
 
 loadRegistry();
-
 </script>
 
 </body>
