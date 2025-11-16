@@ -1,276 +1,250 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Login | iAscendAi Identity Engine</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Login | iAscendAi Identity Engine</title>
 
-  <script type="module">
-    import { CONFIG } from "./config.js";
-    window.CONFIG = CONFIG;
-  </script>
+<script type="module">
+import { CONFIG } from "./config.js";
+window.CONFIG = CONFIG;
+</script>
 
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+<style>
+/* -------- GLOBAL RESET -------- */
+* { margin:0; padding:0; box-sizing:border-box; }
 
-    :root {
-      --bg-dark: #020617;
-      --bg-deep: #0b1220;
-      --accent: #f4a349;
-      --accent-soft: #ffb76b;
-      --text-main: #e5e7eb;
-      --text-soft: #9ca3af;
-      --error: #f97373;
-      --success: #4ade80;
-      --input-bg: rgba(255,255,255,0.06);
-    }
+:root {
+  --bg-dark:#020617;
+  --accent:#f4a349;
+  --accent-soft:#ffb76b;
+  --text:#e5e7eb;
+  --text-soft:#9ca3af;
+  --input-bg:rgba(255,255,255,0.06);
+  --error:#f97373;
+  --success:#4ade80;
+}
 
-    body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      background: radial-gradient(circle at top, #1e2638 0%, #020617 45%, #000 100%);
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 24px;
-      color: var(--text-main);
-    }
+/* -------- PAGE -------- */
+body {
+  font-family:-apple-system,BlinkMacSystemFont,"Inter",Roboto,sans-serif;
+  background:radial-gradient(circle at top,#1e2638 0%,#020617 45%,#000 100%);
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  padding:24px;
+  color:var(--text);
+}
 
-    .container {
-      width: 100%;
-      max-width: 440px;
-      background: rgba(15,23,42,0.92);
-      border-radius: 22px;
-      border: 1px solid rgba(255,255,255,0.08);
-      box-shadow: 0 26px 65px rgba(0,0,0,0.9);
-      padding: 32px 26px 28px;
-    }
+/* -------- CARD -------- */
+.container {
+  width:100%;
+  max-width:440px;
+  background:rgba(15,23,42,0.92);
+  border-radius:22px;
+  border:1px solid rgba(255,255,255,0.08);
+  padding:32px 26px 28px;
+  box-shadow:0 26px 65px rgba(0,0,0,0.9);
+}
 
-    .logo-img {
-      width: 140px;
-      display: block;
-      margin: 0 auto 18px auto;
-      opacity: 0.95;
-    }
+.logo-img {
+  width:140px;
+  display:block;
+  margin:0 auto 18px auto;
+}
 
-    .title {
-      text-align: center;
-      font-size: 1.6rem;
-      font-weight: 800;
-      color: var(--accent);
-      margin-top: 6px;
-    }
+.title {
+  text-align:center;
+  font-size:1.6rem;
+  font-weight:800;
+  color:var(--accent);
+}
 
-    .subtitle {
-      text-align: center;
-      font-size: 0.92rem;
-      color: var(--text-soft);
-      margin-top: 4px;
-      margin-bottom: 24px;
-    }
+.subtitle {
+  text-align:center;
+  font-size:0.92rem;
+  color:var(--text-soft);
+  margin-bottom:24px;
+}
 
-    .form-group {
-      margin-bottom: 18px;
-    }
+/* -------- FORM -------- */
+.form-group { margin-bottom:18px; }
 
-    label {
-      display: block;
-      font-size: 0.9rem;
-      font-weight: 600;
-      color: var(--text-main);
-      margin-bottom: 6px;
-    }
+label {
+  font-size:0.9rem;
+  font-weight:600;
+  margin-bottom:6px;
+  display:block;
+}
 
-    input {
-      width: 100%;
-      padding: 13px 14px;
-      border-radius: 12px;
-      border: 1px solid rgba(255,255,255,0.14);
-      background: var(--input-bg);
-      color: var(--text-main);
-      font-size: 0.95rem;
-    }
+input {
+  width:100%;
+  padding:13px 14px;
+  border-radius:12px;
+  background:var(--input-bg);
+  border:1px solid rgba(255,255,255,0.14);
+  font-size:0.95rem;
+  color:var(--text);
+}
 
-    input::placeholder {
-      color: rgba(255,255,255,0.4);
-    }
+input:focus {
+  outline:none;
+  border-color:var(--accent);
+  box-shadow:0 0 0 2px rgba(244,163,73,0.4);
+}
 
-    input:focus {
-      outline: none;
-      border-color: var(--accent-soft);
-      box-shadow: 0 0 0 2px rgba(244,163,73,0.4);
-    }
+.status {
+  font-size:0.82rem;
+  min-height:18px;
+  margin-top:-6px;
+  margin-bottom:12px;
+}
 
-    .status {
-      font-size: 0.82rem;
-      min-height: 18px;
-      margin-top: -8px;
-      margin-bottom: 12px;
-    }
+.status.ok { color:var(--success); }
+.status.bad { color:var(--error); }
 
-    .status.ok {
-      color: var(--success);
-    }
+/* -------- BUTTON -------- */
+.submit-btn {
+  width:100%;
+  padding:14px;
+  border-radius:999px;
+  border:none;
+  font-size:1rem;
+  font-weight:750;
+  cursor:pointer;
+  background:linear-gradient(135deg,var(--accent),var(--accent-soft));
+  color:#04101f;
+  box-shadow:0 18px 44px rgba(0,0,0,0.7);
+}
 
-    .status.bad {
-      color: var(--error);
-    }
+.submit-btn:hover:not(:disabled) {
+  transform:translateY(-2px);
+  box-shadow:0 24px 55px rgba(0,0,0,1);
+}
 
-    .submit-btn {
-      width: 100%;
-      padding: 14px;
-      font-size: 1rem;
-      font-weight: 750;
-      border-radius: 999px;
-      border: none;
-      cursor: pointer;
-      background: linear-gradient(135deg, var(--accent), var(--accent-soft));
-      color: #04101f;
-      box-shadow: 0 18px 44px rgba(0,0,0,0.8);
-      transition: all 0.18s ease;
-      margin-top: 6px;
-    }
+.submit-btn:disabled { opacity:0.5; }
 
-    .submit-btn:hover:not(:disabled) {
-      transform: translateY(-2px);
-      box-shadow: 0 26px 55px rgba(0,0,0,1);
-    }
+/* -------- FOOTER LINKS -------- */
+.footer-links {
+  text-align:center;
+  margin-top:20px;
+  font-size:0.82rem;
+  color:var(--text-soft);
+}
 
-    .submit-btn:disabled {
-      opacity: 0.55;
-      cursor: default;
-    }
-
-    .footer-links {
-      margin-top: 18px;
-      text-align: center;
-      font-size: 0.82rem;
-      color: var(--text-soft);
-    }
-
-    .footer-links a {
-      color: var(--accent-soft);
-      text-decoration: none;
-      font-weight: 600;
-    }
-
-    .footer-links a:hover {
-      text-decoration: underline;
-    }
-  </style>
+.footer-links a {
+  color:var(--accent-soft);
+  font-weight:600;
+  text-decoration:none;
+}
+</style>
 </head>
 
 <body>
-  <div class="container">
+<div class="container">
 
-    <img src="assets/iAscendAi-logo-small.png" class="logo-img" alt="iAscendAi Logo" />
+  <img src="assets/iAscendAi-logo-small.png" class="logo-img" />
 
-    <div class="title">Login</div>
-    <div class="subtitle">Sign in to continue.</div>
+  <div class="title">Login</div>
+  <div class="subtitle">Sign in to continue.</div>
 
-    <form id="loginForm">
-      <div class="form-group">
-        <label for="username">Username</label>
-        <input id="username" name="username" type="text" placeholder="yourname" />
-      </div>
-
-      <div class="form-group">
-        <label for="accessKey">Access Key</label>
-        <input id="accessKey" name="accessKey" type="password" placeholder="Enter your Access Key" />
-      </div>
-
-      <div id="status" class="status"></div>
-
-      <button id="submitBtn" class="submit-btn" type="submit">
-        Log In
-      </button>
-    </form>
-
-    <div class="footer-links">
-      <a href="iascendai-verify.html">Forgot Identity?</a>
-      &nbsp;&bull;&nbsp;
-      <a href="iascendai-register.html">Create Identity</a>
+  <form id="loginForm">
+    <div class="form-group">
+      <label for="identifier">Username or Email</label>
+      <input id="identifier" placeholder="yourname or you@example.com" />
     </div>
 
+    <div class="form-group">
+      <label for="accessKey">Access Key</label>
+      <input id="accessKey" type="password" placeholder="Enter your Access Key" />
+    </div>
+
+    <div id="status" class="status"></div>
+
+    <button id="submitBtn" class="submit-btn" type="submit">
+      Log In
+    </button>
+  </form>
+
+  <div class="footer-links">
+    <a href="iascendai-verify.html">Forgot Identity?</a> &bull;
+    <a href="iascendai-register.html">Create Identity</a>
   </div>
 
-  <script>
-    const BACKEND_URL = (window.CONFIG && window.CONFIG.BACKEND_URL) || "";
+</div>
 
-    const usernameInput = document.getElementById("username");
-    const accessKeyInput = document.getElementById("accessKey");
-    const statusEl = document.getElementById("status");
-    const submitBtn = document.getElementById("submitBtn");
+<script type="module">
+import { CONFIG } from "./config.js";
+const BACKEND_URL = CONFIG.BACKEND_URL;
 
-    document.getElementById("loginForm").addEventListener("submit", async (e) => {
-      e.preventDefault();
+const idInput = document.getElementById("identifier");
+const keyInput = document.getElementById("accessKey");
+const statusEl = document.getElementById("status");
+const submitBtn = document.getElementById("submitBtn");
 
-      const username = usernameInput.value.trim().toLowerCase().replace(/[^a-z0-9._-]/g, "");
-      const accessKey = accessKeyInput.value.trim();
+document.getElementById("loginForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
 
-      if (!username || !accessKey) {
-        statusEl.textContent = "Enter both username and access key.";
-        statusEl.className = "status bad";
-        return;
-      }
+  const identifier = idInput.value.trim().toLowerCase();
+  const accessKey = keyInput.value.trim();
 
-      submitBtn.disabled = true;
-      submitBtn.textContent = "Checking…";
-      statusEl.className = "status";
-      statusEl.textContent = "Validating identity…";
+  if (!identifier || !accessKey) {
+    statusEl.textContent = "Please enter your username/email and access key.";
+    statusEl.className = "status bad";
+    return;
+  }
 
-      try {
-        // Check username exists
-        const res = await fetch(`${BACKEND_URL}/check-username/${encodeURIComponent(username)}`);
-        const data = await res.json();
+  submitBtn.disabled = true;
+  submitBtn.textContent = "Authenticating…";
 
-        if (data && data.available === false) {
-          // Validate Access Key against what user set during registration
-          const savedKey = localStorage.getItem(`accessKey_${username}`);
-
-          if (!savedKey) {
-            statusEl.textContent = "Access Key not found. You may need to reset or re-register.";
-            statusEl.className = "status bad";
-            submitBtn.disabled = false;
-            submitBtn.textContent = "Log In";
-            return;
-          }
-
-          if (savedKey !== accessKey) {
-            statusEl.textContent = "Incorrect Access Key.";
-            statusEl.className = "status bad";
-            submitBtn.disabled = false;
-            submitBtn.textContent = "Log In";
-            return;
-          }
-
-          // SUCCESS — Login
-          statusEl.textContent = "Identity Verified. Opening Dashboard…";
-          statusEl.className = "status ok";
-
-          localStorage.setItem("username", username);
-
-          window.location.href = `iascendai-dashboard.html?username=${username}`;
-
-        } else {
-          statusEl.textContent = "Username not found.";
-          statusEl.className = "status bad";
-          submitBtn.disabled = false;
-          submitBtn.textContent = "Log In";
-        }
-      } catch (err) {
-        console.error("Login error:", err);
-        statusEl.textContent = "Unable to verify identity. Try again.";
-        statusEl.className = "status bad";
-        submitBtn.disabled = false;
-        submitBtn.textContent = "Log In";
-      }
+  try {
+    // Look up identity via backend
+    const res = await fetch(`${BACKEND_URL}/lookup-identity`, {
+      method: "POST",
+      headers: { "Content-Type":"application/json" },
+      body: JSON.stringify({ identifier })
     });
-  </script>
+
+    const data = await res.json();
+
+    if (!res.ok || !data.user) {
+      statusEl.textContent = "Identity not found.";
+      statusEl.className = "status bad";
+      submitBtn.disabled = false;
+      submitBtn.textContent = "Log In";
+      return;
+    }
+
+    // Validate accessKey
+    if (data.user.accessKey !== accessKey) {
+      statusEl.textContent = "Incorrect Access Key.";
+      statusEl.className = "status bad";
+      submitBtn.disabled = false;
+      submitBtn.textContent = "Log In";
+      return;
+    }
+
+    // SUCCESS
+    statusEl.textContent = "Identity Verified. Opening Dashboard…";
+    statusEl.className = "status ok";
+
+    localStorage.setItem("username", data.user.username);
+    localStorage.setItem("email", data.user.email);
+    localStorage.setItem("soulmark", data.user.soulmark);
+
+    window.location.href = `iascendai-dashboard.html?username=${data.user.username}`;
+
+  } catch (err) {
+    console.error(err);
+    statusEl.textContent = "Unable to verify identity.";
+    statusEl.className = "status bad";
+  }
+
+  submitBtn.disabled = false;
+  submitBtn.textContent = "Log In";
+});
+</script>
 
 </body>
 </html>
