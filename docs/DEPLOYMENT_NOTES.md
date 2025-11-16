@@ -1,38 +1,45 @@
-# ⚙️ Deployment Notes — Jamaica We Rise × iAscendAi
+⚙️ Deployment Notes — Jamaica We Rise × iAscendAi (FINAL)
 
-## 🧭 Overview
-This document explains how to set up, run, and maintain the **Jamaica We Rise** donation + identity system — from local development to full production deployment.
+Updated: November 16, 2025
+Aligned to Master Backend Build (SoulMark SHA3-256 Engine)
 
-It covers:
+⸻
 
-- Environment setup  
-- Backend configuration  
-- Stripe integration  
-- Local + cloud deployment  
-- Troubleshooting  
-- Security + maintenance  
-- Validation checklists  
+🧭 Overview
 
----
+This document explains how to install, run, deploy, and maintain the Jamaica We Rise × iAscendAi system:
+	•	Backend setup
+	•	Environment variables (.env)
+	•	Stripe integration
+	•	Local development
+	•	Production deployment (Render + Vercel)
+	•	Logs & monitoring
+	•	File structure
+	•	Troubleshooting
+	•	Security practices
+	•	Deployment verification
 
-## 🧰 Requirements
+Everything here matches the final server.js you approved.
 
-| Tool | Version | Notes |
-|------|---------|-------|
-| **Node.js** | ≥ 18.x | Required for backend |
-| **npm** | ≥ 9.x | Install dependencies |
-| **Stripe Account** | Test + Live Keys | Required for donations |
-| **Git** | Optional | For version control / deployment |
+⸻
 
----
+🧰 Requirements
 
-## 🗂️ Folder Structure
+Tool	Version	Notes
+Node.js	≥ 18.x	Required for backend
+npm	≥ 9.x	Dependency management
+Stripe Account	Test + Live Keys	Required for donations
+Git	Optional	Deployment & version control
+
+
+⸻
+
+🗂️ Folder Structure (Correct)
 
 jamaica-we-rise/
 ├── server.js
-├── config.js
-├── .env
 ├── package.json
+├── .env
 ├── data/
 │   └── registry.json
 ├── logs/
@@ -43,122 +50,137 @@ jamaica-we-rise/
 │   ├── index.html
 │   ├── success.html
 │   ├── iascendai-register.html
+│   ├── iascendai-login.html
 │   ├── iascendai-dashboard.html
 │   ├── iascendai-verify.html
 │   ├── soulregistry.html
-│   └── impact.html
+│   ├── impact-dashboard.html
+│   └── config.js
 └── docs/
-├── API_REFERENCE.md
-├── SYSTEM_OVERVIEW.md
-└── DEPLOYMENT_NOTES.md
+    ├── API_REFERENCE.md
+    ├── SYSTEM_OVERVIEW.md
+    └── DEPLOYMENT_NOTES.md
 
----
 
-## 🔐 Environment Configuration (`.env`)
+⸻
 
-Create `.env` in your root folder:
+🔐 Environment Configuration (.env)
 
-============================
+Create .env in your project ROOT:
 
-JAMAICA WE RISE — BACKEND
-
-============================
-
-MODE: test | production
-
-MODE=test
-
-—————————–
-
-STRIPE CONFIGURATION
-
-—————————–
-
-STRIPE_SECRET_KEY=<your_test_or_live_secret_key>
-STRIPE_PUBLISHABLE_KEY=<your_test_or_live_publishable_key>
-
-—————————–
-
-FRONTEND CONFIGURATION
-
-—————————–
-
-Local development:
-
-FRONTEND_URL=http://127.0.0.1:3000
-
-Production:
-
-FRONTEND_URL=https://jamaica-we-rise.vercel.app
-
-PORT=10000
-
-Switch to live mode by changing:
+###############################
+# JAMAICA WE RISE — BACKEND
+###############################
 
 MODE=production
+PORT=10000
 
----
+###############################
+# STRIPE CONFIGURATION
+###############################
+STRIPE_SECRET_KEY=sk_live_xxx
 
-## 🚀 Local Development Setup
+###############################
+# FRONTEND CONFIGURATION
+###############################
+FRONTEND_URL=https://jamaica-we-rise.vercel.app
 
-### 1. Install dependencies
-```bash
+###############################
+# SOULMARK ENGINE SETTINGS
+###############################
+SOULMARK_SALT=<secure_random_32_bytes>
+
+###############################
+# REGISTRY + LOGS
+###############################
+REGISTRY_PATH=./data/registry.json
+LOG_DIR=./logs
+
+
+⸻
+
+🚀 Local Development Setup
+
+1. Install dependencies
+
 npm install
 
 2. Start backend
 
 node server.js
 
-(Or with automatic reload:)
+Or with auto reload:
 
 npx nodemon server.js
 
-3. Run frontend
+3. Frontend
 
 Open:
 
 http://127.0.0.1:3000
 
-4. Test donation
+4. Test Stripe donation
 
-Use Stripe test card:
+Use test card:
 
 4242 4242 4242 4242
-Exp: Any future date
-CVC: 123
-ZIP: Any
+Exp: any future date  
+CVC: 123  
+ZIP: any  
 
 
 ⸻
 
-🌐 Deployment (Live)
+🌐 Live Deployment Model (Recommended)
 
-⭐ Recommended Hosting Model
+Backend → Render
+Frontend → Vercel
 
-Backend: Render / Railway / Fly.io
-Frontend: Vercel / Netlify / Cloudflare Pages
+⸻
+
+1. Deploy Backend (Render)
 
 Steps:
+	1.	Create Web Service
+	2.	Select Node environment
+	3.	Connect GitHub repo
+	4.	Add your environment variables in Render dashboard
+	5.	Set Node version ≥18
+	6.	Set build and start commands:
+	•	Build: npm install
+	•	Start: node server.js
 
-1. Deploy Backend
-	•	Create a new Web Service (Node environment)
-	•	Upload your repository
-	•	Add .env variables using Render/Railway dashboard
-	•	Make sure:
-	•	MODE=production
-	•	PORT=10000
-	•	STRIPE_SECRET_KEY is Live
-	•	FRONTEND_URL=https://jamaica-we-rise.vercel.app
+Required production env vars:
 
-2. Deploy Frontend
-	•	Upload your /public/ folder to Vercel or Netlify
-	•	Ensure all paths match names exactly (case-sensitive)
+MODE=production
+STRIPE_SECRET_KEY=sk_live_xxx
+FRONTEND_URL=https://jamaica-we-rise.vercel.app
+REGISTRY_PATH=./data/registry.json
+LOG_DIR=./logs
+SOULMARK_SALT=<secure_random_32_bytes>
 
-3. Update config.js (already done)
+
+⸻
+
+2. Deploy Frontend (Vercel)
+
+Vercel config (already correct):
+
+public/
+└── index.html
+└── *.html
+└── config.js   <-- points to BACKEND_URL
+
+Vercel automatically publishes everything inside /public.
+
+⸻
+
+3. Update config.js
+
+(This is the single source of truth for frontend URL → backend)
 
 export const CONFIG = {
-  MODE: "production",
-  BACKEND_URL: "https://your-render-url.onrender.com"
+  BACKEND_URL: "https://jamaica-we-rise-backend.onrender.com"
 };
 
 
@@ -167,45 +189,49 @@ export const CONFIG = {
 📜 Logs & Monitoring
 
 File	Purpose
-logs/access.log	All API hits
-logs/error.log	Stripe errors + server crashes
-logs/event.log	Donation verification + identity registrations
+logs/access.log	Every API hit
+logs/error.log	Stripe errors / crashes
+logs/event.log	Donation + identity events
 
-View logs in real time:
+View logs live:
 
 tail -f logs/access.log
+tail -f logs/event.log
+tail -f logs/error.log
 
 
 ⸻
 
-⚠️ Troubleshooting Guide
+⚠️ Troubleshooting Guide (FINAL)
 
 Issue	Cause	Fix
-Donation page won’t redirect	Wrong FRONTEND_URL	Set correct domain in .env
-Success page shows blank data	session_id missing from URL	Ensure success_url uses {CHECKOUT_SESSION_ID}
-SoulMark not showing	Wrong registry key (soulmark vs soulMark)	All frontend files now normalized
-Dashboard empty	Registry not updating	Check file write permissions on Render
-CORS error	Domain mismatch	Update backend CORS whitelist
+Donation page not redirecting	Wrong FRONTEND_URL	Update .env
+Success page blank	Missing session_id	Ensure success_url uses {CHECKOUT_SESSION_ID}
+Identity not saving	Registry file missing	Ensure data/registry.json exists
+Dashboard empty	Registry not writing	Check Render file system permissions
+CORS errors	Domain mismatch	Update CORS whitelist in backend
+SoulMark missing	Wrong key on frontend	All pages now use soulmark (lowercase)
 
 
 ⸻
 
 🧩 Maintenance Notes
 
-Clear logs periodically:
+Clear logs
 
-rm logs/*.log && touch logs/access.log logs/error.log logs/event.log
+rm logs/*.log
+touch logs/access.log logs/error.log logs/event.log
 
-Backup registry regularly:
+Backup registry
 
 cp data/registry.json backups/registry_$(date +%F).json
 
-Update safely
-	1.	Switch to MODE=test
-	2.	Push code
-	3.	Validate Stripe test flow
-	4.	Review logs
-	5.	Switch to MODE=production
+Safe Update Procedure
+	1.	Set MODE to test
+	2.	Push changes
+	3.	Run Stripe test donation
+	4.	Verify SoulMark + registry
+	5.	Switch back to production
 
 ⸻
 
@@ -214,23 +240,24 @@ Update safely
 Step	Status
 .env configured	☐
 Backend deployed	☐
-FRONTEND_URL matches Vercel	☐
-Stripe test donation successful	☐
-SoulMark displayed in success.html	☐
-Registration creates identity	☐
-Dashboard shows live totals	☐
-Registry lists new entries	☐
+FRONTEND_URL correct	☐
+Stripe donation works	☐
+SoulMark appears on success.html	☐
+Registration → identity saved	☐
+Dashboard stats update	☐
+SoulRegistry shows new entries	☐
 
 
 ⸻
 
 🔒 Security Recommendations
-	•	Never commit .env to GitHub
+	•	Do NOT commit .env to GitHub
 	•	Rotate Stripe keys every 90 days
-	•	Restrict backend CORS to known frontend domains
-	•	Ensure registry.json cannot be overwritten publicly
-	•	Use HTTPS always
-	•	Monitor logs for repeated failed access attempts
+	•	Keep registry.json read/write protected
+	•	Only allow known domains in CORS
+	•	Always use HTTPS
+	•	Save logs (important for disputes)
+	•	Salt must remain secret
 
 ⸻
 
@@ -238,8 +265,13 @@ Registry lists new entries	☐
 
 Adrian TRUFiT McKenzie
 Founder — BizTech Wellness AI × iAscendAi
-Builder of SoulMarkⓈ Integrity Infrastructure, Authored Intelligence, and VIBEⓈ-aligned digital verification systems.
+Builder of SoulMarkⓈ integrity, authored identity, and next-era humanitarian verification systems.
 
----
+⸻
 
+If you’re ready, I can now update:
+
+✅ SYSTEM_OVERVIEW.md
+or
+✅ Navigation_Manifest_Jamaica-WeRise.yaml
 
