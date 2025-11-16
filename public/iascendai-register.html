@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Create Identity | iAscendAi</title>
+  <title>Create Your Identity | iAscendAi</title>
 
   <script type="module">
     import { CONFIG } from "./config.js";
@@ -11,14 +11,61 @@
   </script>
 
   <style>
-    * { margin:0; padding:0; box-sizing:border-box; }
-    body { background:#020617; color:#e5e7eb; padding:22px; font-family:Inter, sans-serif; }
-    .container { max-width:620px; margin:auto; padding:32px; background:rgba(15,23,42,0.8); border-radius:22px; }
-    h1 { text-align:center; background:linear-gradient(120deg,#fed103,#4ade80); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
-    label { font-size:0.9rem; font-weight:600; margin-top:14px; display:block; }
-    input { width:100%; padding:12px; border-radius:10px; border:1px solid rgba(148,163,184,0.45); background:rgba(15,23,42,0.95); color:white; }
-    button { width:100%; padding:16px; border:none; margin-top:22px; border-radius:999px; background:linear-gradient(135deg,#f4a349,#fed103); color:#041423; font-weight:700; cursor:pointer; }
-    .error { color:#f87171; margin-top:12px; text-align:center; }
+    body {
+      margin: 0;
+      background: #0a1020;
+      font-family: Inter, sans-serif;
+      color: #e8f1ff;
+    }
+    .container {
+      max-width: 520px;
+      margin: 40px auto;
+      padding: 24px;
+      background: rgba(255,255,255,0.04);
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.07);
+    }
+    h1 {
+      text-align: center;
+      color: #9fe870;
+      margin-bottom: 8px;
+      font-size: 26px;
+    }
+    .field {
+      margin-bottom: 18px;
+    }
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 14px;
+      color: #8fb6e8;
+    }
+    input, select {
+      width: 100%;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.06);
+      color: #fff;
+      font-size: 16px;
+    }
+    button {
+      width: 100%;
+      padding: 14px;
+      font-size: 18px;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+      background: linear-gradient(90deg, #ffb400, #ff8600);
+      color: #000;
+      margin-top: 10px;
+    }
+    .error {
+      margin-top: 8px;
+      color: #ff6b6b;
+      text-align: center;
+    }
   </style>
 </head>
 
@@ -26,64 +73,93 @@
   <div class="container">
     <h1>Create Your Identity</h1>
 
-    <form id="regForm">
-      <label>Full Name</label>
-      <input id="name" required />
-
+    <div class="field">
       <label>Email</label>
-      <input id="email" type="email" required />
+      <input id="email" type="email" readonly />
+    </div>
 
+    <div class="field">
       <label>Choose Username</label>
-      <input id="username" required />
-      
-      <div class="error" id="errorBox"></div>
+      <input id="username" placeholder="yourname" />
+      <div id="usernameStatus" class="error"></div>
+    </div>
 
-      <button>Create Identity</button>
-    </form>
+    <button id="registerBtn">Create My Identity</button>
+    <div id="errorMsg" class="error"></div>
   </div>
 
-  <script type="module">
-    import { CONFIG } from "./config.js";
-    const BACKEND_URL = CONFIG.BACKEND_URL;
+  <script>
+    const emailInput = document.getElementById("email");
+    const usernameInput = document.getElementById("username");
+    const usernameStatus = document.getElementById("usernameStatus");
+    const registerBtn = document.getElementById("registerBtn");
+    const errorMsg = document.getElementById("errorMsg");
 
-    document.getElementById("regForm").onsubmit = async (e) => {
-      e.preventDefault();
+    // Autofill from localStorage
+    emailInput.value = localStorage.getItem("email") || "";
 
-      const name     = document.getElementById("name").value.trim();
-      const email    = document.getElementById("email").value.trim().toLowerCase();
-      const username = document.getElementById("username").value.trim().toLowerCase();
+    async function checkUsername(username) {
+      if (!username) return;
 
-      const soulmark = localStorage.getItem("donor_soulmark") || "";
+      const res = await fetch(`${window.CONFIG.BACKEND_URL}/check-username/${username}`);
+      const data = await res.json();
 
-      const errorBox = document.getElementById("errorBox");
-      errorBox.textContent = "";
-
-      try {
-        const res = await fetch(`${BACKEND_URL}/register`, {
-          method:"POST",
-          headers:{ "Content-Type":"application/json" },
-          body: JSON.stringify({
-            name, email, username,
-            role:"supporter",
-            soulmark,
-            donationAmount: Number(localStorage.getItem("donation_amount") || 0),
-            displayIdentity:"username",
-            showDonationAmount:true
-          })
-        });
-
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error || "Registration failed.");
-
-        localStorage.setItem("username", data.user.username);
-        localStorage.setItem("email", data.user.email);
-        localStorage.setItem("soulmark", data.user.soulmark);
-
-        window.location.href = "iascendai-dashboard.html";
-      } catch (err) {
-        errorBox.textContent = err.message;
+      if (data.available) {
+        usernameStatus.style.color = "#9fe870";
+        usernameStatus.textContent = "✔ Username available";
+        return true;
+      } else {
+        usernameStatus.style.color = "#ff6b6b";
+        usernameStatus.textContent = "✖ Username already taken";
+        return false;
       }
-    };
+    }
+
+    usernameInput.addEventListener("input", () => {
+      const username = usernameInput.value.trim().toLowerCase();
+      checkUsername(username);
+    });
+
+    registerBtn.addEventListener("click", async () => {
+      const email = emailInput.value.trim();
+      const username = usernameInput.value.trim().toLowerCase();
+      const donation = localStorage.getItem("donation") || "";
+      const soulmark = localStorage.getItem("soulmark") || "";
+
+      if (!email || !username || !soulmark) {
+        errorMsg.textContent = "Missing required fields.";
+        return;
+      }
+
+      const available = await checkUsername(username);
+      if (!available) {
+        errorMsg.textContent = "Username is not available.";
+        return;
+      }
+
+      const res = await fetch(`${window.CONFIG.BACKEND_URL}/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email,
+          username,
+          soulmark,
+          display: username + "@iascendai",
+          donation: Number(donation),
+          status: "verified",
+        }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        // Save identity session
+        localStorage.setItem("username", username);
+        window.location.href = "/iascendai-dashboard.html";
+      } else {
+        errorMsg.textContent = data.error || "Registration failed.";
+      }
+    });
   </script>
 </body>
 </html>
