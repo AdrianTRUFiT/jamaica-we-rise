@@ -36,25 +36,24 @@ const PORT = process.env.PORT || 10000;
 
 // FRONTEND URL
 const FRONTEND_URL =
-  process.env.FRONTEND_URL || "https://jamaica-we-rise.vercel.app";
+  process.env.FRONTEND_URL ||
+  "https://jamaica-we-rise.vercel.app";
 
-// Registry file
-const REGISTRY_PATH =
-  process.env.REGISTRY_PATH || "./data/registry.json";
+// Registry + Logs (Render persistent disk)
+const REGISTRY_PATH = process.env.REGISTRY_PATH || "/data/registry.json";
+const LOG_DIR = process.env.LOG_DIR || "/data/logs";
 
-const LOG_DIR = process.env.LOG_DIR || "./logs";
-
-// Salt for SoulMark generation
+// Salt for SoulMark
 const SOULMARK_SALT =
   process.env.SOULMARK_SALT ||
   crypto.randomBytes(32).toString("hex");
 
-// Allowed CORS origins
+// Allowed CORS
 const allowedOrigins = [
-  "http://localhost:3000",
-  "http://127.0.0.1:3000",
-  "https://jamaica-we-rise.vercel.app",
+  FRONTEND_URL,
   "https://jamaica-we-rise.onrender.com",
+  "http://localhost:3000",
+  "http://127.0.0.1:3000"
 ];
 
 // ----------------------------
@@ -69,10 +68,9 @@ app.use(
 
 app.use(express.json());
 app.use(bodyParser.json());
-app.use(express.static("public"));
 
-// Ensure directories exist
-if (!fs.existsSync("./data")) fs.mkdirSync("./data", { recursive: true });
+// Ensure persistent dirs exist
+if (!fs.existsSync("/data")) fs.mkdirSync("/data", { recursive: true });
 if (!fs.existsSync(LOG_DIR)) fs.mkdirSync(LOG_DIR, { recursive: true });
 
 // ----------------------------
@@ -155,7 +153,7 @@ app.post("/create-checkout-session", async (req, res) => {
 });
 
 // =============================================================
-// 2. VERIFY DONATION (Stripe → SoulMark generation)
+// 2. VERIFY DONATION
 // =============================================================
 app.get("/verify-donation/:sessionId", async (req, res) => {
   const { sessionId } = req.params;
@@ -198,7 +196,7 @@ app.get("/verify-donation/:sessionId", async (req, res) => {
 });
 
 // =============================================================
-// 3. CHECK IF USERNAME IS AVAILABLE
+// 3. CHECK USERNAME
 // =============================================================
 app.get("/check-username/:username", (req, res) => {
   const username = req.params.username.toLowerCase();
@@ -212,7 +210,7 @@ app.get("/check-username/:username", (req, res) => {
 });
 
 // =============================================================
-// 4. REGISTER IDENTITY (Identity Non-Multiplication Law)
+// 4. REGISTER IDENTITY
 // =============================================================
 app.post("/register", (req, res) => {
   try {
@@ -234,7 +232,6 @@ app.post("/register", (req, res) => {
     const normEmail = normalizeEmail(email);
     const registry = loadRegistry();
 
-    // Identity Non-Multiplication Law
     const existing = registry.find(
       (r) => r.type === "identity" && normalizeEmail(r.email) === normEmail
     );
@@ -271,7 +268,7 @@ app.post("/register", (req, res) => {
 });
 
 // =============================================================
-// 5. LOOKUP IDENTITY (username OR email)
+// 5. LOOKUP IDENTITY
 // =============================================================
 app.post("/lookup-identity", (req, res) => {
   try {
@@ -302,7 +299,7 @@ app.post("/lookup-identity", (req, res) => {
 });
 
 // =============================================================
-// 6. REGISTRY (PUBLIC VIEW)
+// 6. REGISTRY (PUBLIC)
 // =============================================================
 app.get("/registry", (req, res) => {
   try {
