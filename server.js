@@ -1,4 +1,11 @@
-// Jamaica We Rise Backend — Production Baseline (Nov 15 2025 V1)
+// =============================================================
+//  JAMAICA WE RISE — BACKEND (FINAL MASTER VERSION)
+//  Identity Non-Multiplication Law ✓
+//  Verified Donation Flow ✓
+//  SoulMark SHA3-256 Engine ✓
+//  Secure Registry Writes ✓
+//  CORS for Render + Vercel ✓
+// =============================================================
 
 import dotenv from "dotenv";
 dotenv.config();
@@ -12,22 +19,37 @@ import bodyParser from "body-parser";
 import cors from "cors";
 
 const app = express();
-const MODE = process.env.MODE || "production";
-const stripeKey = process.env.STRIPE_SECRET_KEY;
 
-if (!stripeKey) {
+// ----------------------------
+// CONFIG
+// ----------------------------
+const MODE = process.env.MODE || "production";
+const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY;
+
+if (!STRIPE_SECRET_KEY) {
   console.error("❌ Missing STRIPE_SECRET_KEY");
   process.exit(1);
 }
 
-const stripe = new Stripe(stripeKey);
+const stripe = new Stripe(STRIPE_SECRET_KEY);
 const PORT = process.env.PORT || 10000;
 
-const FRONTEND_URL = process.env.FRONTEND_URL || "https://jamaica-we-rise.vercel.app";
-const REGISTRY_PATH = process.env.REGISTRY_PATH || "./data/registry.json";
-const LOG_DIR = process.env.LOG_DIR || "./logs";
-const SOULMARK_SALT = process.env.SOULMARK_SALT || crypto.randomBytes(32).toString("hex");
+// FRONTEND URL
+const FRONTEND_URL =
+  process.env.FRONTEND_URL || "https://jamaica-we-rise.vercel.app";
 
+// Registry file
+const REGISTRY_PATH =
+  process.env.REGISTRY_PATH || "./data/registry.json";
+
+const LOG_DIR = process.env.LOG_DIR || "./logs";
+
+// Salt for SoulMark generation
+const SOULMARK_SALT =
+  process.env.SOULMARK_SALT ||
+  crypto.randomBytes(32).toString("hex");
+
+// Allowed CORS origins
 const allowedOrigins = [
   "http://localhost:3000",
   "http://127.0.0.1:3000",
@@ -35,37 +57,46 @@ const allowedOrigins = [
   "https://jamaica-we-rise.onrender.com",
 ];
 
-app.use(cors({ origin: allowedOrigins, methods: ["GET", "POST", "OPTIONS"], credentials: true }));
+// ----------------------------
+// MIDDLEWARE
+// ----------------------------
+app.use(
+  cors({
+    origin: allowedOrigins,
+    methods: ["GET", "POST", "OPTIONS"],
+  })
+);
+
 app.use(express.json());
 app.use(bodyParser.json());
 app.use(express.static("public"));
 
-// Ensure data + logs directories exist
+// Ensure directories exist
 if (!fs.existsSync("./data")) fs.mkdirSync("./data", { recursive: true });
 if (!fs.existsSync(LOG_DIR)) fs.mkdirSync(LOG_DIR, { recursive: true });
 
-// Logging helper
-function logEvent(type, message) {
-  const line = `[${new Date().toISOString()}] [${type}] ${message}\n`;
+// ----------------------------
+// HELPERS
+// ----------------------------
+function logEvent(type, msg) {
+  const line = `[${new Date().toISOString()}] [${type}] ${msg}\n`;
   fs.appendFileSync(path.join(LOG_DIR, `${type}.log`), line);
 }
 
-// Registry load/save helpers
 function loadRegistry() {
   return fs.existsSync(REGISTRY_PATH)
     ? JSON.parse(fs.readFileSync(REGISTRY_PATH, "utf8"))
     : [];
 }
-function saveRegistry(registry) {
-  fs.writeFileSync(REGISTRY_PATH, JSON.stringify(registry, null, 2));
+
+function saveRegistry(data) {
+  fs.writeFileSync(REGISTRY_PATH, JSON.stringify(data, null, 2));
 }
 
-// Normalize emails
-function normalizeEmail(e) {
-  return e.toLowerCase().trim();
+function normalizeEmail(email) {
+  return email.toLowerCase().trim();
 }
 
-// Generate cryptographic SoulMark
 function generateSoulMark(email, timestamp) {
   const nonce = crypto.randomBytes(32).toString("hex");
   return crypto
@@ -74,9 +105,9 @@ function generateSoulMark(email, timestamp) {
     .digest("hex");
 }
 
-// -------------------------------------------------------
+// =============================================================
 // HEALTH CHECK
-// -------------------------------------------------------
+// =============================================================
 app.get("/health", (req, res) => {
   res.json({
     status: "ok",
@@ -86,14 +117,15 @@ app.get("/health", (req, res) => {
   });
 });
 
-// -------------------------------------------------------
-// CREATE CHECKOUT SESSION
-// -------------------------------------------------------
+// =============================================================
+// 1. CREATE STRIPE CHECKOUT SESSION
+// =============================================================
 app.post("/create-checkout-session", async (req, res) => {
   try {
     const { name, email, amount } = req.body;
+
     if (!email || !amount) {
-      return res.status(400).json({ error: "Missing email or amount" });
+      return res.status(400).json({ error: "Missing email or amount." });
     }
 
     const session = await stripe.checkout.sessions.create({
@@ -104,30 +136,27 @@ app.post("/create-checkout-session", async (req, res) => {
           price_data: {
             currency: "usd",
             product_data: { name: name || "Donation" },
-            unit_amount: Math.round(amount * 100),
+            unit_amount: Math.round(Number(amount) * 100),
           },
           quantity: 1,
         },
       ],
       mode: "payment",
-
-      // 🔥🔥 FIXED VERSION — VALID TEMPLATE FORMAT
       success_url: `${FRONTEND_URL}/success.html?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${FRONTEND_URL}/index.html`,
     });
 
     logEvent("access", `Checkout created for ${email} → $${amount}`);
     res.json({ url: session.url });
-
   } catch (err) {
     logEvent("error", `create-session: ${err.message}`);
     res.status(500).json({ error: err.message });
   }
 });
 
-// -------------------------------------------------------
-// VERIFY DONATION + RECORD TO REGISTRY
-// -------------------------------------------------------
+// =============================================================
+// 2. VERIFY DONATION (Stripe → SoulMark generation)
+// =============================================================
 app.get("/verify-donation/:sessionId", async (req, res) => {
   const { sessionId } = req.params;
 
@@ -137,11 +166,12 @@ app.get("/verify-donation/:sessionId", async (req, res) => {
     });
 
     if (!session || session.payment_status !== "paid") {
-      return res.status(404).json({ error: "Not paid" });
+      return res.status(404).json({ error: "Payment not completed." });
     }
 
     const email = session.customer_details?.email;
     const amount = session.amount_total / 100;
+
     const timestamp = Math.floor(Date.now() / 1000);
     const soulmark = generateSoulMark(email, timestamp);
 
@@ -159,19 +189,17 @@ app.get("/verify-donation/:sessionId", async (req, res) => {
     registry.push(record);
     saveRegistry(registry);
 
-    logEvent("event", `Verified donation ${email} → $${amount} / ${soulmark}`);
-
+    logEvent("event", `Donation verified ${email} → $${amount} / ${soulmark}`);
     res.json(record);
-
   } catch (err) {
     logEvent("error", `verify-donation: ${err.message}`);
-    res.status(500).json({ error: "Failed to verify" });
+    res.status(500).json({ error: "Verification failed" });
   }
 });
 
-// -------------------------------------------------------
-// CHECK USERNAME AVAILABILITY
-// -------------------------------------------------------
+// =============================================================
+// 3. CHECK IF USERNAME IS AVAILABLE
+// =============================================================
 app.get("/check-username/:username", (req, res) => {
   const username = req.params.username.toLowerCase();
   const registry = loadRegistry();
@@ -183,9 +211,9 @@ app.get("/check-username/:username", (req, res) => {
   res.json({ available: !exists });
 });
 
-// -------------------------------------------------------
-// REGISTER NEW IDENTITY
-// -------------------------------------------------------
+// =============================================================
+// 4. REGISTER IDENTITY (Identity Non-Multiplication Law)
+// =============================================================
 app.post("/register", (req, res) => {
   try {
     const {
@@ -200,17 +228,21 @@ app.post("/register", (req, res) => {
     } = req.body;
 
     if (!username || !name || !email) {
-      return res.status(400).json({ error: "Missing fields" });
+      return res.status(400).json({ error: "Missing required fields." });
     }
 
     const normEmail = normalizeEmail(email);
     const registry = loadRegistry();
 
-    const emailExists = registry.some(
+    // Identity Non-Multiplication Law
+    const existing = registry.find(
       (r) => r.type === "identity" && normalizeEmail(r.email) === normEmail
     );
-    if (emailExists) {
-      return res.status(400).json({ error: "Email already registered" });
+
+    if (existing) {
+      return res.status(400).json({
+        error: "Identity already exists. Log in instead.",
+      });
     }
 
     const userRecord = {
@@ -219,7 +251,8 @@ app.post("/register", (req, res) => {
       name,
       email: normEmail,
       role,
-      soulmark: soulmark || generateSoulMark(email, Math.floor(Date.now() / 1000)),
+      soulmark:
+        soulmark || generateSoulMark(normEmail, Math.floor(Date.now() / 1000)),
       donationAmount: donationAmount || null,
       displayIdentity,
       showDonationAmount: !!showDonationAmount,
@@ -229,55 +262,23 @@ app.post("/register", (req, res) => {
     registry.push(userRecord);
     saveRegistry(registry);
 
-    logEvent("event", `Registered @${username}`);
+    logEvent("event", `Identity created @${username}`);
     res.json({ ok: true, user: userRecord });
-
   } catch (err) {
     logEvent("error", `register: ${err.message}`);
     res.status(500).json({ error: err.message });
   }
 });
 
-// -------------------------------------------------------
-// VERIFY IDENTITY (EMAIL → USER RECORD)
-// -------------------------------------------------------
-app.post("/verify-identity", (req, res) => {
-  try {
-    const { email } = req.body;
-
-    if (!email) return res.status(400).json({ error: "Missing email" });
-
-    const norm = normalizeEmail(email);
-    const registry = loadRegistry();
-
-    const identity = registry.find(
-      (r) => r.type === "identity" && normalizeEmail(r.email) === norm
-    );
-
-    if (!identity) return res.json({ valid: false });
-
-    res.json({
-      valid: true,
-      username: identity.username,
-      name: identity.name,
-      soulmark: identity.soulmark,
-    });
-
-  } catch (err) {
-    logEvent("error", `verify-identity: ${err.message}`);
-    res.status(500).json({ error: "Failed" });
-  }
-});
-
-// -------------------------------------------------------
-// LOOKUP IDENTITY (username OR email)
-// -------------------------------------------------------
+// =============================================================
+// 5. LOOKUP IDENTITY (username OR email)
+// =============================================================
 app.post("/lookup-identity", (req, res) => {
   try {
     const { identifier } = req.body;
 
     if (!identifier) {
-      return res.status(400).json({ error: "Missing identifier" });
+      return res.status(400).json({ error: "Missing identifier." });
     }
 
     const norm = identifier.toLowerCase().trim();
@@ -289,31 +290,31 @@ app.post("/lookup-identity", (req, res) => {
         (r.username === norm || normalizeEmail(r.email) === norm)
     );
 
-    if (!match) return res.status(404).json({ error: "Not found" });
+    if (!match) {
+      return res.status(404).json({ error: "Identity not found." });
+    }
 
     res.json({ ok: true, user: match });
-
   } catch (err) {
-    logEvent("error", `lookup: ${err.message}`);
-    res.status(500).json({ error: "Failed" });
+    logEvent("error", `lookup-identity: ${err.message}`);
+    res.status(500).json({ error: "Lookup failed" });
   }
 });
 
-// -------------------------------------------------------
-// RETURN FULL REGISTRY (PUBLIC VIEW)
-// -------------------------------------------------------
+// =============================================================
+// 6. REGISTRY (PUBLIC VIEW)
+// =============================================================
 app.get("/registry", (req, res) => {
   try {
-    const data = loadRegistry();
-    res.json(data);
-  } catch {
-    res.status(500).json({ error: "Failed to read registry" });
+    res.json(loadRegistry());
+  } catch (err) {
+    res.status(500).json({ error: "Failed to read registry." });
   }
 });
 
-// -------------------------------------------------------
-// START SERVER
-// -------------------------------------------------------
+// =============================================================
+// SERVER START
+// =============================================================
 app.listen(PORT, () => {
-  console.log(`🔥 Jamaica We Rise API running in ${MODE.toUpperCase()} MODE on port ${PORT}`);
+  console.log(`\n🚀 Jamaica We Rise API running on port ${PORT}\n`);
 });
