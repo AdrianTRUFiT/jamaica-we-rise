@@ -77,7 +77,7 @@ app.post("/verify-soulmark", (req, res) => {
 
 // HEALTH CHECK
 app.get("/", (req, res) => {
-  res.send("Jamaica We Rise backend is running.");
+  res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
 // ⚠️ THIS IS THE FIX
