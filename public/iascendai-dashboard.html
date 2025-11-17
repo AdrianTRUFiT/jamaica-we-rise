@@ -7,7 +7,7 @@
 
   <script type="module">
     import { CONFIG } from "./config.js";
-  window.location.href = "https://jamaica-we-rise.vercel.app/iascendai-dashboard.html";
+    window.CONFIG = CONFIG;
   </script>
 
   <style>
@@ -258,7 +258,7 @@ const BACKEND_URL = (window.CONFIG && window.CONFIG.BACKEND_URL) || "";
 
 document.getElementById("logoutBtn").onclick = () => {
   localStorage.clear();
-  window.location.href = "iascendai-login.html";
+  window.location.href = "https://jamaica-we-rise.vercel.app/iascendai-login.html";
 };
 
 const statusTextEl = document.getElementById("statusText");
