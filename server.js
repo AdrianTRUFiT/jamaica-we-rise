@@ -11,29 +11,39 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-// PUBLIC DIR FOR HTML FILES
+// Resolve working directory
 const __dirname = path.resolve();
+
+// Serve static frontend files
 app.use(express.static(path.join(__dirname, "public")));
 
-// STRIPE SETUP
+// Stripe setup
 const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
 
-// ENSURE LOG FOLDERS EXIST (inside /data)
+// ----------- DISK / REGISTRY SETUP (Render persistent disk) -----------
 const dataDir = "/data";
-const logsDir = "/data/logs";
-
-if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir);
-if (!fs.existsSync(logsDir)) fs.mkdirSync(logsDir);
-
 const registryFile = "/data/registry.json";
-if (!fs.existsSync(registryFile)) {
-  fs.writeFileSync(registryFile, JSON.stringify([]));
-}
 
-// CREATE CHECKOUT SESSION
+// Create folder ONLY if allowed
+try {
+  if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
+  if (!fs.existsSync(registryFile)) {
+    fs.writeFileSync(registryFile, JSON.stringify([]));
+  }
+} catch (err) {
+  console.error("Disk setup error:", err);
+}
+// ----------------------------------------------------------------------
+
+
+// ---------------------------- STRIPE ROUTE ----------------------------
 app.post("/create-checkout-session", async (req, res) => {
   try {
     const { amount, email } = req.body;
+
+    if (!amount || !email) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
 
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
@@ -44,7 +54,7 @@ app.post("/create-checkout-session", async (req, res) => {
           price_data: {
             currency: "usd",
             product_data: { name: "Jamaica We Rise Donation" },
-            unit_amount: amount * 100,
+            unit_amount: Math.round(amount * 100),
           },
           quantity: 1,
         },
@@ -59,28 +69,36 @@ app.post("/create-checkout-session", async (req, res) => {
     res.status(500).json({ error: "Stripe session error" });
   }
 });
+// ----------------------------------------------------------------------
 
-// VERIFY SOULMARK + SAVE REGISTRY
+
+// ----------------------- VERIFY + SAVE SOULMARK ------------------------
 app.post("/verify-soulmark", (req, res) => {
   try {
     const entry = req.body;
 
     const registry = JSON.parse(fs.readFileSync(registryFile, "utf-8"));
     registry.push(entry);
+
     fs.writeFileSync(registryFile, JSON.stringify(registry, null, 2));
 
     res.json({ success: true, registry });
   } catch (err) {
+    console.error("Registry write error:", err);
     res.status(500).json({ error: "Registry write error" });
   }
 });
+// ----------------------------------------------------------------------
 
-// HEALTH CHECK
+
+// ------------------------------ ROOT ROUTE -----------------------------
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "index.html"));
+  res.send("Jamaica We Rise backend is running.");
 });
+// ----------------------------------------------------------------------
 
-// ⚠️ THIS IS THE FIX
+
+// ----------------------------- START SERVER ----------------------------
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Backend running on port ${PORT}`);
