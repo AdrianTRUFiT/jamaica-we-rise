@@ -1,6 +1,7 @@
 // =============================================================
-//  JAMAICA WE RISE — TEMPORARY CLEAN DEPLOY VERSION
-//  (NO /data writes → allows Render to upgrade instance)
+//  JAMAICA WE RISE — BACKEND (FREE PLAN COMPATIBLE)
+//  - Uses /tmp for registry + logs (ephemeral storage)
+//  - No /data directory, so it works on Render Free
 // =============================================================
 
 import dotenv from "dotenv";
@@ -21,14 +22,6 @@ const app = express();
 // ----------------------------
 const MODE = process.env.MODE || "production";
 const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY;
-const FRONTEND_URL =
-  process.env.FRONTEND_URL || "https://jamaica-we-rise.vercel.app";
-
-// *** TURN OFF all disk paths for now ***
-const REGISTRY_PATH = "/tmp/registry.json"; // temp in-memory path
-const SOULMARK_SALT =
-  process.env.SOULMARK_SALT ||
-  crypto.randomBytes(32).toString("hex");
 
 if (!STRIPE_SECRET_KEY) {
   console.error("❌ Missing STRIPE_SECRET_KEY");
@@ -37,6 +30,21 @@ if (!STRIPE_SECRET_KEY) {
 
 const stripe = new Stripe(STRIPE_SECRET_KEY);
 const PORT = process.env.PORT || 10000;
+
+// Frontend URL (Vercel)
+const FRONTEND_URL =
+  process.env.FRONTEND_URL || "https://jamaica-we-rise.vercel.app";
+
+// ***** IMPORTANT CHANGE: use /tmp (writable on free plan) *****
+const BASE_DIR = process.env.DATA_BASE_DIR || "/tmp/jamaica-we-rise";
+const REGISTRY_PATH =
+  process.env.REGISTRY_PATH || path.join(BASE_DIR, "registry.json");
+const LOG_DIR =
+  process.env.LOG_DIR || path.join(BASE_DIR, "logs");
+
+// Salt for SoulMark
+const SOULMARK_SALT =
+  process.env.SOULMARK_SALT || crypto.randomBytes(32).toString("hex");
 
 // Allowed CORS
 const allowedOrigins = [
@@ -59,36 +67,43 @@ app.use(
 app.use(express.json());
 app.use(bodyParser.json());
 
-// ----------------------------
-// SAFE LOGGER (console only)
-// ----------------------------
-function logEvent(type, msg) {
-  console.log(`[${type}] ${msg}`);
-}
-
-// ----------------------------
-// TEMP REGISTRY (Memory-based)
-// ----------------------------
-let memoryRegistry = [];
-
-function loadRegistry() {
-  try {
-    if (fs.existsSync(REGISTRY_PATH)) {
-      return JSON.parse(fs.readFileSync(REGISTRY_PATH, "utf8"));
-    }
-  } catch (e) {}
-  return memoryRegistry;
-}
-
-function saveRegistry(data) {
-  memoryRegistry = data; // no disk writes
-}
+// ***** IMPORTANT CHANGE: create /tmp-based dirs, not /data *****
+if (!fs.existsSync(BASE_DIR)) fs.mkdirSync(BASE_DIR, { recursive: true });
+if (!fs.existsSync(LOG_DIR)) fs.mkdirSync(LOG_DIR, { recursive: true });
 
 // ----------------------------
 // HELPERS
 // ----------------------------
+function logEvent(type, msg) {
+  const line = `[${new Date().toISOString()}] [${type}] ${msg}\n`;
+  const logFile = path.join(LOG_DIR, `${type}.log`);
+  try {
+    fs.appendFileSync(logFile, line);
+  } catch (err) {
+    console.error("Log write failed:", err.message);
+  }
+}
+
+function loadRegistry() {
+  try {
+    if (!fs.existsSync(REGISTRY_PATH)) return [];
+    return JSON.parse(fs.readFileSync(REGISTRY_PATH, "utf8"));
+  } catch (err) {
+    console.error("Registry read failed:", err.message);
+    return [];
+  }
+}
+
+function saveRegistry(data) {
+  try {
+    fs.writeFileSync(REGISTRY_PATH, JSON.stringify(data, null, 2));
+  } catch (err) {
+    console.error("Registry write failed:", err.message);
+  }
+}
+
 function normalizeEmail(email) {
-  return email.toLowerCase().trim();
+  return (email || "").toLowerCase().trim();
 }
 
 function generateSoulMark(email, timestamp) {
@@ -295,7 +310,7 @@ app.post("/lookup-identity", (req, res) => {
 });
 
 // =============================================================
-// 6. REGISTRY DUMP (memory-only)
+// 6. REGISTRY (PUBLIC)
 // =============================================================
 app.get("/registry", (req, res) => {
   try {
@@ -306,8 +321,8 @@ app.get("/registry", (req, res) => {
 });
 
 // =============================================================
-// START SERVER
+// SERVER START
 // =============================================================
 app.listen(PORT, () => {
-  console.log(`🚀 Jamaica We Rise API running on port ${PORT}`);
+  console.log(`\n🚀 Jamaica We Rise API running on port ${PORT}\n`);
 });
