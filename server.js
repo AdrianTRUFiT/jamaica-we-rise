@@ -5,6 +5,7 @@
 //  SoulMark SHA3-256 Engine ✓
 //  Secure Registry Writes ✓
 //  CORS for Render + Vercel ✓
+//  Render Persistent Disk Compatible ✓
 // =============================================================
 
 import dotenv from "dotenv";
@@ -36,24 +37,23 @@ const PORT = process.env.PORT || 10000;
 
 // FRONTEND URL
 const FRONTEND_URL =
-  process.env.FRONTEND_URL ||
-  "https://jamaica-we-rise.vercel.app";
+  process.env.FRONTEND_URL || "https://jamaica-we-rise.vercel.app";
 
-// Registry + Logs (Render persistent disk)
-const REGISTRY_PATH = process.env.REGISTRY_PATH || "/data/registry.json";
-const LOG_DIR = process.env.LOG_DIR || "/data/logs";
+// Render persistent disk paths
+const REGISTRY_PATH = "/data/registry.json";     // ALWAYS valid
+const LOG_DIR = "/data/logs";                    // ALWAYS valid
 
 // Salt for SoulMark
 const SOULMARK_SALT =
   process.env.SOULMARK_SALT ||
   crypto.randomBytes(32).toString("hex");
 
-// Allowed CORS
+// CORS
 const allowedOrigins = [
   FRONTEND_URL,
   "https://jamaica-we-rise.onrender.com",
   "http://localhost:3000",
-  "http://127.0.0.1:3000"
+  "http://127.0.0.1:3000",
 ];
 
 // ----------------------------
@@ -69,9 +69,22 @@ app.use(
 app.use(express.json());
 app.use(bodyParser.json());
 
-// Ensure persistent dirs exist
-if (!fs.existsSync("/data")) fs.mkdirSync("/data", { recursive: true });
-if (!fs.existsSync(LOG_DIR)) fs.mkdirSync(LOG_DIR, { recursive: true });
+// ----------------------------
+// ENSURE RENDER DISK FOLDERS EXIST
+// ----------------------------
+// NOTE: these NEVER touch root filesystem.
+// They ONLY write into Render's mounted disk.
+if (!fs.existsSync("/data")) {
+  console.log("⚠️  /data not found (Render will create automatically)");
+}
+
+if (!fs.existsSync(LOG_DIR)) {
+  fs.mkdirSync(LOG_DIR, { recursive: true });
+}
+
+if (!fs.existsSync(REGISTRY_PATH)) {
+  fs.writeFileSync(REGISTRY_PATH, "[]");
+}
 
 // ----------------------------
 // HELPERS
@@ -82,9 +95,7 @@ function logEvent(type, msg) {
 }
 
 function loadRegistry() {
-  return fs.existsSync(REGISTRY_PATH)
-    ? JSON.parse(fs.readFileSync(REGISTRY_PATH, "utf8"))
-    : [];
+  return JSON.parse(fs.readFileSync(REGISTRY_PATH, "utf8"));
 }
 
 function saveRegistry(data) {
@@ -169,7 +180,6 @@ app.get("/verify-donation/:sessionId", async (req, res) => {
 
     const email = session.customer_details?.email;
     const amount = session.amount_total / 100;
-
     const timestamp = Math.floor(Date.now() / 1000);
     const soulmark = generateSoulMark(email, timestamp);
 
