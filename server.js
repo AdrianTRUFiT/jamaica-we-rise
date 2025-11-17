@@ -10,7 +10,7 @@ dotenv.config();
 const app = express();
 app.use(express.json());
 
-// FIXED CORS (CRITICAL)
+// ------------ CORS (CRITICAL FOR VERCEL → RENDER CONNECTION) -------------
 app.use(
   cors({
     origin: [
@@ -23,28 +23,32 @@ app.use(
     allowedHeaders: ["Content-Type"]
   })
 );
+// ------------------------------------------------------------------------
 
-// Static path
+// Serve static frontend files
 const __dirname = path.resolve();
 app.use(express.static(path.join(__dirname, "public")));
 
 // Stripe setup
 const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
 
-// Registry Setup
+// ------------------- DISK STORAGE (RENDER PERSISTENT DISK) ----------------
 const dataDir = "/data";
 const registryFile = "/data/registry.json";
 
 try {
   if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
+
   if (!fs.existsSync(registryFile)) {
     fs.writeFileSync(registryFile, JSON.stringify([]));
   }
 } catch (err) {
   console.error("Disk setup error:", err);
 }
+// --------------------------------------------------------------------------
 
-// -------------------------- STRIPE SESSION --------------------------
+
+// ====================== CREATE CHECKOUT SESSION ===========================
 app.post("/create-checkout-session", async (req, res) => {
   try {
     const { amount, email } = req.body;
@@ -77,8 +81,10 @@ app.post("/create-checkout-session", async (req, res) => {
     res.status(500).json({ error: "Stripe session error" });
   }
 });
+// ==========================================================================
 
-// ------------------- REGISTRY / SOULMARK LOGGING --------------------
+
+// ======================== VERIFY + SAVE SOULMARK ==========================
 app.post("/verify-soulmark", (req, res) => {
   try {
     const entry = req.body;
@@ -94,19 +100,26 @@ app.post("/verify-soulmark", (req, res) => {
     res.status(500).json({ error: "Registry write error" });
   }
 });
+// ==========================================================================
 
-// Diagnostic
+
+// ========================== DIAGNOSTIC TEST ROUTE =========================
 app.get("/test", (req, res) => {
   res.json({ working: true, time: Date.now() });
 });
+// ==========================================================================
 
-// Root
+
+// ============================== ROOT ROUTE =================================
 app.get("/", (req, res) => {
   res.send("Jamaica We Rise backend is running.");
 });
+// ==========================================================================
 
-// Start server
+
+// ============================= START SERVER ================================
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Backend running on port ${PORT}`);
 });
+// ==========================================================================
