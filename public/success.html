@@ -1,148 +1,164 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Donation Successful | iAscendAi</title>
+import express from "express";
+import fs from "fs";
+import path from "path";
+import Stripe from "stripe";
+import cors from "cors";
+import dotenv from "dotenv";
 
-  <script type="module">
-    import { CONFIG } from "./config.js";
-    window.CONFIG = CONFIG;
-  </script>
+dotenv.config();
 
-  <style>
-    * { margin:0; padding:0; box-sizing:border-box; }
-    body {
-      font-family: Inter, sans-serif;
-      background: #020617;
-      color: #e5e7eb;
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 24px;
-    }
-    .card {
-      background: rgba(15,23,42,0.9);
-      padding: 32px;
-      border-radius: 22px;
-      border: 1px solid rgba(148,163,184,0.45);
-      width:100%;
-      max-width:600px;
-    }
-    h1 {
-      text-align:center;
-      font-size:1.8rem;
-      background:linear-gradient(120deg,#b8edee,#fed103);
-      -webkit-background-clip:text;
-      -webkit-text-fill-color:transparent;
-      margin-bottom:16px;
-    }
-    .label {
-      color:#9ca3af;
-      font-size:.78rem;
-      text-transform:uppercase;
-      margin-top:14px;
-    }
-    .value-box {
-      padding:12px;
-      border-radius:12px;
-      background:rgba(255,255,255,0.05);
-      border:1px solid rgba(148,163,184,0.35);
-      font-size:1rem;
-      margin-top:5px;
-      word-break:break-all;
-    }
-    button {
-      width:100%;
-      padding:16px;
-      margin-top:30px;
-      border:none;
-      border-radius:999px;
-      background:linear-gradient(135deg,#f4a349,#fed103);
-      color:#041423;
-      font-weight:700;
-      cursor:pointer;
-      font-size:1rem;
-    }
-    #errorBox {
-      color:#ef4444;
-      margin-top:10px;
-      text-align:center;
-      min-height:20px;
-    }
-  </style>
-</head>
+// Initialize app
+const app = express();
+app.use(express.json());
 
-<body>
-  <div class="card">
-    <h1>Donation Successful</h1>
+/* ------------------------------------------------------------
+   CORS — REQUIRED for Vercel → Render communication
+------------------------------------------------------------ */
+app.use(
+  cors({
+    origin: [
+      "https://jamaica-we-rise.vercel.app",
+      "https://jamaica-we-rise-1.onrender.com",
+      "http://localhost:4100",
+      "http://localhost:5173"
+    ],
+    methods: ["GET", "POST"],
+    allowedHeaders: ["Content-Type"]
+  })
+);
 
-    <p style="text-align:center;color:#9ca3af;margin-bottom:18px;">
-      Verifying your donation and linking your identity…
-    </p>
+/* ------------------------------------------------------------
+   STATIC FILE HANDLING
+------------------------------------------------------------ */
+const __dirname = path.resolve();
+app.use(express.static(path.join(__dirname, "public")));
 
-    <div class="label">Amount</div>
-    <div id="amountBox" class="value-box">$—</div>
+/* ------------------------------------------------------------
+   STRIPE SETUP
+------------------------------------------------------------ */
+const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
 
-    <div class="label">Email</div>
-    <div id="emailBox" class="value-box">Loading…</div>
+/* ------------------------------------------------------------
+   PERSISTENT DISK — REGISTRY STORAGE
+------------------------------------------------------------ */
+const dataDir = "/data";
+const registryFile = "/data/registry.json";
 
-    <div class="label">SoulMarkⓈ</div>
-    <div id="soulBox" class="value-box" style="font-size:0.9rem;">Loading…</div>
+try {
+  if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
+  if (!fs.existsSync(registryFile)) {
+    fs.writeFileSync(registryFile, JSON.stringify([]));
+  }
+} catch (err) {
+  console.error("Disk setup error:", err);
+}
 
-    <div id="errorBox"></div>
+/* ------------------------------------------------------------
+   1. CREATE CHECKOUT SESSION
+------------------------------------------------------------ */
+app.post("/create-checkout-session", async (req, res) => {
+  try {
+    const { amount, email } = req.body;
 
-    <button id="continueBtn">Continue to Create Your Identity</button>
-  </div>
-
-  <script type="module">
-    import { CONFIG } from "./config.js";
-    const BACKEND_URL = CONFIG.BACKEND_URL;
-
-    // Stripe passes ?session_id=
-    const params = new URLSearchParams(window.location.search);
-    let sessionId = params.get("session_id");
-
-    const amountBox  = document.getElementById("amountBox");
-    const emailBox   = document.getElementById("emailBox");
-    const soulBox    = document.getElementById("soulBox");
-    const errorBox   = document.getElementById("errorBox");
-
-    async function loadVerification() {
-      try {
-        const res = await fetch(`${BACKEND_URL}/verify-donation/${sessionId}`);
-        const data = await res.json();
-
-        if (!res.ok || !data.email) throw new Error("Verification failed");
-
-        // Fill UI
-        amountBox.textContent = `$${Number(data.amount).toFixed(2)}`;
-        emailBox.textContent  = data.email;
-        soulBox.textContent   = data.soulmark;
-
-        // Store for register page
-        localStorage.setItem("email", data.email);
-        localStorage.setItem("soulmark", data.soulmark);
-        localStorage.setItem("donationAmount", data.amount);
-
-      } catch (err) {
-        console.error(err);
-        errorBox.textContent = "Verification failed. Please refresh.";
-      }
+    if (!amount || !email) {
+      return res.status(400).json({ error: "Missing required fields" });
     }
 
-    if (sessionId) loadVerification();
-    else errorBox.textContent = "Missing session ID.";
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ["card"],
+      mode: "payment",
+      customer_email: email,
+      line_items: [
+        {
+          price_data: {
+            currency: "usd",
+            product_data: { name: "Jamaica We Rise Donation" },
+            unit_amount: Math.round(amount * 100),
+          },
+          quantity: 1,
+        },
+      ],
+      success_url: `${process.env.FRONTEND_URL}/success.html?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${process.env.FRONTEND_URL}/cancel.html`,
+    });
 
-    document.getElementById("continueBtn").onclick = () => {
-      const email  = localStorage.getItem("email") || "";
-      const soul   = localStorage.getItem("soulmark") || "";
-      const amount = localStorage.getItem("donationAmount") || "";
+    res.json({ id: session.id, url: session.url });
+  } catch (err) {
+    console.error("Stripe Error:", err);
+    res.status(500).json({ error: "Stripe session error" });
+  }
+});
 
-      window.location.href =
-        `iascendai-register.html?email=${encodeURIComponent(email)}&soulmark=${encodeURIComponent(soul)}&amount=${encodeURIComponent(amount)}`;
-    };
-  </script>
-</body>
-</html>
+/* ------------------------------------------------------------
+   2. LOG SOULMARK ENTRY INTO REGISTRY
+------------------------------------------------------------ */
+app.post("/verify-soulmark", (req, res) => {
+  try {
+    const entry = req.body;
+
+    const registry = JSON.parse(fs.readFileSync(registryFile, "utf-8"));
+    registry.push(entry);
+
+    fs.writeFileSync(registryFile, JSON.stringify(registry, null, 2));
+    res.json({ success: true });
+  } catch (err) {
+    console.error("Registry write error:", err);
+    res.status(500).json({ error: "Registry write error" });
+  }
+});
+
+/* ------------------------------------------------------------
+   3. VERIFY DONATION AFTER PAYMENT — SUCCESS PAGE ENDPOINT
+------------------------------------------------------------ */
+app.get("/verify-donation/:sessionId", async (req, res) => {
+  const { sessionId } = req.params;
+
+  try {
+    const session = await stripe.checkout.sessions.retrieve(sessionId);
+
+    if (!session || session.payment_status !== "paid") {
+      return res.status(400).json({ error: "Payment not verified" });
+    }
+
+    // Read registry
+    const registry = JSON.parse(fs.readFileSync(registryFile, "utf-8"));
+
+    // Try to match the donation to the SoulMark entry
+    const match = registry.find(entry =>
+      entry.email === session.customer_email &&
+      Math.round(entry.amount * 100) === session.amount_total
+    );
+
+    res.json({
+      email: session.customer_email,
+      amount: session.amount_total / 100,
+      soulmark: match ? match.soulmark : "unverified"
+    });
+
+  } catch (err) {
+    console.error("Verification error:", err);
+    res.status(500).json({ error: "Verification failed" });
+  }
+});
+
+/* ------------------------------------------------------------
+   DIAGNOSTIC TEST ROUTE
+------------------------------------------------------------ */
+app.get("/test", (req, res) => {
+  res.json({ working: true, time: Date.now() });
+});
+
+/* ------------------------------------------------------------
+   ROOT ROUTE
+------------------------------------------------------------ */
+app.get("/", (req, res) => {
+  res.send("Jamaica We Rise backend is running.");
+});
+
+/* ------------------------------------------------------------
+   START SERVER
+------------------------------------------------------------ */
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Backend running on port ${PORT}`);
+});
