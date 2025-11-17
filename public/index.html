@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Jamaica We Rise Relief Fund</title>
 
+<!-- Load backend config -->
 <script type="module">
 import { CONFIG } from "./config.js";
 window.CONFIG = CONFIG;
@@ -188,6 +189,9 @@ button {
 
 </div>
 
+<!-- ============================================================== -->
+<!--                     FULL SCRIPT (FIXED)                        -->
+<!-- ============================================================== -->
 <script type="module">
 import { CONFIG } from "./config.js";
 const BACKEND_URL = CONFIG.BACKEND_URL;
@@ -200,44 +204,33 @@ const customAmount = document.getElementById("customAmount");
 
 let selectedAmount = null;
 
-// ------------------------------------------------
-// 1. SECURE IDENTITY HYDRATION
-// ------------------------------------------------
-async function hydrateIdentity() {
-  const emailLS = (localStorage.getItem("email") || "").toLowerCase().trim();
-  const usernameLS = localStorage.getItem("username") || "";
-  const nameLS = localStorage.getItem("name") || "";
+/* ------------------------------------------------
+   1. SIMPLE LOCAL IDENTITY HYDRATION
+--------------------------------------------------- */
+function hydrateIdentity() {
+  const storedEmail = localStorage.getItem("email");
+  const storedName = localStorage.getItem("name");
+  const storedUsername = localStorage.getItem("username");
 
-  if (!emailLS) return;
+  if (!storedEmail) return;
 
-  try {
-    const res = await fetch(`${BACKEND_URL}/verify-identity`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email: emailLS })
-    });
-    const data = await res.json();
+  nameInput.value = storedName || "";
+  emailInput.value = storedEmail.toLowerCase();
 
-    if (data.valid) {
-      banner.style.display = "block";
-      handle.textContent = `${data.username}@iascendai`;
+  nameInput.readOnly = true;
+  emailInput.readOnly = true;
 
-      nameInput.value = data.name;
-      emailInput.value = emailLS;
-
-      nameInput.readOnly = true;
-      emailInput.readOnly = true;
-    }
-  } catch (err) {
-    console.warn("Identity hydration failed", err);
+  if (storedUsername) {
+    banner.style.display = "block";
+    handle.textContent = `${storedUsername}@iascendai`;
   }
 }
 
 hydrateIdentity();
 
-// ------------------------------------------------
-// 2. AMOUNT BUTTON LOGIC
-// ------------------------------------------------
+/* ------------------------------------------------
+   2. AMOUNT GRID
+--------------------------------------------------- */
 document.querySelectorAll(".amount-btn").forEach(btn => {
   btn.addEventListener("click", () => {
     document.querySelectorAll(".amount-btn").forEach(b => b.classList.remove("active"));
@@ -253,9 +246,9 @@ document.querySelectorAll(".amount-btn").forEach(btn => {
   });
 });
 
-// ------------------------------------------------
-// 3. DONATE → STRIPE SESSION
-// ------------------------------------------------
+/* ------------------------------------------------
+   3. DONATE → LOG SOULMARK → STRIPE SESSION
+--------------------------------------------------- */
 document.getElementById("donateBtn").onclick = async () => {
   const name = nameInput.value.trim();
   const email = emailInput.value.toLowerCase().trim();
@@ -274,21 +267,43 @@ document.getElementById("donateBtn").onclick = async () => {
   localStorage.setItem("name", name);
   localStorage.setItem("email", email);
 
+  /* 1. BUILD SOULMARK ENTRY */
+  const soulEntry = {
+    name,
+    email,
+    amount,
+    soulmark: `donation_${Date.now()}`,
+    timestamp: Date.now()
+  };
+
+  /* 2. SEND TO REGISTRY (non-blocking) */
+  try {
+    await fetch(`${BACKEND_URL}/verify-soulmark`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(soulEntry)
+    });
+  } catch (err) {
+    console.warn("Registry write failed:", err);
+  }
+
+  /* 3. STRIPE SESSION */
   try {
     const res = await fetch(`${BACKEND_URL}/create-checkout-session`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, email, amount })
+      body: JSON.stringify({ email, amount })
     });
 
     const data = await res.json();
+
     if (data.url) {
       window.location.href = data.url;
     } else {
       alert("Error creating checkout session.");
     }
   } catch (err) {
-    console.error(err);
+    console.error("Stripe session error:", err);
     alert("Connection issue. Try again.");
   }
 };
